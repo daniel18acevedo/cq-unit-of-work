@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CQ.UnitOfWork.Core\CQ.UnitOfWork.csproj" />
+    <ProjectReference Include="..\CQ.UnitOfWork\CQ.UnitOfWork.csproj" />
   </ItemGroup>
 
 </Project>

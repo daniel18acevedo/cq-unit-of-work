@@ -18,6 +18,8 @@ namespace CQ.UnitOfWork.Core
 
         Task<T> GetAsync(Expression<Func<T, bool>> expression);
 
+        Task<T> GetByIdAsync(string id, string idPropName = "_id");
+
         Task<T> CreateAsync(T entity);
 
         Task DeleteAsync(Expression<Func<T, bool>> expression);
