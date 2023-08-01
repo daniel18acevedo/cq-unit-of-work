@@ -1,4 +1,5 @@
 ﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using SharpCompress.Common;
 using System;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace CQ.UnitOfWork.Core
 {
-    public class MongoRepository<TEntity> : IRepository<TEntity> where TEntity : class
+    public class MongoRepository<TEntity> : IMongoRepository<TEntity> where TEntity : class
     {
         private readonly IMongoCollection<TEntity> _collection;
         private readonly IMongoCollection<BsonDocument> _genericCollection;
@@ -24,17 +25,10 @@ namespace CQ.UnitOfWork.Core
             this._genericCollection = mongoDatabase.GetCollection<BsonDocument>(this.CollectionName);
         }
 
-        public async Task<IList<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? expression)
+        public async Task<IList<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? expression = null)
         {
+            expression ??= e => true;
             var entities = await this._collection.Find(expression).ToListAsync().ConfigureAwait(false);
-
-            return entities;
-        }
-
-        public async Task<IEnumerable<U>> GetAllAsync<U>(Expression<Func<TEntity, U>> selector, Expression<Func<TEntity, bool>>? expression)
-            where U : class
-        {
-            var entities = await this._collection.Find(expression).As<U>().ToListAsync();
 
             return entities;
         }
@@ -58,9 +52,11 @@ namespace CQ.UnitOfWork.Core
             return entity;
         }
 
-        public async Task<TEntity> GetByIdAsync(string id, string idPropName = "_id")
+        public async Task<TEntity> GetByPropAsync(string value, string? prop = null)
         {
-            var filter = Builders<BsonDocument>.Filter.Eq(idPropName, id);
+            prop ??= "_id";
+
+            var filter = Builders<BsonDocument>.Filter.Eq(prop, value);
 
             var entity = await this._genericCollection.Find(filter).FirstOrDefaultAsync().ConfigureAwait(false);
 
@@ -69,7 +65,7 @@ namespace CQ.UnitOfWork.Core
                 throw new Exception($"{this.CollectionName} not found");
             }
 
-            return entity as TEntity;
+            return BsonSerializer.Deserialize<TEntity>(entity);
         }
 
         public async Task<TEntity> CreateAsync(TEntity entity)
@@ -82,17 +78,6 @@ namespace CQ.UnitOfWork.Core
         public async Task DeleteAsync(Expression<Func<TEntity, bool>> expression)
         {
             var deleteResult = await this._collection.DeleteOneAsync(expression).ConfigureAwait(false);
-
-            if (deleteResult is null)
-            {
-                return;
-            }
-
-            if (deleteResult.DeletedCount == 0)
-            {
-                throw new Exception("None elements were deleted");
-            }
         }
-
     }
 }

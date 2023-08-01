@@ -23,21 +23,31 @@ var mongoClient = new MongoClient(new MongoClientSettings
 
 var playerFinderDatabase = mongoClient.GetDatabase("PlayerFinder");
 
-var userRepository = new MongoRepository<User>(playerFinderDatabase);
+IMongoRepository<User> userRepository = new MongoRepository<User>(playerFinderDatabase);
+try
+{
+    SearchUsers();
+}
+catch (Exception ex)
+{
+    Console.WriteLine(ex.ToString());
+}
+Console.ReadLine();
+
+async Task GetById()
+{
+    var user = await userRepository.GetByPropAsync("QTvkGEhV6eW1WANyj0v0GknOd6l2").ConfigureAwait(false);
+
+    Console.WriteLine(user.Email);
+}
 
 async Task SearchUsers()
 {
-    try
-    {
-        var users = await userRepository.GetAllAsync(user => user.Name.ToLower().Contains("da")).ConfigureAwait(false);
-    }catch(Exception ex) { 
-        Console.WriteLine(ex.ToString());
-    }
+    var users = await userRepository.GetAllAsync<MiniUser>().ConfigureAwait(false);
+
+    Console.WriteLine($"{users.Count} users");
 }
 
-SearchUsers();
-
-Console.ReadLine();
 
 public class User
 {
@@ -46,4 +56,11 @@ public class User
     public string Id { get; set; }
 
     public string Name { get; set; }
+
+    public string Email { get; set; }
+}
+
+public class MiniUser
+{
+    public string Id { get; set; }
 }

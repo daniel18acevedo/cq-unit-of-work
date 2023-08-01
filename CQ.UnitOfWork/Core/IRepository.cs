@@ -7,21 +7,24 @@ using System.Threading.Tasks;
 
 namespace CQ.UnitOfWork.Core
 {
-    public interface IRepository<T> where T : class
+    public interface IRepository<TEntity> where TEntity : class
     {
-        Task<IList<T>> GetAllAsync(Expression<Func<T, bool>>? expression);
+        Task<IList<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? expression = null);
 
-        Task<IEnumerable<U>> GetAllAsync<U>(Expression<Func<T, U>> selector, Expression<Func<T, bool>>? expression)
-            where U : class;
+        Task<TEntity?> GetOrDefaultAsync(Expression<Func<TEntity, bool>> expression);
 
-        Task<T?> GetOrDefaultAsync(Expression<Func<T, bool>> expression);
+        Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> expression);
 
-        Task<T> GetAsync(Expression<Func<T, bool>> expression);
+        /// <summary>
+        /// Get element with value in prop. By default the value is id
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="prop"></param>
+        /// <returns></returns>
+        Task<TEntity> GetByPropAsync(string value, string? prop = null);
 
-        Task<T> GetByIdAsync(string id, string idPropName = "_id");
+        Task<TEntity> CreateAsync(TEntity entity);
 
-        Task<T> CreateAsync(T entity);
-
-        Task DeleteAsync(Expression<Func<T, bool>> expression);
+        Task DeleteAsync(Expression<Func<TEntity, bool>> expression);
     }
 }
