@@ -35,14 +35,9 @@ namespace CQ.UnitOfWork.Core
 
         public IRepository<TEntity> GetGenericRepository<TEntity>(Orms? orm = null) where TEntity : class
         {
-            var ormToUse = orm ?? this._services.GetService<Orms?>();
+            var ormToUse = orm ?? this._services.GetService<Orms>();
 
-            if (ormToUse is null)
-            {
-                throw new ArgumentNullException("Orm to use not setted");
-            }
-
-            var genericRepository = this.BuildGenericRepository<TEntity>(ormToUse.Value);
+            var genericRepository = this.BuildGenericRepository<TEntity>(ormToUse);
 
             return genericRepository;
         }

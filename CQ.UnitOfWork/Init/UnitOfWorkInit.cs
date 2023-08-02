@@ -84,13 +84,10 @@ namespace CQ.UnitOfWork.Init
             });
         }
 
-        public static void AddPrincipalOrm(this IServiceCollection services, Orms orm)
-        {
-            services.AddSingleton(typeof(Orms), orm);
-        }
 
-        public static void AddUnitOfWork(this IServiceCollection services)
+        public static void AddUnitOfWork(this IServiceCollection services, Orms defaultOrm)
         {
+            services.AddSingleton(typeof(Orms), defaultOrm);
             services.AddTransient<IUnitOfWork, UnitOfWorkService>();
         }
     }

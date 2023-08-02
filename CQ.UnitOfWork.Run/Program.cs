@@ -43,7 +43,7 @@ async Task GetById()
 
 async Task SearchUsers()
 {
-    var users = await userRepository.GetAllAsync<MiniUser>().ConfigureAwait(false);
+    var users = await userRepository.GetAllAsync().ConfigureAwait(false);
 
     Console.WriteLine($"{users.Count} users");
 }
