@@ -30,6 +30,8 @@ namespace CQ.UnitOfWork.Init
 
                 return playerFinderDatabase;
             });
+
+            services.AddScoped<DataBaseContext, MongoContext>();
         }
 
         private static Action<ClusterBuilder>? BuildClusterConfigurator(Action<ClusterBuilder>? clusterConfigurator = null, bool useDefaultClusterConfigurator = false)
