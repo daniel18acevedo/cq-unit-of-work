@@ -21,7 +21,7 @@ var mongoClient = new MongoClient(new MongoClientSettings
     },
 });
 
-var playerFinderDatabase = mongoClient.GetDatabase("PlayerFinder");
+var playerFinderDatabase = mongoClient.GetDatabase("UnitOfWork");
 
 IMongoRepository<User> userRepository = new MongoRepository<User>(playerFinderDatabase);
 try

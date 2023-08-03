@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using CQ.UnitOfWork.Entities;
+using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
@@ -59,7 +60,7 @@ namespace CQ.UnitOfWork.Core
 
             if (mongoDatabase is null)
             {
-                throw new ArgumentNullException("Database configuration missing");
+                throw new ArgumentNullException("database");
             }
 
             var genericRepository = new MongoRepository<TEntity>(mongoDatabase);
