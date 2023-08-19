@@ -8,7 +8,7 @@ using UnitOfWork.Entities;
 
 namespace CQ.UnitOfWork.Exceptions
 {
-    public class DatabaseConnectionException : Exception
+    internal class DatabaseConnectionException : Exception
     {
         public DataBaseEngines Engine { get; set; }
 

@@ -23,31 +23,66 @@ var mongoClient = new MongoClient(new MongoClientSettings
 
 var playerFinderDatabase = mongoClient.GetDatabase("UnitOfWork");
 
-IMongoRepository<User> userRepository = new MongoRepository<User>(playerFinderDatabase);
+var userCollection = playerFinderDatabase.GetCollection<User>("Users");
+
 try
 {
-    SearchUsers();
+    UpdateUserEmailInContactsLists("64d2a7542c35c436db1adb27", "daniel@nuevo4.com");
 }
 catch (Exception ex)
 {
     Console.WriteLine(ex.ToString());
 }
+
+
 Console.ReadLine();
 
-async Task GetById()
+void AddSeveralUsers()
 {
-    var user = await userRepository.GetByPropAsync("QTvkGEhV6eW1WANyj0v0GknOd6l2").ConfigureAwait(false);
-
-    Console.WriteLine(user.Email);
+    userCollection.InsertMany(new[]
+    {
+        new User { Name = "Daniel", Email = "daniel1@gmail.com" },
+        new User { Name = "Daniel", Email = "daniel2@gmail.com" },
+        new User { Name = "Daniel", Email = "daniel3@gmail.com" },
+        new User { Name = "Daniel", Email = "daniel4@gmail.com" },
+        new User { Name = "Daniel", Email = "daniel5@gmail.com" }
+    });
 }
 
-async Task SearchUsers()
+void AddContacts()
 {
-    var users = await userRepository.GetAllAsync().ConfigureAwait(false);
+    var query = Builders<User>.Filter.Eq(user => user.Id, "64d2a7542c35c436db1adb24");
+    var update = Builders<User>.Update.Set($"{nameof(User.Contacts)}", new List<MiniUser>
+    {
+        new MiniUser
+        {
+            Id = "64d2a7542c35c436db1adb25",
+            Email = "daniel2@gmail.com"
+        },
+        
+        new MiniUser
+        {
+            Id = "64d2a7542c35c436db1adb26",
+            Email = "daniel3@gmail.com"
+        },
+        
+        new MiniUser
+        {
+            Id = "64d2a7542c35c436db1adb27",
+            Email = "daniel4@gmail.com"
+        },
+    });
 
-    Console.WriteLine($"{users.Count} users");
+    userCollection.UpdateOne(query, update);
 }
 
+void UpdateUserEmailInContactsLists(string ciUserId, string newEmail)
+{
+    var userContactQuery = Builders<User>.Filter.ElemMatch(user => user.Contacts, contact => contact.Id == ciUserId);
+    var userContactUpdate = Builders<User>.Update.Set($"{nameof(User.Contacts)}.$.{nameof(MiniUser.Email)}", newEmail);
+
+    userCollection.UpdateMany(userContactQuery, userContactUpdate);
+}
 
 public class User
 {
@@ -58,9 +93,13 @@ public class User
     public string Name { get; set; }
 
     public string Email { get; set; }
+
+    public List<MiniUser> Contacts { get; set; }
 }
 
 public class MiniUser
 {
     public string Id { get; set; }
+
+    public string Email { get; set; }
 }

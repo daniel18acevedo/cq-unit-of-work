@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace CQ.UnitOfWork.Entities
 {
-    public abstract class DataBaseContext
+    public interface IDataBaseContext
     {
-        public abstract bool Ping();
+        bool Ping();
     }
 }

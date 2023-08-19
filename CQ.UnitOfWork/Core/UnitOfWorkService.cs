@@ -1,4 +1,5 @@
 ﻿using CQ.UnitOfWork.Entities;
+using CQ.UnitOfWork.Entities.Context;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 using System;
@@ -36,9 +37,19 @@ namespace CQ.UnitOfWork.Core
 
         public IRepository<TEntity> GetGenericRepository<TEntity>(Orms? orm = null) where TEntity : class
         {
-            var ormToUse = orm ?? this._services.GetService<Orms>();
+            if(orm is null)
+            {
+                var defaultContext = this._services.GetService<DatabaseContext>();
 
-            var genericRepository = this.BuildGenericRepository<TEntity>(ormToUse);
+                if(defaultContext is null)
+                {
+                    throw new Exception("Default orm not setted");
+                }
+
+                orm = defaultContext.Orm;
+            }
+
+            var genericRepository = this.BuildGenericRepository<TEntity>(orm.Value);
 
             return genericRepository;
         }
@@ -49,6 +60,8 @@ namespace CQ.UnitOfWork.Core
             {
                 case Orms.MONGO_DB:
                     return this.BuildMongoGenericRepository<TEntity>();
+                case Orms.EF_CORE:
+                    return this.BuildEfCoreGenericRepository<TEntity>();
                 default:
                     throw new ArgumentException("Orm type not supported");
             }
@@ -56,7 +69,7 @@ namespace CQ.UnitOfWork.Core
 
         private IRepository<TEntity> BuildMongoGenericRepository<TEntity>() where TEntity : class
         {
-            var mongoDatabase = this._services.GetService<IMongoDatabase>();
+            var mongoDatabase = this._services.GetService<MongoContext>();
 
             if (mongoDatabase is null)
             {
@@ -66,6 +79,20 @@ namespace CQ.UnitOfWork.Core
             var genericRepository = new MongoRepository<TEntity>(mongoDatabase);
 
             return genericRepository;
+        }
+
+        private IRepository<TEntity> BuildEfCoreGenericRepository<TEntity>() where TEntity : class
+        {
+            var efCoreContext = this._services.GetService<EfCoreContext>();
+
+            if(efCoreContext is null)
+            {
+                throw new ArgumentNullException("database");
+            }
+
+            var genericEfCoreRepository = new EfCoreRepository<TEntity>(efCoreContext);
+
+            return genericEfCoreRepository;
         }
     }
 }

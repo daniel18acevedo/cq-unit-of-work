@@ -10,9 +10,9 @@ namespace CQ.UnitOfWork.Api.Controllers
     public class HealthController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly DataBaseContext? _dataBaseContext;
+        private readonly IDataBaseContext? _dataBaseContext;
 
-        public HealthController(IUnitOfWork unitOfWork, DataBaseContext databaseContext)
+        public HealthController(IUnitOfWork unitOfWork, IDataBaseContext databaseContext)
         {
             _unitOfWork = unitOfWork;
             _dataBaseContext = databaseContext;

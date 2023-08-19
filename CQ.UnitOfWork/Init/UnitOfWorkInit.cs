@@ -1,5 +1,6 @@
 ﻿using CQ.UnitOfWork.Core;
 using CQ.UnitOfWork.Entities;
+using CQ.UnitOfWork.Entities.DataAccessConfig;
 using CQ.UnitOfWork.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson;
@@ -17,59 +18,99 @@ namespace CQ.UnitOfWork.Init
 {
     public static class UnitOfWorkInit
     {
-        public static void AddMongoDatabase(this IServiceCollection services, string connectionString, string databaseName, Action<ClusterBuilder>? clusterConfigurator = null, bool useDefaultClusterConfigurator = false)
+        public static void AddUnitOfWorkWithMongo(this IServiceCollection services, LifeCycles unitOfWorkLifeCycle, MongoConfig mongoConfig)
         {
-            services.AddTransient((serviceProvider) =>
-            {
-                var mongoClientSettings = MongoClientSettings.FromConnectionString(connectionString);
-                mongoClientSettings.ClusterConfigurator = BuildClusterConfigurator(clusterConfigurator, useDefaultClusterConfigurator);
+            services.AddMongoDriverOrm(mongoConfig);
 
-                var mongoClient = new MongoClient(mongoClientSettings);
-
-                var playerFinderDatabase = mongoClient.GetDatabase(databaseName);
-
-                return playerFinderDatabase;
-            });
-
-            services.AddScoped<DataBaseContext, MongoContext>();
+            services.AddService<IUnitOfWork, UnitOfWorkService>(unitOfWorkLifeCycle);
         }
 
-        private static Action<ClusterBuilder>? BuildClusterConfigurator(Action<ClusterBuilder>? clusterConfigurator = null, bool useDefaultClusterConfigurator = false)
+        public static void AddUnitOfWorkWithEfCore(this IServiceCollection services, LifeCycles unitOfWorkLifeCycle, EfCoreConfig efCoreConfig)
         {
-            Action<ClusterBuilder>? defaultClusterConfigurator = useDefaultClusterConfigurator ? cb =>
+            services.AddEfCoreOrm(efCoreConfig);
+
+            services.AddService<IUnitOfWork, UnitOfWorkService>(unitOfWorkLifeCycle);
+        }
+
+        public static void AddUnitOfWork(this IServiceCollection services, LifeCycles unitOfWorkLifeCycle)
+        {
+            services.AddService<IUnitOfWork, UnitOfWorkService>(unitOfWorkLifeCycle);
+        }
+
+        internal static void AddService<TImplementation>(this IServiceCollection services, LifeCycles lifeCycle, Func<IServiceProvider, TImplementation> implementationFactory)
+            where TImplementation : class
+        {
+            switch (lifeCycle)
             {
-                cb.Subscribe<CommandStartedEvent>(e =>
-                {
-                    Console.WriteLine($"{e.CommandName} - {e.Command.ToJson(new JsonWriterSettings { Indent = true })}");
-                    Console.WriteLine(new String('-', 32));
-                });
+                case LifeCycles.TRANSIENT:
+                    {
+                        services.AddTransient(implementationFactory);
+                        break;
+                    }
+                case LifeCycles.SCOPED:
+                    {
+                        services.AddScoped(implementationFactory);
+                        break;
+                    }
+                case LifeCycles.SINGLETON:
+                    {
+                        services.AddSingleton(implementationFactory);
+                        break;
+                    }
             }
-            : null;
-
-            clusterConfigurator ??= defaultClusterConfigurator;
-
-            return clusterConfigurator;
         }
 
-        public static void AddMongoRepository<T>(this IServiceCollection services, string? collectionName = null) where T : class
+        internal static void AddService<TService, TImplementation>(this IServiceCollection services, LifeCycles lifeCycle)
+            where TService : class
+            where TImplementation : class, TService
         {
-            services.AddTransient<IRepository<T>, MongoRepository<T>>((serviceProvider) =>
+            switch (lifeCycle)
             {
-                var mongoDatabase = serviceProvider.GetService<IMongoDatabase>();
-
-                if (mongoDatabase is null)
-                {
-                    throw new DatabaseConnectionException(DataBaseEngines.MONGO);
-                }
-
-                return new MongoRepository<T>(mongoDatabase, collectionName);
-            });
+                case LifeCycles.TRANSIENT:
+                    {
+                        services.AddTransient<TService, TImplementation>();
+                        break;
+                    }
+                case LifeCycles.SCOPED:
+                    {
+                        services.AddScoped<TService, TImplementation>();
+                        break;
+                    }
+                case LifeCycles.SINGLETON:
+                    {
+                        services.AddSingleton<TService, TImplementation>();
+                        break;
+                    }
+            }
         }
 
-        public static void AddUnitOfWork(this IServiceCollection services, Orms defaultOrm)
+        internal static void AddService<TService>(this IServiceCollection services, LifeCycles lifeCycle)
+            where TService : class
         {
-            services.AddSingleton(typeof(Orms), defaultOrm);
-            services.AddTransient<IUnitOfWork, UnitOfWorkService>();
+            switch (lifeCycle)
+            {
+                case LifeCycles.TRANSIENT:
+                    {
+                        services.AddTransient<TService>();
+                        break;
+                    }
+                case LifeCycles.SCOPED:
+                    {
+                        services.AddScoped<TService>();
+                        break;
+                    }
+                case LifeCycles.SINGLETON:
+                    {
+                        services.AddSingleton<TService>();
+                        break;
+                    }
+            }
+        }
+
+        internal static void AddService<TService>(this IServiceCollection services, LifeCycles lifeCycle, TService value)
+            where TService : class
+        {
+            services.AddService(lifeCycle, (serviceProvider) => value);
         }
     }
 }

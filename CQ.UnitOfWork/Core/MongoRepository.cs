@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson;
+﻿using CQ.UnitOfWork.Entities;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using SharpCompress.Common;
@@ -15,14 +16,15 @@ namespace CQ.UnitOfWork.Core
     {
         private readonly IMongoCollection<TEntity> _collection;
         private readonly IMongoCollection<BsonDocument> _genericCollection;
-        private readonly string CollectionName;
+        private readonly string _collectionName;
 
-        public MongoRepository(IMongoDatabase mongoDatabase, string? collectionName = null)
+        public MongoRepository(MongoContext mongoContext, string? collectionName=null)
         {
-            this.CollectionName = string.IsNullOrEmpty(collectionName) ? $"{typeof(TEntity).Name}s" : collectionName;
+            this._collectionName = mongoContext.BuildCollectionName<TEntity>(collectionName);
 
-            this._collection = mongoDatabase.GetCollection<TEntity>(this.CollectionName);
-            this._genericCollection = mongoDatabase.GetCollection<BsonDocument>(this.CollectionName);
+            this._collection = mongoContext.GetEntityCollection<TEntity>(collectionName);
+            
+            this._genericCollection = mongoContext.GetGenericCollection(collectionName);
         }
 
         public async Task<IList<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? expression = null)
@@ -46,23 +48,21 @@ namespace CQ.UnitOfWork.Core
 
             if (entity is null)
             {
-                throw new Exception($"{this.CollectionName} not found");
+                throw new Exception($"{this._collectionName} not found");
             }
 
             return entity;
         }
 
-        public async Task<TEntity> GetByPropAsync(string value, string? prop = null)
+        public async Task<TEntity> GetByPropAsync(string value, string? prop = "_id")
         {
-            prop ??= "_id";
-
             var filter = Builders<BsonDocument>.Filter.Eq(prop, value);
 
             var entity = await this._genericCollection.Find(filter).FirstOrDefaultAsync().ConfigureAwait(false);
 
             if (entity is null)
             {
-                throw new Exception($"{this.CollectionName} not found");
+                throw new Exception($"{this._collectionName} not found");
             }
 
             return BsonSerializer.Deserialize<TEntity>(entity);

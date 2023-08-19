@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace CQ.UnitOfWork.Entities
 {
-    internal enum DataBaseEngines
+    public enum EfCoreDataBaseEngines
     {
-        SQL,
-        MONGO
+        SQL
     }
 }

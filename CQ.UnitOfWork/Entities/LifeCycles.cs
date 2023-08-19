@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace CQ.UnitOfWork.Entities
 {
-    internal enum DataBaseEngines
+    public enum LifeCycles
     {
-        SQL,
-        MONGO
+        TRANSIENT,
+        SCOPED,
+        SINGLETON
     }
 }
