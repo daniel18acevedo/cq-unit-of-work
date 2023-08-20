@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CQ.UnitOfWork.Entities.DataAccessConfig
 {
-    public class DataBaseConnection
+    public class DatabaseConfig
     {
 
         public string ConnectionString { get; set; }

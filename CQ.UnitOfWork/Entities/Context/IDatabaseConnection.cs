@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CQ.UnitOfWork.Entities
+namespace CQ.UnitOfWork.Entities.Context
 {
-    public interface IDataBaseContext
+    public interface IDatabaseConnection
     {
         bool Ping();
     }

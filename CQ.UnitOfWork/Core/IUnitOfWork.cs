@@ -1,4 +1,6 @@
-﻿using CQ.UnitOfWork.Entities;
+﻿using CQ.UnitOfWork.Core.EfCore;
+using CQ.UnitOfWork.Core.Mongo;
+using CQ.UnitOfWork.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,8 +12,10 @@ namespace CQ.UnitOfWork.Core
 {
     public interface IUnitOfWork
     {
-        IRepository<TEntity> GetRepository<TEntity>() where TEntity : class;
+        IRepository<TEntity> GetDefaultRepository<TEntity>() where TEntity : class;
 
-        IRepository<TEntity> GetGenericRepository<TEntity>(Orms? orm=null) where TEntity : class;
+        IEfCoreRepository<TEntity> GetEfCoreRepository<TEntity>() where TEntity : class;
+
+        IMongoRepository<TEntity> GetMongoRepository<TEntity>() where TEntity : class;
     }
 }

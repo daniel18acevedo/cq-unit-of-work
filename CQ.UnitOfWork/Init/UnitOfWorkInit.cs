@@ -1,22 +1,25 @@
 ﻿using CQ.UnitOfWork.Core;
 using CQ.UnitOfWork.Entities;
+using CQ.UnitOfWork.Entities.Context;
 using CQ.UnitOfWork.Entities.DataAccessConfig;
+using CQ.UnitOfWork.Entities.ServiceConfig;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CQ.UnitOfWork.Init
 {
     public static class UnitOfWorkInit
     {
-        public static void AddUnitOfWorkWithMongo(this IServiceCollection services, LifeCycles unitOfWorkLifeCycle, MongoConfig mongoConfig)
+        public static void AddUnitOfWorkWithMongo(this IServiceCollection services, LifeCycles unitOfWorkLifeCycle, OrmServiceConfig<MongoConfig> ormConfig)
         {
-            services.AddMongoDriverOrm(mongoConfig);
+            services.AddMongoDriverOrm(ormConfig.LifeCycle, ormConfig.Config);
 
             services.AddService<IUnitOfWork, UnitOfWorkService>(unitOfWorkLifeCycle);
         }
 
-        public static void AddUnitOfWorkWithEfCore(this IServiceCollection services, LifeCycles unitOfWorkLifeCycle, EfCoreConfig efCoreConfig)
+        public static void AddUnitOfWorkWithEfCore<TContext>(this IServiceCollection services, LifeCycles unitOfWorkLifeCycle, OrmServiceConfig<TContext> ormConfig)
+            where TContext : EfCoreContext
         {
-            services.AddEfCoreOrm(efCoreConfig);
+            services.AddEfCoreOrm(ormConfig.LifeCycle, ormConfig.Config);
 
             services.AddService<IUnitOfWork, UnitOfWorkService>(unitOfWorkLifeCycle);
         }
@@ -44,6 +47,30 @@ namespace CQ.UnitOfWork.Init
                 case LifeCycles.SINGLETON:
                     {
                         services.AddSingleton(implementationFactory);
+                        break;
+                    }
+            }
+        }
+
+        internal static void AddService<TService, TImplementation>(this IServiceCollection services, LifeCycles lifeCycle, Func<IServiceProvider, TImplementation> implementationFactory)
+            where TService: class
+            where TImplementation : class, TService
+        {
+            switch (lifeCycle)
+            {
+                case LifeCycles.TRANSIENT:
+                    {
+                        services.AddTransient<TService, TImplementation>(implementationFactory);
+                        break;
+                    }
+                case LifeCycles.SCOPED:
+                    {
+                        services.AddScoped<TService, TImplementation>(implementationFactory);
+                        break;
+                    }
+                case LifeCycles.SINGLETON:
+                    {
+                        services.AddSingleton<TService, TImplementation>(implementationFactory);
                         break;
                     }
             }

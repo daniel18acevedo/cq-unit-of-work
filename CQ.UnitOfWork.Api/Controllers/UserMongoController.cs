@@ -6,20 +6,22 @@ using MongoDB.Bson.Serialization.Attributes;
 namespace CQ.UnitOfWork.Api.Controllers
 {
     [ApiController]
-    [Route("users")]
-    public class UserController : ControllerBase
+    [Route("mongo/users")]
+    public class UserMongoController : ControllerBase
     {
-        private readonly IRepository<User> _repository;
+        private readonly IRepository<UserMongo> _repository;
 
-        public UserController(IUnitOfWork unitOfWork)
+        public UserMongoController(IUnitOfWork unitOfWork)
         {
-            this._repository = unitOfWork.GetRepository<User>();
+            this._repository = unitOfWork.GetDefaultRepository<UserMongo>();
         }
 
         [HttpGet]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            return Ok();
+            var users = await this._repository.GetAllAsync().ConfigureAwait(false);
+
+            return Ok(users);
         }
 
         [HttpGet("{id}")]
@@ -30,16 +32,12 @@ namespace CQ.UnitOfWork.Api.Controllers
             return Ok(user);
         }
 
-        [HttpGet("create")]
+        [HttpPost]
         public async Task<IActionResult> CreateAsync()
         {
-            var user = new User
+            var user = new UserMongo
             {
                 Name = "test",
-                Book = new Book
-                {
-                    Name="Harry potter"
-                }
             };
 
             var userCreated = await _repository.CreateAsync(user).ConfigureAwait(false);
@@ -49,30 +47,30 @@ namespace CQ.UnitOfWork.Api.Controllers
     }
 
     [BsonIgnoreExtraElements]
-    public class User
+    public class UserMongo
     {
         [BsonId]
         public string Id { get; set; }
 
         public string Name { get; set; }
 
-        public Book Book { get; set; }
+        public BookMongo Book { get; set; }
 
-        public User()
+        public UserMongo()
         {
             Id = Guid.NewGuid().ToString().Replace("-", "");
         }
     }
 
     [BsonIgnoreExtraElements]
-    public class Book
+    public class BookMongo
     {
         [BsonId]
         public string Id { get; set; }
 
         public string Name { get; set; }
 
-        public Book()
+        public BookMongo()
         {
             Id = Guid.NewGuid().ToString().Replace("-", "");
         }

@@ -1,5 +1,5 @@
 ﻿using CQ.UnitOfWork.Core;
-using CQ.UnitOfWork.Entities;
+using CQ.UnitOfWork.Entities.Context;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CQ.UnitOfWork.Api.Controllers
@@ -10,9 +10,9 @@ namespace CQ.UnitOfWork.Api.Controllers
     public class HealthController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IDataBaseContext? _dataBaseContext;
+        private readonly IDatabaseConnection? _dataBaseContext;
 
-        public HealthController(IUnitOfWork unitOfWork, IDataBaseContext databaseContext)
+        public HealthController(IUnitOfWork unitOfWork, IDatabaseConnection databaseContext)
         {
             _unitOfWork = unitOfWork;
             _dataBaseContext = databaseContext;

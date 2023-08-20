@@ -13,7 +13,7 @@ namespace CQ.UnitOfWork.Entities.DataAccessConfig
 
         public EfCoreDataBaseEngines Engine { get; set; }
 
-        public EfCoreConfig() : base(Orms.EF_CORE)
+        public EfCoreConfig()
         {
             Engine = EfCoreDataBaseEngines.SQL;
         }

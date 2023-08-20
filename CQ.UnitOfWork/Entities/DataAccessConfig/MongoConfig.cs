@@ -10,7 +10,5 @@ namespace CQ.UnitOfWork.Entities.DataAccessConfig
     public class MongoConfig : OrmConfig
     {
         public Action<ClusterBuilder>? ClusterConfigurator { get; set; }
-
-        public MongoConfig() : base(Orms.MONGO_DB) { }
     }
 }

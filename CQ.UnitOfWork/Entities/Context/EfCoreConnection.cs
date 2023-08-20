@@ -1,40 +1,50 @@
-﻿using CQ.UnitOfWork.Entities.DataAccessConfig;
+﻿using CQ.UnitOfWork.Entities.Context;
+using CQ.UnitOfWork.Entities.DataAccessConfig;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CQ.UnitOfWork.Entities.Context
+namespace CQ.UnitOfWork.Entities
 {
-    public class EfCoreConnection : DbContext
+    public class EfCoreConnection : IDatabaseConnection
     {
-        private readonly EfCoreConfig _config;
+        private readonly DbContext _dbContext;
 
-        public EfCoreConnection() { }
-
-        public EfCoreConnection(EfCoreConfig config)
+        public EfCoreConnection(DbContext dbContext)
         {
-            this._config = config;
+            this._dbContext = dbContext;
         }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        public bool Ping()
         {
-            if (EfCoreDataBaseEngines.SQL == this._config.Engine)
-            {
-                optionsBuilder.UseSqlServer(this._config.DataBaseConnection.ConnectionString);
-            }
+            var ping = this._dbContext.Database.ExecuteSqlRaw("SELECT 1;");
 
-            if (this._config.EnabledDefaultQueryLogger)
-            {
-                optionsBuilder.LogTo(Console.WriteLine);
-            }
+            return ping == 1;
+        }
 
-            if (this._config.Logger is not null)
-            {
-                optionsBuilder.LogTo(this._config.Logger);
-            }
+        public DbSet<TEntity> GetEntitySet<TEntity>()
+            where TEntity : class
+        {
+            return this._dbContext.Set<TEntity>();
+        }
+
+        public string GetTableName<TEntity>()
+        {
+            return $"{typeof(TEntity).Name}s";
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await this._dbContext.SaveChangesAsync().ConfigureAwait(false);
+        }
+
+        public void SaveChanges() 
+        {
+            this._dbContext.SaveChanges();
         }
     }
 }

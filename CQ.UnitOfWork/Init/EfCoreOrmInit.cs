@@ -11,52 +11,46 @@ using Microsoft.EntityFrameworkCore;
 using CQ.UnitOfWork.Core;
 using CQ.UnitOfWork.Exceptions;
 using CQ.UnitOfWork.Entities.Context;
+using CQ.UnitOfWork.Core.EfCore;
 
 namespace CQ.UnitOfWork.Init
 {
     public static class EfCoreOrmInit
     {
-        public static void AddEfCoreOrm(this IServiceCollection services, EfCoreConfig efCoreConfig)
+        public static void AddEfCoreOrm<TContext>(this IServiceCollection services, LifeCycles lifeCycle, TContext context)
+            where TContext : EfCoreContext
         {
-            if (efCoreConfig is null)
+            AssertContext(context);
+
+            services.AddService<DbContext>(lifeCycle, context);
+
+            services.AddEfCoreConnection(lifeCycle);
+        }
+
+        private static void AssertContext<TContext>(TContext context) where TContext : EfCoreContext
+        {
+            if (context is null)
             {
-                throw new ArgumentNullException("efCoreConfig");
+                throw new ArgumentNullException(nameof(context));
             }
-            efCoreConfig.Assert();
-
-            var efCoreDatabase = new EfCoreConnection(efCoreConfig);
-
-            services.AddService<DbContext>(efCoreConfig.LifeCycle, efCoreDatabase);
-
-            services.AddService<IDataBaseContext, EfCoreContext>(efCoreConfig.LifeCycle);
-            
-            services.AddService<EfCoreContext>(efCoreConfig.LifeCycle);
+            context.Assert();
         }
 
-        public static void AddEfCoreContext<TContext>(this IServiceCollection services, LifeCycles lifeCycle, TContext context)
-            where TContext : EfCoreConnection
+        public static void AddEfCoreConnection(this IServiceCollection services, LifeCycles lifeCycle)
         {
-            services.AddService(lifeCycle, context);
+            // For ping
+            services.AddService<IDatabaseConnection, EfCoreConnection>(lifeCycle);
 
-            services.AddService<OrmConfig>(LifeCycles.SINGLETON, new EfCoreConfig
-            {
-                LifeCycle = lifeCycle,
-            });
+            // For build specific orm to repository
+            services.AddService<EfCoreConnection>(lifeCycle);
         }
 
-        public static void AddEfCoreRepository<T>(this IServiceCollection services, LifeCycles lifeCycle) where T : class
+        public static void AddEfCoreRepository<TEntity>(this IServiceCollection services, LifeCycles lifeCycle) 
+            where TEntity : class
         {
-            services.AddService(lifeCycle, (serviceProvider) =>
-            {
-                var efCoreDatabase = serviceProvider.GetService<EfCoreContext>();
+            services.AddService<IRepository<TEntity>, EfCoreRepository<TEntity>>(lifeCycle);
 
-                if (efCoreDatabase is null)
-                {
-                    throw new OrmNotSupportedException(Orms.EF_CORE);
-                }
-
-                return new EfCoreRepository<T>(efCoreDatabase);
-            });
+            services.AddService<IEfCoreRepository<TEntity>, EfCoreRepository<TEntity>>(lifeCycle);
         }
     }
 }

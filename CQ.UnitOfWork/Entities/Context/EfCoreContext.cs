@@ -1,35 +1,89 @@
-﻿using CQ.UnitOfWork.Entities.Context;
-using CQ.UnitOfWork.Entities.DataAccessConfig;
+﻿using CQ.UnitOfWork.Entities.DataAccessConfig;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CQ.UnitOfWork.Entities
+namespace CQ.UnitOfWork.Entities.Context
 {
-    public class EfCoreContext : DatabaseContext, IDataBaseContext
+    public abstract class EfCoreContext : DbContext
     {
-        private readonly DbContext _dbContext;
+        private readonly EfCoreConfig? _config;
 
-        public EfCoreContext(DbContext dbContext):base(Orms.EF_CORE)
+        private readonly DbContextOptionsBuilder? _optionsBuilder;
+
+        private readonly string _configToUse;
+
+        public EfCoreContext(EfCoreConfig config)
         {
-            this._dbContext = dbContext;
+            this._config = config;
+            this._configToUse = "efCoreConfig";
         }
 
-        public bool Ping()
+        public EfCoreContext(DbContextOptionsBuilder optionsBuilder)
         {
-            var ping = this._dbContext.Database.ExecuteSqlRaw("SELECT 1;");
-
-            return ping == 1;
+            this._optionsBuilder = optionsBuilder;
+            this._configToUse = "optionsBuilder";
         }
 
-        public DbSet<TEntity> GetEntitySet<TEntity>()
-            where TEntity : class
+        public EfCoreContext(DbContextOptions optionsBuilder) : base(optionsBuilder)
         {
-            return this._dbContext.Set<TEntity>();
+            this._configToUse = "dbContextOptions";
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (this._configToUse == "dbContextOptions")
+            {
+                return;
+            }
+
+            if(this._configToUse == "optionsBuilder")
+            {
+                if(this._optionsBuilder is null)
+                {
+                    throw new ArgumentNullException("optionsBuilder");
+                }
+
+                optionsBuilder = this._optionsBuilder;
+                return;
+            }
+
+            this.Assert();
+
+            if (EfCoreDataBaseEngines.SQL == this._config.Engine)
+            {
+                optionsBuilder.UseSqlServer(this._config.DataBaseConnection.ConnectionString);
+            }
+
+            if (this._config.EnabledDefaultQueryLogger)
+            {
+                optionsBuilder.LogTo(Console.WriteLine);
+            }
+
+            if (this._config.Logger is not null)
+            {
+                optionsBuilder.LogTo(this._config.Logger);
+            }
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            var contextAssembly = Assembly.GetExecutingAssembly();
+            modelBuilder.ApplyConfigurationsFromAssembly(contextAssembly);
+        }
+
+        public void Assert()
+        {
+            if (this._config is null)
+            {
+                throw new ArgumentNullException("config");
+            }
+
+            this._config.Assert();
         }
     }
 }

@@ -8,18 +8,9 @@ namespace CQ.UnitOfWork.Entities.DataAccessConfig
 {
     public abstract class OrmConfig
     {
-        public DataBaseConnection DataBaseConnection { get; set; }
+        public DatabaseConfig DataBaseConnection { get; set; }
 
         public bool EnabledDefaultQueryLogger { get; set; }
-
-        public LifeCycles LifeCycle { get; set; }  
-
-        public Orms Orm { get; }
-
-        public OrmConfig(Orms orm)
-        {
-            Orm = orm;
-        }
 
         public void Assert()
         {

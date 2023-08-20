@@ -10,11 +10,11 @@ using System.Threading.Tasks;
 
 namespace CQ.UnitOfWork.Entities
 {
-    public class MongoContext : DatabaseContext, IDataBaseContext
+    public class MongoConnection : IDatabaseConnection
     {
         private readonly IMongoDatabase _mongoDatabase;
 
-        public MongoContext(IMongoDatabase mongoDatabase) : base(Orms.MONGO_DB)
+        public MongoConnection(IMongoDatabase mongoDatabase)
         {
             _mongoDatabase = mongoDatabase;
         }
