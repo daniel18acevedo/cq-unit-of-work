@@ -18,6 +18,12 @@ namespace CQ.UnitOfWork.Init
     {
         public static void AddEfCoreOrm(this IServiceCollection services, EfCoreConfig efCoreConfig)
         {
+            if (efCoreConfig is null)
+            {
+                throw new ArgumentNullException("efCoreConfig");
+            }
+            efCoreConfig.Assert();
+
             var efCoreDatabase = new EfCoreConnection(efCoreConfig);
 
             services.AddService<DbContext>(efCoreConfig.LifeCycle, efCoreDatabase);
@@ -31,6 +37,7 @@ namespace CQ.UnitOfWork.Init
             where TContext : EfCoreConnection
         {
             services.AddService(lifeCycle, context);
+
             services.AddService<OrmConfig>(LifeCycles.SINGLETON, new EfCoreConfig
             {
                 LifeCycle = lifeCycle,

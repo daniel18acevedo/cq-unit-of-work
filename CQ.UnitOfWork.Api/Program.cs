@@ -1,4 +1,5 @@
 using CQ.UnitOfWork.Entities;
+using CQ.UnitOfWork.Entities.DataAccessConfig;
 using CQ.UnitOfWork.Init;
 using dotenv.net;
 using UnitOfWork.Entities;
@@ -10,10 +11,18 @@ DotEnv.Load();
 
 builder.Services.AddControllers();
 
-var defaultMongoDb = Environment.GetEnvironmentVariable("mongo-db:default");
-var mongoConnectionString = Environment.GetEnvironmentVariable($"mongo-db:{defaultMongoDb}-connection-string");
-builder.Services.AddMongoDatabase(mongoConnectionString, "UnitOfWork");
-builder.Services.AddUnitOfWork(Orms.MONGO_DB);
+var mongoConnectionString = Environment.GetEnvironmentVariable($"mongo-db:connection-string");
+
+builder.Services.AddUnitOfWorkWithMongo(LifeCycles.TRANSIENT, new MongoConfig
+{
+    EnabledDefaultQueryLogger = true,
+    LifeCycle = LifeCycles.TRANSIENT,
+    DataBaseConnection = new DataBaseConnection
+    {
+        ConnectionString = mongoConnectionString,
+        DatabaseName = "UnitOfWork",
+    }
+});
 
 var app = builder.Build();
 

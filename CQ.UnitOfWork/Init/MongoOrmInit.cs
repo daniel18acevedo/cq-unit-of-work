@@ -21,6 +21,12 @@ namespace CQ.UnitOfWork.Init
     {
         public static void AddMongoDriverOrm(this IServiceCollection services, MongoConfig mongoConfig)
         {
+            if(mongoConfig is null)
+            {
+                throw new ArgumentNullException("mongoConfig");
+            }
+            mongoConfig.Assert();
+
             var mongoClientSettings = MongoClientSettings.FromConnectionString(mongoConfig.DataBaseConnection.ConnectionString);
             mongoClientSettings.ClusterConfigurator = BuildClusterConfigurator(mongoConfig.ClusterConfigurator, mongoConfig.EnabledDefaultQueryLogger);
 
@@ -67,14 +73,14 @@ namespace CQ.UnitOfWork.Init
         {
             services.AddService(lifeCycle, (serviceProvider) =>
             {
-                var mongoDatabase = serviceProvider.GetService<MongoContext>();
+                var mongoContext = serviceProvider.GetService<MongoContext>();
 
-                if (mongoDatabase is null)
+                if (mongoContext is null)
                 {
-                    throw new DatabaseConnectionException(DataBaseEngines.MONGO);
+                    throw new ContextNotFoundException(Orms.MONGO_DB);
                 }
 
-                return new MongoRepository<T>(mongoDatabase, collectionName);
+                return new MongoRepository<T>(mongoContext, collectionName);
             });
         }
     }

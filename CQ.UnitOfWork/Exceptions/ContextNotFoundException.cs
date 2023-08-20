@@ -8,13 +8,13 @@ using UnitOfWork.Entities;
 
 namespace CQ.UnitOfWork.Exceptions
 {
-    internal class DatabaseConnectionException : Exception
+    internal class ContextNotFoundException : Exception
     {
-        public DataBaseEngines Engine { get; set; }
+        public Orms Orm { get; set; }
 
-        public DatabaseConnectionException(DataBaseEngines engine)
+        public ContextNotFoundException(Orms orm)
         {
-            Engine = engine;
+            this.Orm = orm;
         }
     }
 }

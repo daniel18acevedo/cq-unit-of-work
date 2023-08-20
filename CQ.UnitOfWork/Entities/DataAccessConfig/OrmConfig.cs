@@ -20,5 +20,15 @@ namespace CQ.UnitOfWork.Entities.DataAccessConfig
         {
             Orm = orm;
         }
+
+        public void Assert()
+        {
+            if(this.DataBaseConnection is null)
+            {
+                throw new ArgumentNullException("dataBaseConnection");
+            }
+
+            this.DataBaseConnection.Assert();
+        }
     }
 }

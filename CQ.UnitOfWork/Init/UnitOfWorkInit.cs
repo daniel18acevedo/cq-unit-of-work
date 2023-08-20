@@ -1,18 +1,7 @@
 ﻿using CQ.UnitOfWork.Core;
 using CQ.UnitOfWork.Entities;
 using CQ.UnitOfWork.Entities.DataAccessConfig;
-using CQ.UnitOfWork.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
-using MongoDB.Bson;
-using MongoDB.Bson.IO;
-using MongoDB.Driver;
-using MongoDB.Driver.Core.Configuration;
-using MongoDB.Driver.Core.Events;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CQ.UnitOfWork.Init
 {

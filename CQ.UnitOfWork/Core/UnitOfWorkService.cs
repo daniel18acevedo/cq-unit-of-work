@@ -43,7 +43,7 @@ namespace CQ.UnitOfWork.Core
 
                 if(defaultContext is null)
                 {
-                    throw new Exception("Default orm not setted");
+                    throw new ArgumentException("Default orm not setted");
                 }
 
                 orm = defaultContext.Orm;
@@ -69,14 +69,14 @@ namespace CQ.UnitOfWork.Core
 
         private IRepository<TEntity> BuildMongoGenericRepository<TEntity>() where TEntity : class
         {
-            var mongoDatabase = this._services.GetService<MongoContext>();
+            var mongoContext = this._services.GetService<MongoContext>();
 
-            if (mongoDatabase is null)
+            if (mongoContext is null)
             {
-                throw new ArgumentNullException("database");
+                throw new ArgumentNullException("mongoContext");
             }
 
-            var genericRepository = new MongoRepository<TEntity>(mongoDatabase);
+            var genericRepository = new MongoRepository<TEntity>(mongoContext);
 
             return genericRepository;
         }
@@ -87,7 +87,7 @@ namespace CQ.UnitOfWork.Core
 
             if(efCoreContext is null)
             {
-                throw new ArgumentNullException("database");
+                throw new ArgumentNullException("efCoreContext");
             }
 
             var genericEfCoreRepository = new EfCoreRepository<TEntity>(efCoreContext);

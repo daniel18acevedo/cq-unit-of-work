@@ -13,6 +13,17 @@ namespace CQ.UnitOfWork.Entities.DataAccessConfig
 
         public string DatabaseName { get; set; }
 
-        public bool EnabledDefaultQueryLogger { get; set; }
+        public void Assert()
+        {
+            if (string.IsNullOrEmpty(this.ConnectionString))
+            {
+                throw new ArgumentNullException("connectionString");
+            }
+
+            if (string.IsNullOrEmpty(this.DatabaseName))
+            {
+                throw new ArgumentNullException("databaseName");
+            }
+        }
     }
 }
