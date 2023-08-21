@@ -29,12 +29,12 @@ namespace CQ.UnitOfWork.Init
             }
             mongoConfig.Assert();
 
-            var mongoClientSettings = MongoClientSettings.FromConnectionString(mongoConfig.DataBaseConnection.ConnectionString);
+            var mongoClientSettings = MongoClientSettings.FromConnectionString(mongoConfig.DatabaseConnection.ConnectionString);
             mongoClientSettings.ClusterConfigurator = BuildClusterConfigurator(mongoConfig.ClusterConfigurator, mongoConfig.EnabledDefaultQueryLogger);
 
             var mongoClient = new MongoClient(mongoClientSettings);
 
-            var mongoDatabase = mongoClient.GetDatabase(mongoConfig.DataBaseConnection.DatabaseName);
+            var mongoDatabase = mongoClient.GetDatabase(mongoConfig.DatabaseConnection.DatabaseName);
 
             // DataBaseConnection
             services.AddService(lifeCycle, mongoDatabase);

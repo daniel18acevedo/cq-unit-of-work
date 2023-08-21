@@ -8,7 +8,7 @@ using UnitOfWork.Entities;
 
 namespace CQ.UnitOfWork.Exceptions
 {
-    internal class ContextNotFoundException : Exception
+    public class ContextNotFoundException : Exception
     {
         public Orms Orm { get; set; }
 

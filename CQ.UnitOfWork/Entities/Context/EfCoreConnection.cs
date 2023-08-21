@@ -21,7 +21,7 @@ namespace CQ.UnitOfWork.Entities
 
         public bool Ping()
         {
-            var ping = this._dbContext.Database.ExecuteSqlRaw("SELECT 1;");
+            var ping = this._dbContext.Database.ExecuteSqlRaw("SELECT 1 FROM USERS;");
 
             return ping == 1;
         }

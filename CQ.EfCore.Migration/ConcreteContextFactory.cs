@@ -15,7 +15,7 @@ namespace CQ.EfCore.Migrations
         {
             return new ConcreteContext(new EfCoreConfig
             {
-                DataBaseConnection = new DatabaseConfig
+                DatabaseConnection = new DatabaseConfig
                 {
                     ConnectionString = "Server=localhost;Database=UnitOfWork; Integrated Security=True;Trusted_Connection=True;MultipleActiveResultSets=True;TrustServerCertificate=True",
                     DatabaseName = "UnitOfWork"

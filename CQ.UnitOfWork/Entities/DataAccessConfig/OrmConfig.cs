@@ -8,18 +8,18 @@ namespace CQ.UnitOfWork.Entities.DataAccessConfig
 {
     public abstract class OrmConfig
     {
-        public DatabaseConfig DataBaseConnection { get; set; }
+        public DatabaseConfig DatabaseConnection { get; set; }
 
         public bool EnabledDefaultQueryLogger { get; set; }
 
         public void Assert()
         {
-            if(this.DataBaseConnection is null)
+            if(this.DatabaseConnection is null)
             {
                 throw new ArgumentNullException("dataBaseConnection");
             }
 
-            this.DataBaseConnection.Assert();
+            this.DatabaseConnection.Assert();
         }
     }
 }

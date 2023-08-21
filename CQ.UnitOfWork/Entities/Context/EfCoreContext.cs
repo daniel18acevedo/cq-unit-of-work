@@ -56,7 +56,7 @@ namespace CQ.UnitOfWork.Entities.Context
 
             if (EfCoreDataBaseEngines.SQL == this._config.Engine)
             {
-                optionsBuilder.UseSqlServer(this._config.DataBaseConnection.ConnectionString);
+                optionsBuilder.UseSqlServer(this._config.DatabaseConnection.ConnectionString);
             }
 
             if (this._config.EnabledDefaultQueryLogger)

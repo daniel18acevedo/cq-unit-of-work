@@ -15,15 +15,32 @@ DotEnv.Load();
 
 builder.Services.AddControllers();
 
-var connectionString = Environment.GetEnvironmentVariable($"connection-string");
+var efCoreConnectionString = Environment.GetEnvironmentVariable($"efcore-connection-string");
 
 builder.Services.AddUnitOfWorkWithEfCore(LifeCycles.TRANSIENT, new OrmServiceConfig<ConcreteContext>
 {
     LifeCycle = LifeCycles.SINGLETON,
-    Config = new ConcreteContext(connectionString)
+    Config = new ConcreteContext(efCoreConnectionString)
 });
 
 builder.Services.AddEfCoreRepository<User>(LifeCycles.SINGLETON);
+
+var mongoConnectionString = Environment.GetEnvironmentVariable($"mongo-connection-string");
+builder.Services.AddUnitOfWorkWithMongo(LifeCycles.TRANSIENT, new OrmServiceConfig<MongoConfig>
+{
+    LifeCycle = LifeCycles.SINGLETON,
+    Config = new MongoConfig
+    {
+        DatabaseConnection= new DatabaseConfig
+        {
+            ConnectionString = mongoConnectionString,
+            DatabaseName="UnitOfWork"
+        }
+    }
+});
+
+builder.Services.AddMongoRepository<User>(LifeCycles.SINGLETON);
+
 
 var app = builder.Build();
 
@@ -44,7 +61,7 @@ public class ConcreteContext : EfCoreContext
     public ConcreteContext(string connectionString) : base(new EfCoreConfig
     {
         EnabledDefaultQueryLogger = true,
-        DataBaseConnection = new DatabaseConfig
+        DatabaseConnection = new DatabaseConfig
         {
             ConnectionString = connectionString,
             DatabaseName = "UnitOfWork",
