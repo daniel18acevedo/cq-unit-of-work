@@ -9,6 +9,8 @@ namespace CQ.UnitOfWork.Core.Mongo
 {
     public interface IMongoRepository<TEntity> : IRepository<TEntity> where TEntity : class
     {
-        Task UpdateByPropAsync(string value, object updates, string? prop = null);
+        Task UpdateByPropAsync(string value, object updates, string? prop = "_id");
+
+        void UpdateByProp(string value, object updates, string? prop = "_id");
     }
 }

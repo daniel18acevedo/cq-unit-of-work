@@ -41,7 +41,7 @@ namespace CQ.UnitOfWork.Core
         {
             var efCoreEntityRepository = this._services.GetService<IEfCoreRepository<TEntity>>();
 
-            if(efCoreEntityRepository is not null)
+            if (efCoreEntityRepository is not null)
             {
                 return efCoreEntityRepository;
             }
@@ -51,7 +51,7 @@ namespace CQ.UnitOfWork.Core
             return efCoreGenericRepository;
         }
 
-        public IMongoRepository<TEntity> GetMongoRepository<TEntity>() where TEntity : class
+        public IMongoRepository<TEntity> GetMongoRepository<TEntity>(string? collectionName = null) where TEntity : class
         {
             var mongoEntityRepository = this._services.GetService<IMongoRepository<TEntity>>();
 
@@ -60,12 +60,12 @@ namespace CQ.UnitOfWork.Core
                 return mongoEntityRepository;
             }
 
-            var mongoGenericRepository = this.BuildMongoGenericRepository<TEntity>();
+            var mongoGenericRepository = this.BuildMongoGenericRepository<TEntity>(collectionName);
 
             return mongoGenericRepository;
         }
 
-        private IMongoRepository<TEntity> BuildMongoGenericRepository<TEntity>() where TEntity : class
+        private IMongoRepository<TEntity> BuildMongoGenericRepository<TEntity>(string? collectionName = null) where TEntity : class
         {
             var mongoContext = this._services.GetService<MongoConnection>();
 
@@ -74,7 +74,7 @@ namespace CQ.UnitOfWork.Core
                 throw new ArgumentNullException("mongoContext");
             }
 
-            var genericRepository = new MongoRepository<TEntity>(mongoContext);
+            var genericRepository = new MongoRepository<TEntity>(mongoContext, collectionName);
 
             return genericRepository;
         }
@@ -83,7 +83,7 @@ namespace CQ.UnitOfWork.Core
         {
             var efCoreContext = this._services.GetService<EfCoreConnection>();
 
-            if(efCoreContext is null)
+            if (efCoreContext is null)
             {
                 throw new ArgumentNullException("efCoreContext");
             }

@@ -15,31 +15,28 @@ DotEnv.Load();
 
 builder.Services.AddControllers();
 
+
+builder.Services.AddUnitOfWork(LifeCycles.TRANSIENT);
+
 var efCoreConnectionString = Environment.GetEnvironmentVariable($"efcore-connection-string");
 
-builder.Services.AddUnitOfWorkWithEfCore(LifeCycles.TRANSIENT, new OrmServiceConfig<ConcreteContext>
-{
-    LifeCycle = LifeCycles.SINGLETON,
-    Config = new ConcreteContext(efCoreConnectionString)
-});
+builder.Services.AddEfCoreOrm(LifeCycles.SINGLETON, new ConcreteContext(efCoreConnectionString));
 
 builder.Services.AddEfCoreRepository<User>(LifeCycles.SINGLETON);
 
 var mongoConnectionString = Environment.GetEnvironmentVariable($"mongo-connection-string");
-builder.Services.AddUnitOfWorkWithMongo(LifeCycles.TRANSIENT, new OrmServiceConfig<MongoConfig>
-{
-    LifeCycle = LifeCycles.SINGLETON,
-    Config = new MongoConfig
-    {
-        DatabaseConnection= new DatabaseConfig
+builder.Services.AddMongoDriverOrm(
+        LifeCycles.SINGLETON,
+        new MongoConfig
         {
-            ConnectionString = mongoConnectionString,
-            DatabaseName="UnitOfWork"
-        }
-    }
-});
+            DatabaseConnection = new DatabaseConfig
+            {
+                ConnectionString = mongoConnectionString,
+                DatabaseName = "UnitOfWork"
+            }
+        });
 
-builder.Services.AddMongoRepository<User>(LifeCycles.SINGLETON);
+builder.Services.AddMongoRepository<UserMongo>(LifeCycles.SINGLETON, "Users");
 
 
 var app = builder.Build();

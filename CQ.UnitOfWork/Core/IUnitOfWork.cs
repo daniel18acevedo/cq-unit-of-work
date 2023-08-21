@@ -16,6 +16,6 @@ namespace CQ.UnitOfWork.Core
 
         IEfCoreRepository<TEntity> GetEfCoreRepository<TEntity>() where TEntity : class;
 
-        IMongoRepository<TEntity> GetMongoRepository<TEntity>() where TEntity : class;
+        IMongoRepository<TEntity> GetMongoRepository<TEntity>(string? collectionName = null) where TEntity : class;
     }
 }

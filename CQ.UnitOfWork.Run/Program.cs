@@ -1,4 +1,5 @@
 ﻿using CQ.UnitOfWork.Core;
+using CQ.UnitOfWork.Entities;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Attributes;
@@ -21,9 +22,11 @@ var mongoClient = new MongoClient(new MongoClientSettings
     },
 });
 
-var playerFinderDatabase = mongoClient.GetDatabase("UnitOfWork");
+var mongoDatabase = mongoClient.GetDatabase("UnitOfWork");
 
-var userCollection = playerFinderDatabase.GetCollection<User>("Users");
+var mongoConnection = new MongoConnection(mongoDatabase);
+
+var userCollection = mongoDatabase.GetCollection<User>("Users");
 
 try
 {

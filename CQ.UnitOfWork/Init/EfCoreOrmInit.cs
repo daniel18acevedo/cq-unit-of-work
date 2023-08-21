@@ -52,5 +52,14 @@ namespace CQ.UnitOfWork.Init
 
             services.AddService<IEfCoreRepository<TEntity>, EfCoreRepository<TEntity>>(lifeCycle);
         }
+
+        public static void AddEfCoreRepository<TEntity, TRepository>(this IServiceCollection services, LifeCycles lifeCycle)
+            where TEntity : class
+            where TRepository : EfCoreRepository<TEntity>
+        {
+            services.AddService<IRepository<TEntity>, TRepository>(lifeCycle);
+
+            services.AddService<IEfCoreRepository<TEntity>, TRepository>(lifeCycle);
+        }
     }
 }

@@ -68,7 +68,7 @@ namespace CQ.UnitOfWork.Init
             services.AddService<MongoConnection>(lifeCycle);
         }
 
-        public static void AddMongoRepository<TEntity>(this IServiceCollection services, LifeCycles lifeCycle, string? collectionName = null) 
+        public static void AddMongoRepository<TEntity>(this IServiceCollection services, LifeCycles lifeCycle, string? collectionName = null)
             where TEntity : class
         {
             var implementationFactory = (IServiceProvider serviceProvider) =>
@@ -86,6 +86,15 @@ namespace CQ.UnitOfWork.Init
             services.AddService<IRepository<TEntity>, MongoRepository<TEntity>>(lifeCycle, implementationFactory);
 
             services.AddService<IMongoRepository<TEntity>, MongoRepository<TEntity>>(lifeCycle, implementationFactory);
+        }
+
+        public static void AddMongoRepository<TEntity, TRepository>(this IServiceCollection services, LifeCycles lifeCycle)
+            where TEntity : class
+            where TRepository : MongoRepository<TEntity>
+        {
+            services.AddService<IRepository<TEntity>, TRepository>(lifeCycle);
+
+            services.AddService<IMongoRepository<TEntity>, TRepository>(lifeCycle);
         }
     }
 }

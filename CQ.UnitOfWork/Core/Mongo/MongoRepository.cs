@@ -14,9 +14,9 @@ namespace CQ.UnitOfWork.Core.Mongo
 {
     public class MongoRepository<TEntity> : IMongoRepository<TEntity> where TEntity : class
     {
-        private readonly IMongoCollection<TEntity> _collection;
-        private readonly IMongoCollection<BsonDocument> _genericCollection;
-        private readonly string _collectionName;
+        protected readonly IMongoCollection<TEntity> _collection;
+        protected readonly IMongoCollection<BsonDocument> _genericCollection;
+        protected readonly string _collectionName;
 
         public MongoRepository(MongoConnection mongoContext, string? collectionName = null)
         {
@@ -68,7 +68,7 @@ namespace CQ.UnitOfWork.Core.Mongo
 
             return this._collection.Find(expression).ToList();
         }
-        
+
 
         public async Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> expression)
         {
@@ -137,9 +137,15 @@ namespace CQ.UnitOfWork.Core.Mongo
 
         public async Task UpdateByPropAsync(string value, object updates, string prop = "_id")
         {
-            var filter = Builders<BsonDocument>.Filter.Eq(prop, value);
+            var (filter, updateDefinition) = BuilderFilterAndUpdateDefinition(value, updates, prop);
 
-            var updateBuilder= Builders<BsonDocument>.Update;
+            var updateResult = await this._genericCollection.UpdateOneAsync(filter, updateDefinition).ConfigureAwait(false);
+        }
+
+        private (FilterDefinition<BsonDocument> filter, UpdateDefinition<BsonDocument> update) BuilderFilterAndUpdateDefinition(string value, object updates, string prop)
+        {
+            var filter = Builders<BsonDocument>.Filter.Eq(prop, value);
+            var updateBuilder = Builders<BsonDocument>.Update;
 
             var propertiesToUpdate = updates.GetType().GetProperties().ToList();
             var updateDefinitionList = new List<UpdateDefinition<BsonDocument>>();
@@ -155,7 +161,14 @@ namespace CQ.UnitOfWork.Core.Mongo
 
             var updateDefinition = updateBuilder.Combine(updateDefinitionList);
 
-            var updateResult = await this._genericCollection.UpdateOneAsync(filter, updateDefinition).ConfigureAwait(false);
+            return (filter, updateDefinition);
+        }
+
+        public void UpdateByProp(string value, object updates, string prop = "_id")
+        {
+            var (filter, updateDefinition) = BuilderFilterAndUpdateDefinition(value, updates, prop);
+
+            var updateResult = this._genericCollection.UpdateOne(filter, updateDefinition);
         }
     }
 }

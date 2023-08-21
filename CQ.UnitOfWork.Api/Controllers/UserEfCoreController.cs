@@ -14,7 +14,6 @@ namespace CQ.UnitOfWork.Api.Controllers
 
         public UserEfCoreController(IUnitOfWork unitOfWork)
         {
-            var a = unitOfWork.GetDefaultRepository<User>();
             this._repository = unitOfWork.GetEfCoreRepository<User>();
         }
 
