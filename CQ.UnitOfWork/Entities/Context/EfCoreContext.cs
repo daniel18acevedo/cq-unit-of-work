@@ -59,6 +59,11 @@ namespace CQ.UnitOfWork.Entities.Context
                 optionsBuilder.UseSqlServer(this._config.DatabaseConnection.ConnectionString);
             }
 
+            if(EfCoreDataBaseEngines.SQL_LITE == this._config.Engine)
+            {
+                optionsBuilder.UseSqlite();
+            }
+
             if (this._config.EnabledDefaultQueryLogger)
             {
                 optionsBuilder.LogTo(Console.WriteLine);

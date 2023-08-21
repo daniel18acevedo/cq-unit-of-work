@@ -8,6 +8,7 @@ namespace CQ.UnitOfWork.Entities
 {
     public enum EfCoreDataBaseEngines
     {
-        SQL
+        SQL,
+        SQL_LITE
     }
 }
