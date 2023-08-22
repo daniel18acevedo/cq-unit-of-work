@@ -13,7 +13,7 @@ namespace CQ.EfCore.Migrations
     {
         public DbSet<User> Users { get; set; }
 
-        public ConcreteContext(EfCoreConfig config):base(config) { }
+        public ConcreteContext(EfCoreConfig config) : base(config) { }
     }
 
     public class User

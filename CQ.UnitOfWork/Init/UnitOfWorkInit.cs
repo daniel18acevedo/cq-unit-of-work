@@ -9,27 +9,27 @@ namespace CQ.UnitOfWork.Init
 {
     public static class UnitOfWorkInit
     {
-        public static void AddUnitOfWorkWithMongo(this IServiceCollection services, LifeCycles unitOfWorkLifeCycle, OrmServiceConfig<MongoConfig> ormConfig)
+        public static void AddUnitOfWorkWithMongo(this IServiceCollection services, OrmServiceConfig<MongoConfig> ormConfig, LifeCycles unitOfWorkLifeCycle = LifeCycles.SCOPED)
         {
-            services.AddMongoDriverOrm(ormConfig.LifeCycle, ormConfig.Config);
+            services.AddMongoDriverOrm(ormConfig.Config, ormConfig.LifeCycle);
 
             services.AddService<IUnitOfWork, UnitOfWorkService>(unitOfWorkLifeCycle);
         }
 
-        public static void AddUnitOfWorkWithEfCore<TContext>(this IServiceCollection services, LifeCycles unitOfWorkLifeCycle, OrmServiceConfig<TContext> ormConfig)
+        public static void AddUnitOfWorkWithEfCore<TContext>(this IServiceCollection services, OrmServiceConfig<EfCoreConfig> ormConfig, LifeCycles unitOfWorkLifeCycle = LifeCycles.SCOPED)
             where TContext : EfCoreContext
         {
-            services.AddEfCoreOrm(ormConfig.LifeCycle, ormConfig.Config);
+            services.AddEfCoreOrm<TContext>(ormConfig.Config, ormConfig.LifeCycle);
 
             services.AddService<IUnitOfWork, UnitOfWorkService>(unitOfWorkLifeCycle);
         }
 
-        public static void AddUnitOfWork(this IServiceCollection services, LifeCycles unitOfWorkLifeCycle)
+        public static void AddUnitOfWork(this IServiceCollection services, LifeCycles unitOfWorkLifeCycle = LifeCycles.SCOPED)
         {
             services.AddService<IUnitOfWork, UnitOfWorkService>(unitOfWorkLifeCycle);
         }
 
-        internal static void AddService<TImplementation>(this IServiceCollection services, LifeCycles lifeCycle, Func<IServiceProvider, TImplementation> implementationFactory)
+        internal static void AddService<TImplementation>(this IServiceCollection services, Func<IServiceProvider, TImplementation> implementationFactory, LifeCycles lifeCycle = LifeCycles.SCOPED)
             where TImplementation : class
         {
             switch (lifeCycle)
@@ -52,8 +52,8 @@ namespace CQ.UnitOfWork.Init
             }
         }
 
-        internal static void AddService<TService, TImplementation>(this IServiceCollection services, LifeCycles lifeCycle, Func<IServiceProvider, TImplementation> implementationFactory)
-            where TService: class
+        internal static void AddService<TService, TImplementation>(this IServiceCollection services, Func<IServiceProvider, TImplementation> implementationFactory, LifeCycles lifeCycle = LifeCycles.SCOPED)
+            where TService : class
             where TImplementation : class, TService
         {
             switch (lifeCycle)
@@ -76,7 +76,7 @@ namespace CQ.UnitOfWork.Init
             }
         }
 
-        internal static void AddService<TService, TImplementation>(this IServiceCollection services, LifeCycles lifeCycle)
+        internal static void AddService<TService, TImplementation>(this IServiceCollection services, LifeCycles lifeCycle = LifeCycles.SCOPED)
             where TService : class
             where TImplementation : class, TService
         {
@@ -100,7 +100,7 @@ namespace CQ.UnitOfWork.Init
             }
         }
 
-        internal static void AddService<TService>(this IServiceCollection services, LifeCycles lifeCycle)
+        internal static void AddService<TService>(this IServiceCollection services, LifeCycles lifeCycle = LifeCycles.SCOPED)
             where TService : class
         {
             switch (lifeCycle)
@@ -123,10 +123,17 @@ namespace CQ.UnitOfWork.Init
             }
         }
 
-        internal static void AddService<TService>(this IServiceCollection services, LifeCycles lifeCycle, TService value)
+        internal static void AddService<TService>(this IServiceCollection services, TService value, LifeCycles lifeCycle = LifeCycles.SCOPED)
             where TService : class
         {
-            services.AddService(lifeCycle, (serviceProvider) => value);
+            services.AddService((serviceProvider) => value, lifeCycle);
+        }
+
+        internal static void AddService<TService, TImplementation>(this IServiceCollection services, TImplementation value, LifeCycles lifeCycle = LifeCycles.SCOPED)
+            where TService : class
+            where TImplementation : class, TService
+        {
+            services.AddService<TService, TImplementation>((serviceProvider) => value, lifeCycle);
         }
     }
 }

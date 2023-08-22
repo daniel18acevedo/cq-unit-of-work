@@ -10,7 +10,7 @@ namespace CQ.UnitOfWork.Entities.ServiceConfig
     public class OrmServiceConfig<TOrmConfig>
         where TOrmConfig : class
     {
-        public LifeCycles LifeCycle { get; set; }
+        public LifeCycles LifeCycle { get; set; } = LifeCycles.SCOPED;
 
         public TOrmConfig Config { get; set; }
     }

@@ -1,4 +1,5 @@
 ﻿using CQ.UnitOfWork.Entities.DataAccessConfig;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -13,20 +14,12 @@ namespace CQ.UnitOfWork.Entities.Context
     {
         private readonly EfCoreConfig? _config;
 
-        private readonly DbContextOptionsBuilder? _optionsBuilder;
-
         private readonly string _configToUse;
 
         public EfCoreContext(EfCoreConfig config)
         {
             this._config = config;
             this._configToUse = "efCoreConfig";
-        }
-
-        public EfCoreContext(DbContextOptionsBuilder optionsBuilder)
-        {
-            this._optionsBuilder = optionsBuilder;
-            this._configToUse = "optionsBuilder";
         }
 
         public EfCoreContext(DbContextOptions optionsBuilder) : base(optionsBuilder)
@@ -41,17 +34,6 @@ namespace CQ.UnitOfWork.Entities.Context
                 return;
             }
 
-            if(this._configToUse == "optionsBuilder")
-            {
-                if(this._optionsBuilder is null)
-                {
-                    throw new ArgumentNullException("optionsBuilder");
-                }
-
-                optionsBuilder = this._optionsBuilder;
-                return;
-            }
-
             this.Assert();
 
             if (EfCoreDataBaseEngines.SQL == this._config.Engine)
@@ -61,7 +43,7 @@ namespace CQ.UnitOfWork.Entities.Context
 
             if(EfCoreDataBaseEngines.SQL_LITE == this._config.Engine)
             {
-                optionsBuilder.UseSqlite();
+                optionsBuilder.UseSqlite(new SqliteConnection(this._config.DatabaseConnection.ConnectionString));
             }
 
             if (this._config.EnabledDefaultQueryLogger)
@@ -81,7 +63,7 @@ namespace CQ.UnitOfWork.Entities.Context
             modelBuilder.ApplyConfigurationsFromAssembly(contextAssembly);
         }
 
-        public void Assert()
+        private void Assert()
         {
             if (this._config is null)
             {
@@ -89,6 +71,21 @@ namespace CQ.UnitOfWork.Entities.Context
             }
 
             this._config.Assert();
+        }
+
+        public void OpenConnection()
+        {
+            this.Database.OpenConnection();
+        }
+
+        public void EnsureCreated()
+        {
+            this.Database.EnsureCreated();
+        }
+
+        public void EnsureDeleted()
+        {
+            this.Database.EnsureDeleted();
         }
     }
 }

@@ -21,7 +21,7 @@ namespace CQ.UnitOfWork.Init
 {
     public static class MongoOrmInit
     {
-        public static void AddMongoDriverOrm(this IServiceCollection services, LifeCycles lifeCycle, MongoConfig mongoConfig)
+        public static void AddMongoDriverOrm(this IServiceCollection services, MongoConfig mongoConfig, LifeCycles lifeCycle = LifeCycles.SCOPED)
         {
             if (mongoConfig is null)
             {
@@ -36,8 +36,7 @@ namespace CQ.UnitOfWork.Init
 
             var mongoDatabase = mongoClient.GetDatabase(mongoConfig.DatabaseConnection.DatabaseName);
 
-            // DataBaseConnection
-            services.AddService(lifeCycle, mongoDatabase);
+            services.AddService(mongoDatabase, lifeCycle);
 
             services.AddMongoConnection(lifeCycle);
         }
@@ -68,7 +67,7 @@ namespace CQ.UnitOfWork.Init
             services.AddService<MongoConnection>(lifeCycle);
         }
 
-        public static void AddMongoRepository<TEntity>(this IServiceCollection services, LifeCycles lifeCycle, string? collectionName = null)
+        public static void AddMongoRepository<TEntity>(this IServiceCollection services, string? collectionName = null, LifeCycles lifeCycle = LifeCycles.SCOPED)
             where TEntity : class
         {
             var implementationFactory = (IServiceProvider serviceProvider) =>
@@ -83,12 +82,12 @@ namespace CQ.UnitOfWork.Init
                 return new MongoRepository<TEntity>(mongoContext, collectionName);
             };
 
-            services.AddService<IRepository<TEntity>, MongoRepository<TEntity>>(lifeCycle, implementationFactory);
+            services.AddService<IRepository<TEntity>, MongoRepository<TEntity>>(implementationFactory, lifeCycle);
 
-            services.AddService<IMongoRepository<TEntity>, MongoRepository<TEntity>>(lifeCycle, implementationFactory);
+            services.AddService<IMongoRepository<TEntity>, MongoRepository<TEntity>>(implementationFactory, lifeCycle);
         }
 
-        public static void AddMongoRepository<TEntity, TRepository>(this IServiceCollection services, LifeCycles lifeCycle)
+        public static void AddMongoRepository<TEntity, TRepository>(this IServiceCollection services, LifeCycles lifeCycle = LifeCycles.SCOPED)
             where TEntity : class
             where TRepository : MongoRepository<TEntity>
         {

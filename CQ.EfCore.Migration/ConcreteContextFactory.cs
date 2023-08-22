@@ -21,7 +21,6 @@ namespace CQ.EfCore.Migrations
                     DatabaseName = "UnitOfWork"
                 },
                 EnabledDefaultQueryLogger = true,
-                Engine = EfCoreDataBaseEngines.SQL,
             });
         }
     }

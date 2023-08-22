@@ -11,11 +11,6 @@ namespace CQ.UnitOfWork.Entities.DataAccessConfig
     {
         public Action<string>? Logger { get; set; }
 
-        public EfCoreDataBaseEngines Engine { get; set; }
-
-        public EfCoreConfig()
-        {
-            Engine = EfCoreDataBaseEngines.SQL;
-        }
+        public EfCoreDataBaseEngines Engine { get; set; } = EfCoreDataBaseEngines.SQL;
     }
 }

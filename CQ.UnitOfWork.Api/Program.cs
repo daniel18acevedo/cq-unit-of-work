@@ -16,17 +16,37 @@ DotEnv.Load();
 builder.Services.AddControllers();
 
 
-builder.Services.AddUnitOfWork(LifeCycles.TRANSIENT);
+builder.Services.AddUnitOfWork();
+
+
+
+
+
 
 var efCoreConnectionString = Environment.GetEnvironmentVariable($"efcore-connection-string");
+// "Filename=:memory:"
+builder.Services.AddEfCoreOrm<ConcreteContext>(new EfCoreConfig
+{
 
-builder.Services.AddEfCoreOrm(LifeCycles.SINGLETON, new ConcreteContext(efCoreConnectionString));
+    DatabaseConnection = new DatabaseConfig
+    {
+        ConnectionString = efCoreConnectionString,
+        DatabaseName = "UnitOfWork"
+    },
+});
 
-builder.Services.AddEfCoreRepository<User>(LifeCycles.SINGLETON);
+builder.Services.AddEfCoreRepository<User>();
+
+
+
+
+
+
+
+
 
 var mongoConnectionString = Environment.GetEnvironmentVariable($"mongo-connection-string");
 builder.Services.AddMongoDriverOrm(
-        LifeCycles.SINGLETON,
         new MongoConfig
         {
             DatabaseConnection = new DatabaseConfig
@@ -36,7 +56,7 @@ builder.Services.AddMongoDriverOrm(
             }
         });
 
-builder.Services.AddMongoRepository<UserMongo>(LifeCycles.SINGLETON, "Users");
+builder.Services.AddMongoRepository<UserMongo>("Users");
 
 
 var app = builder.Build();
@@ -55,14 +75,5 @@ public class ConcreteContext : EfCoreContext
 {
     public DbSet<User> Users { get; set; }
 
-    public ConcreteContext(string connectionString) : base(new EfCoreConfig
-    {
-        EnabledDefaultQueryLogger = true,
-        DatabaseConnection = new DatabaseConfig
-        {
-            ConnectionString = connectionString,
-            DatabaseName = "UnitOfWork",
-        }
-    })
-    { }
+    public ConcreteContext(EfCoreConfig config) : base(config) { }
 }
