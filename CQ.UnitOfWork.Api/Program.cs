@@ -27,7 +27,6 @@ var efCoreConnectionString = Environment.GetEnvironmentVariable($"efcore-connect
 // "Filename=:memory:"
 builder.Services.AddEfCoreOrm<ConcreteContext>(new EfCoreConfig
 {
-
     DatabaseConnection = new DatabaseConfig
     {
         ConnectionString = efCoreConnectionString,
