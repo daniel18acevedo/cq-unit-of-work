@@ -51,6 +51,20 @@ namespace CQ.UnitOfWork.Core
             return efCoreGenericRepository;
         }
 
+        private IEfCoreRepository<TEntity> BuildEfCoreGenericRepository<TEntity>() where TEntity : class
+        {
+            var efCoreContext = this._services.GetService<EfCoreConnection>();
+
+            if (efCoreContext is null)
+            {
+                throw new ArgumentNullException("efCoreContext");
+            }
+
+            var genericEfCoreRepository = new EfCoreRepository<TEntity>(efCoreContext);
+
+            return genericEfCoreRepository;
+        }
+
         public IMongoRepository<TEntity> GetMongoRepository<TEntity>(string? collectionName = null) where TEntity : class
         {
             var mongoEntityRepository = this._services.GetService<IMongoRepository<TEntity>>();
@@ -77,20 +91,6 @@ namespace CQ.UnitOfWork.Core
             var genericRepository = new MongoRepository<TEntity>(mongoContext, collectionName);
 
             return genericRepository;
-        }
-
-        private IEfCoreRepository<TEntity> BuildEfCoreGenericRepository<TEntity>() where TEntity : class
-        {
-            var efCoreContext = this._services.GetService<EfCoreConnection>();
-
-            if (efCoreContext is null)
-            {
-                throw new ArgumentNullException("efCoreContext");
-            }
-
-            var genericEfCoreRepository = new EfCoreRepository<TEntity>(efCoreContext);
-
-            return genericEfCoreRepository;
         }
     }
 }

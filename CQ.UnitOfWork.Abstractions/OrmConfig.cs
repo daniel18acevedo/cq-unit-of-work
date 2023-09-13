@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CQ.UnitOfWork.Entities.DataAccessConfig
+namespace CQ.UnitOfWork.Abstractions
 {
     public abstract class OrmConfig
     {

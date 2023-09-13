@@ -36,22 +36,31 @@ namespace CQ.UnitOfWork.Entities.Context
 
             this.Assert();
 
-            if (EfCoreDataBaseEngines.SQL == this._config.Engine)
+            switch (this._config.Engine)
             {
-                optionsBuilder.UseSqlServer(this._config.DatabaseConnection.ConnectionString);
+                case EfCoreDataBaseEngines.SQL:
+                    {
+                        optionsBuilder.UseSqlServer(this._config.DatabaseConnection.ConnectionString);
+                        break;
+                    }
+
+                case EfCoreDataBaseEngines.SQL_LITE:
+                    {
+                        optionsBuilder.UseSqlite(new SqliteConnection(this._config.DatabaseConnection.ConnectionString));
+                        break;
+                    }
+
+                default:
+                    {
+                        throw new ArgumentException($"Engine {this._config.Engine} not supported");
+                    }
             }
 
-            if(EfCoreDataBaseEngines.SQL_LITE == this._config.Engine)
-            {
-                optionsBuilder.UseSqlite(new SqliteConnection(this._config.DatabaseConnection.ConnectionString));
-            }
-
-            if (this._config.EnabledDefaultQueryLogger)
+            if (this._config.UseDefaultQueryLogger)
             {
                 optionsBuilder.LogTo(Console.WriteLine);
             }
-
-            if (this._config.Logger is not null)
+            else if (this._config.Logger is not null)
             {
                 optionsBuilder.LogTo(this._config.Logger);
             }
@@ -86,6 +95,34 @@ namespace CQ.UnitOfWork.Entities.Context
         public void EnsureDeleted()
         {
             this.Database.EnsureDeleted();
+        }
+
+        public bool Ping()
+        {
+            //var ping = this._dbContext.Database.ExecuteSqlRaw("SELECT 1 FROM USERS;");
+            var ping = 1;
+            return ping == 1;
+        }
+
+        public DbSet<TEntity> GetEntitySet<TEntity>()
+            where TEntity : class
+        {
+            return this.Set<TEntity>();
+        }
+
+        public string GetTableName<TEntity>()
+        {
+            return $"{typeof(TEntity).Name}s";
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await this.SaveChangesAsync().ConfigureAwait(false);
+        }
+
+        public void SaveChanges()
+        {
+            this.SaveChanges();
         }
     }
 }

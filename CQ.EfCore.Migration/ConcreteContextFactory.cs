@@ -20,7 +20,7 @@ namespace CQ.EfCore.Migrations
                     ConnectionString = "Server=localhost;Database=UnitOfWork; Integrated Security=True;Trusted_Connection=True;MultipleActiveResultSets=True;TrustServerCertificate=True",
                     DatabaseName = "UnitOfWork"
                 },
-                EnabledDefaultQueryLogger = true,
+                UseDefaultQueryLogger = true,
             });
         }
     }

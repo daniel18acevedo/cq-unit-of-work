@@ -30,7 +30,7 @@ namespace CQ.UnitOfWork.Init
             mongoConfig.Assert();
 
             var mongoClientSettings = MongoClientSettings.FromConnectionString(mongoConfig.DatabaseConnection.ConnectionString);
-            mongoClientSettings.ClusterConfigurator = BuildClusterConfigurator(mongoConfig.ClusterConfigurator, mongoConfig.EnabledDefaultQueryLogger);
+            mongoClientSettings.ClusterConfigurator = BuildClusterConfigurator(mongoConfig.ClusterConfigurator, mongoConfig.UseDefaultQueryLogger);
 
             var mongoClient = new MongoClient(mongoClientSettings);
 

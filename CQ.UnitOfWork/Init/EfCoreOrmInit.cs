@@ -43,7 +43,7 @@ namespace CQ.UnitOfWork.Init
                     optionsBuilder.UseSqlite(new SqliteConnection(config.DatabaseConnection.ConnectionString));
                 }
 
-                if (config.EnabledDefaultQueryLogger)
+                if (config.UseDefaultQueryLogger)
                 {
                     optionsBuilder.LogTo(Console.WriteLine);
                 }
