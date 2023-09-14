@@ -4,18 +4,16 @@ using CQ.UnitOfWork.EfCore.Abstractions;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CQ.UnitOfWork.EfCore
 {
     public static class EfCoreInit
     {
-        public static void AddEfCore<TContext>(this IServiceCollection services, EfCoreConfig config, LifeCycle lifeCycle = LifeCycle.SCOPED) where TContext : EfCoreContext
+        public static void AddEfCoreContext<TContext>(
+            this IServiceCollection services,
+            EfCoreConfig config,
+            LifeCycle lifeCycle = LifeCycle.SCOPED,
+            LifeCycle ormConfigLifeCycle = LifeCycle.SCOPED) where TContext : EfCoreContext
         {
             config.Assert();
 
@@ -23,13 +21,13 @@ namespace CQ.UnitOfWork.EfCore
             {
                 switch (config.Engine)
                 {
-                    case EfCoreDataBaseEngines.SQL:
+                    case EfCoreDataBaseEngine.SQL:
                         {
                             optionsBuilder.UseSqlServer(config.DatabaseConnection.ConnectionString);
                             break;
                         }
 
-                    case EfCoreDataBaseEngines.SQL_LITE:
+                    case EfCoreDataBaseEngine.SQL_LITE:
                         {
                             optionsBuilder.UseSqlite(new SqliteConnection(config.DatabaseConnection.ConnectionString));
                             break;
@@ -53,13 +51,34 @@ namespace CQ.UnitOfWork.EfCore
             var lifeTime = lifeCycle == LifeCycle.SCOPED ? ServiceLifetime.Scoped : lifeCycle == LifeCycle.TRANSIENT ? ServiceLifetime.Transient : ServiceLifetime.Singleton;
 
             services.AddDbContext<EfCoreContext, TContext>(actions, lifeTime);
+            services.AddService<OrmConfig, EfCoreConfig>((serviceProvider) => config, ormConfigLifeCycle);
         }
 
-        public static void AddEfCoreRepository<TEntity>(this IServiceCollection services, LifeCycle lifeCycle=LifeCycle.SCOPED) where TEntity : class
+        public static void AddEfCoreRepository<TEntity>(this IServiceCollection services, LifeCycle lifeCycle = LifeCycle.SCOPED) where TEntity : class
         {
             services.AddService<Repository<TEntity>, EfCoreRepository<TEntity>>(lifeCycle);
             services.AddService<IRepository<TEntity>, EfCoreRepository<TEntity>>(lifeCycle);
             services.AddService<IEfCoreRepository<TEntity>, EfCoreRepository<TEntity>>(lifeCycle);
+        }
+
+        public static void AddEfCoreRepository<TEntity, TRepository>(this IServiceCollection services, LifeCycle lifeCycle = LifeCycle.SCOPED)
+            where TEntity : class
+            where TRepository : EfCoreRepository<TEntity>
+        {
+            services.AddService<Repository<TEntity>, TRepository>(lifeCycle);
+            services.AddService<IRepository<TEntity>, TRepository>(lifeCycle);
+            services.AddService<IEfCoreRepository<TEntity>, TRepository>(lifeCycle);
+        }
+
+        public static void AddEfCoreRepository<TService, TEntity, TRepository>(this IServiceCollection services, LifeCycle lifeCycle = LifeCycle.SCOPED)
+            where TService : class, IEfCoreRepository<TEntity>
+            where TEntity : class
+            where TRepository : EfCoreRepository<TEntity>, TService
+        {
+            services.AddService<Repository<TEntity>, TRepository>(lifeCycle);
+            services.AddService<IRepository<TEntity>, TRepository>(lifeCycle);
+            services.AddService<IEfCoreRepository<TEntity>, TRepository>(lifeCycle);
+            services.AddService<TService, TRepository>(lifeCycle);
         }
     }
 }

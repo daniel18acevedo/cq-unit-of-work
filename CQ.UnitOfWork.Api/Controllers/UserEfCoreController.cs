@@ -1,5 +1,5 @@
-﻿using CQ.UnitOfWork.Core;
-using CQ.UnitOfWork.Core.EfCore;
+﻿using CQ.UnitOfWork.Abstractions;
+using CQ.UnitOfWork.EfCore.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Attributes;
@@ -14,7 +14,7 @@ namespace CQ.UnitOfWork.Api.Controllers
 
         public UserEfCoreController(IUnitOfWork unitOfWork)
         {
-            this._repository = unitOfWork.GetEfCoreRepository<User>();
+            this._repository = unitOfWork.GetRepository<IEfCoreRepository<User>>();
         }
 
         [HttpGet]

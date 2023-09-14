@@ -1,11 +1,6 @@
-﻿using CQ.UnitOfWork.Entities.DataAccessConfig;
-using CQ.UnitOfWork.Entities;
+﻿using CQ.UnitOfWork.Abstractions;
+using CQ.UnitOfWork.EfCore;
 using Microsoft.EntityFrameworkCore.Design;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CQ.EfCore.Migrations
 {
@@ -21,6 +16,7 @@ namespace CQ.EfCore.Migrations
                     DatabaseName = "UnitOfWork"
                 },
                 UseDefaultQueryLogger = true,
+                Engine = EfCoreDataBaseEngine.SQL,
             });
         }
     }

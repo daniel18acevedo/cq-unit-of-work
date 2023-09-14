@@ -7,20 +7,19 @@ using MongoDB.Bson.IO;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CQ.UnitOfWork.MongoDriver
 {
     public static class MongoDriverInit
     {
-        public static void AddMongoContext(this IServiceCollection services, MongoConfig config, LifeCycle contextLifeCycle = LifeCycle.SCOPED, LifeCycle mongoClientLifeCycle = LifeCycle.SINGLETON)
+        public static void AddMongoContext(
+            this IServiceCollection services,
+            MongoConfig config,
+            LifeCycle contextLifeCycle = LifeCycle.SCOPED,
+            LifeCycle mongoClientLifeCycle = LifeCycle.SINGLETON
+            LifeCycle ormConfigLifeCycle = LifeCycle.SCOPED)
         {
             config.Assert();
-
 
             services.AddService<IMongoClient>((serviceProvider) =>
             {
@@ -40,6 +39,8 @@ namespace CQ.UnitOfWork.MongoDriver
 
                 return new MongoContext(mongoDatabase);
             }, contextLifeCycle);
+
+            services.AddService<OrmConfig, MongoConfig>((serviceProvider) => config, ormConfigLifeCycle);
         }
 
         private static Action<ClusterBuilder>? BuildClusterConfigurator(Action<ClusterBuilder>? clusterConfigurator = null, bool useDefaultClusterConfigurator = false)
@@ -71,6 +72,28 @@ namespace CQ.UnitOfWork.MongoDriver
             services.AddService<Repository<TEntity>>(implementationFactory, lifeCycle);
             services.AddService<IRepository<TEntity>>(implementationFactory, lifeCycle);
             services.AddService<IMongoDriverRepository<TEntity>>(implementationFactory, lifeCycle);
+        }
+
+        public static void AddMongoRepository<TEntity, TRepository>(this IServiceCollection services, LifeCycle lifeCycle = LifeCycle.SCOPED)
+            where TEntity : class
+            where TRepository : MongoDriverRepository<TEntity>
+        {
+
+            services.AddService<Repository<TEntity>, TRepository>(lifeCycle);
+            services.AddService<IRepository<TEntity>, TRepository>(lifeCycle);
+            services.AddService<IMongoDriverRepository<TEntity>, TRepository>(lifeCycle);
+        }
+
+        public static void AddMongoRepository<TService, TEntity, TRepository>(this IServiceCollection services, LifeCycle lifeCycle = LifeCycle.SCOPED)
+            where TService : class, IMongoDriverRepository<TEntity>
+            where TEntity : class
+            where TRepository : MongoDriverRepository<TEntity>, TService
+        {
+
+            services.AddService<Repository<TEntity>, TRepository>(lifeCycle);
+            services.AddService<IRepository<TEntity>, TRepository>(lifeCycle);
+            services.AddService<IMongoDriverRepository<TEntity>, TRepository>(lifeCycle);
+            services.AddService<TService, TRepository>(lifeCycle);
         }
     }
 }

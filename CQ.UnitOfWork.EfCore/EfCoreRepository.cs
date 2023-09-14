@@ -1,4 +1,5 @@
-﻿using CQ.UnitOfWork.Abstractions;
+﻿
+using CQ.UnitOfWork.Abstractions;
 using CQ.UnitOfWork.Abstractions.Extensions;
 using CQ.UnitOfWork.EfCore.Abstractions;
 using Microsoft.EntityFrameworkCore;
@@ -16,7 +17,7 @@ namespace CQ.UnitOfWork.EfCore
 
         private readonly string _tableName;
 
-        public EfCoreRepository(EfCoreContext efCoreContext) : base(Orm.EF_CORE)
+        public EfCoreRepository(EfCoreContext efCoreContext) : base(Orm.EF_CORE, efCoreContext.Database.ProviderName)
         {
             if (efCoreContext is null)
             {

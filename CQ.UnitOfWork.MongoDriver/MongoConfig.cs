@@ -11,5 +11,7 @@ namespace CQ.UnitOfWork.MongoDriver
     public class MongoConfig : OrmConfig
     {
         public Action<ClusterBuilder>? ClusterConfigurator { get; set; }
+
+        public MongoConfig() : base(Orm.MONGO_DRIVER) { }
     }
 }

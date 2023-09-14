@@ -1,5 +1,4 @@
-﻿using CQ.UnitOfWork.Entities.Context;
-using CQ.UnitOfWork.Entities.DataAccessConfig;
+﻿using CQ.UnitOfWork.EfCore;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;

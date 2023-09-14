@@ -11,9 +11,12 @@ namespace CQ.UnitOfWork.Abstractions
     {
         public readonly Orm Orm;
 
-        public Repository(Orm orm)
+        public readonly string ConnectedTo;
+
+        public Repository(Orm orm, string connectedTo)
         {
             this.Orm = orm;
+            this.ConnectedTo = connectedTo;
         }
 
         public abstract TEntity Create(TEntity entity);

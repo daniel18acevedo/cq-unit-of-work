@@ -1,28 +1,14 @@
 ﻿using CQ.UnitOfWork.Abstractions;
+using CQ.UnitOfWork.Abstractions.Extensions;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CQ.UnitOfWork
 {
     public static class UnitOfWorkInit
     {
-        public static void AddScopedUnitOfWork(this IServiceCollection services)
+        public static void AddUnitOfWork(this IServiceCollection services, LifeCycle lifeCycle=LifeCycle.SCOPED)
         {
-            services.AddScoped<IUnitOfWork, UnitOfWorkService>();
-        }
-
-        public static void AddTransientUnitOfWork(this IServiceCollection services)
-        {
-            services.AddTransient<IUnitOfWork, UnitOfWorkService>();
-        }
-
-        public static void AddSingletonUnitOfWork(this IServiceCollection services)
-        {
-            services.AddSingleton<IUnitOfWork, UnitOfWorkService>();
+            services.AddService<IUnitOfWork, UnitOfWorkService>(lifeCycle);
         }
     }
 }

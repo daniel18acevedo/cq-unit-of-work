@@ -1,12 +1,10 @@
+using CQ.UnitOfWork;
+using CQ.UnitOfWork.Abstractions;
 using CQ.UnitOfWork.Api.Controllers;
-using CQ.UnitOfWork.Entities;
-using CQ.UnitOfWork.Entities.Context;
-using CQ.UnitOfWork.Entities.DataAccessConfig;
-using CQ.UnitOfWork.Entities.ServiceConfig;
-using CQ.UnitOfWork.Init;
+using CQ.UnitOfWork.EfCore;
+using CQ.UnitOfWork.MongoDriver;
 using dotenv.net;
 using Microsoft.EntityFrameworkCore;
-using UnitOfWork.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,17 +19,16 @@ builder.Services.AddUnitOfWork();
 
 
 
-
-
 var efCoreConnectionString = Environment.GetEnvironmentVariable($"efcore-connection-string");
 // "Filename=:memory:"
-builder.Services.AddEfCoreOrm<ConcreteContext>(new EfCoreConfig
+builder.Services.AddEfCoreContext<ConcreteContext>(new EfCoreConfig
 {
     DatabaseConnection = new DatabaseConfig
     {
         ConnectionString = efCoreConnectionString,
         DatabaseName = "UnitOfWork"
     },
+    Engine = EfCoreDataBaseEngine.SQL
 });
 
 builder.Services.AddEfCoreRepository<User>();
@@ -45,7 +42,7 @@ builder.Services.AddEfCoreRepository<User>();
 
 
 var mongoConnectionString = Environment.GetEnvironmentVariable($"mongo-connection-string");
-builder.Services.AddMongoDriverOrm(
+builder.Services.AddMongoContext(
         new MongoConfig
         {
             DatabaseConnection = new DatabaseConfig
@@ -73,6 +70,4 @@ app.Run();
 public class ConcreteContext : EfCoreContext
 {
     public DbSet<User> Users { get; set; }
-
-    public ConcreteContext(EfCoreConfig config) : base(config) { }
 }

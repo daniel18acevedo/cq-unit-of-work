@@ -12,6 +12,13 @@ namespace CQ.UnitOfWork.Abstractions
 
         public bool UseDefaultQueryLogger { get; set; }
 
+        public Orm Orm { get; set; }
+
+        public OrmConfig(Orm orm)
+        {
+            this.Orm = orm;
+        }
+
         public void Assert()
         {
             if(this.DatabaseConnection is null)

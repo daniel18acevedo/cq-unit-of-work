@@ -12,6 +12,53 @@ namespace CQ.UnitOfWork.EfCore
 {
     public abstract class EfCoreContext : DbContext, IDatabaseContext
     {
+        private readonly EfCoreConfig? _config;
+
+        public EfCoreContext() { }
+
+        public EfCoreContext(EfCoreConfig config)
+        {
+            this._config = config;
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (optionsBuilder.IsConfigured || this._config is null)
+            {
+                return;
+            }
+
+            this._config.Assert();
+            switch (this._config.Engine)
+            {
+                case EfCoreDataBaseEngine.SQL:
+                    {
+                        optionsBuilder.UseSqlServer(this._config.DatabaseConnection.ConnectionString);
+                        break;
+                    }
+
+                case EfCoreDataBaseEngine.SQL_LITE:
+                    {
+                        optionsBuilder.UseSqlite(new SqliteConnection(this._config.DatabaseConnection.ConnectionString));
+                        break;
+                    }
+
+                default:
+                    {
+                        throw new ArgumentException($"Engine {this._config.Engine} not supported");
+                    }
+            }
+
+            if (this._config.UseDefaultQueryLogger)
+            {
+                optionsBuilder.LogTo(Console.WriteLine);
+            }
+            else if (this._config.Logger is not null)
+            {
+                optionsBuilder.LogTo(this._config.Logger);
+            }
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             var contextAssembly = Assembly.GetExecutingAssembly();

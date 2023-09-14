@@ -3,17 +3,11 @@ using CQ.UnitOfWork.MongoDriver.Abstractions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace CQ.UnitOfWork.MongoDriver
 {
-    internal class MongoDriverRepository<TEntity> : Repository<TEntity>, IMongoDriverRepository<TEntity> where TEntity : class
+    public class MongoDriverRepository<TEntity> : Repository<TEntity>, IMongoDriverRepository<TEntity> where TEntity : class
     {
         protected readonly IMongoCollection<TEntity> _collection;
         protected readonly IMongoCollection<BsonDocument> _genericCollection;

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CQ.UnitOfWork.EfCore
 {
-    public enum EfCoreDataBaseEngines
+    public enum EfCoreDataBaseEngine
     {
         SQL,
         SQL_LITE

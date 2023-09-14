@@ -7,13 +7,19 @@ namespace CQ.UnitOfWork
     {
         private readonly IServiceProvider _services;
 
-        public UnitOfWorkService(IServiceProvider services)
+        private readonly OrmConfig _defaultOrmConfig;
+
+        public UnitOfWorkService(IServiceProvider services, OrmConfig defaultOrmConfig)
         {
             this._services = services;
+            this._defaultOrmConfig = defaultOrmConfig;
         }
 
-        public IRepository<TEntity> GetEntityRepository<TEntity>(Orm? orm) where TEntity : class
+        public IRepository<TEntity> GetEntityRepository<TEntity>(Orm? orm, string? databaseName) where TEntity : class
         {
+            orm ??= this._defaultOrmConfig.Orm;
+            databaseName ??= this._defaultOrmConfig.DatabaseConnection.DatabaseName;
+
             var entityRepositories= this._services.GetServices<Repository<TEntity>>();
 
             if(entityRepositories is null || !entityRepositories.Any())
@@ -21,11 +27,18 @@ namespace CQ.UnitOfWork
                 throw new ArgumentException($"Repository for entity ${typeof(TEntity).Name} not loaded");
             }
 
-            var entityRepository = entityRepositories.FirstOrDefault(repo => repo.Orm == orm);
+            entityRepositories = entityRepositories.Where(repo => repo.Orm == orm);
+
+            if(!entityRepositories.Any())
+            {
+                throw new ArgumentException($"Repository for entity ${typeof(TEntity).Name} of orm {orm} not loaded");
+            }
+
+            var entityRepository = entityRepositories.FirstOrDefault(repo => repo.ConnectedTo == databaseName);
 
             if(entityRepository is null)
             {
-                throw new ArgumentException($"Repository for entity ${typeof(TEntity).Name} of orm {orm} not loaded");
+                throw new ArgumentException($"Repository for entity ${typeof(TEntity).Name} of orm {orm} connected to {databaseName} not loaded");
             }
 
             return entityRepository;

@@ -1,6 +1,6 @@
-using CQ.UnitOfWork.Core;
-using CQ.UnitOfWork.Core.Mongo;
-using CQ.UnitOfWork.Entities;
+using CQ.UnitOfWork.Abstractions;
+using CQ.UnitOfWork.MongoDriver;
+using CQ.UnitOfWork.MongoDriver.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Attributes;
@@ -11,11 +11,11 @@ namespace CQ.UnitOfWork.Api.Controllers
     [Route("mongo/users")]
     public class UserMongoController : ControllerBase
     {
-        private readonly IMongoRepository<UserMongo> _repository;
+        private readonly IMongoDriverRepository<UserMongo> _repository;
 
         public UserMongoController(IUnitOfWork unitOfWork)
         {
-            this._repository = unitOfWork.GetMongoRepository<UserMongo>();
+            this._repository = unitOfWork.GetRepository<IMongoDriverRepository<UserMongo>>();
         }
 
         [HttpGet]
@@ -78,8 +78,8 @@ namespace CQ.UnitOfWork.Api.Controllers
         }
     }
 
-    public class UserMongoRepository: MongoRepository<UserMongo>
+    public class UserMongoRepository: MongoDriverRepository<UserMongo>
     {
-        public UserMongoRepository(MongoConnection connection) : base(connection, "Users") { }
+        public UserMongoRepository(MongoContext context) : base(context, "Users") { }
     }
 }
