@@ -1,10 +1,22 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+		<PackageId>CQ.UnitOfWork</PackageId>
+		<RepositoryType>git</RepositoryType>
+		<RepositoryUrl>https://github.com/daniel18acevedo/cq-unit-of-work</RepositoryUrl>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Title>Unit of Work</Title>
+		<Authors>Code Quality</Authors>
+		<Company>Code Quality</Company>
+		<Product>Unit Of Work</Product>
+		<Description>
+			A package that implements the pattern unit of work and provides several base repositories for different ORMs.
+		</Description>
+		<PackageTags>unitOfWork, cq, codeQuality</PackageTags>
+	</PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
