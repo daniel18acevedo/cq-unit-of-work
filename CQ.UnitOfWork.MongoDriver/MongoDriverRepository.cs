@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 
 namespace CQ.UnitOfWork.MongoDriver
 {
-    public class MongoDriverRepository<TEntity> : Repository<TEntity>, IMongoDriverRepository<TEntity> where TEntity : class
+    public class MongoDriverRepository<TEntity> : IMongoDriverRepository<TEntity> where TEntity : class
     {
         protected readonly IMongoCollection<TEntity> _collection;
         protected readonly IMongoCollection<BsonDocument> _genericCollection;
@@ -27,37 +27,37 @@ namespace CQ.UnitOfWork.MongoDriver
             this._genericCollection = mongoContext.GetGenericCollection(collectionName);
         }
 
-        public override async Task<TEntity> CreateAsync(TEntity entity)
+        public async Task<TEntity> CreateAsync(TEntity entity)
         {
             await this._collection.InsertOneAsync(entity).ConfigureAwait(false);
 
             return entity;
         }
 
-        public override TEntity Create(TEntity entity)
+        public TEntity Create(TEntity entity)
         {
             this._collection.InsertOne(entity);
 
             return entity;
         }
 
-        public override async Task DeleteAsync(Expression<Func<TEntity, bool>> expression)
+        public async Task DeleteAsync(Expression<Func<TEntity, bool>> expression)
         {
             var deleteResult = await this._collection.DeleteOneAsync(expression).ConfigureAwait(false);
         }
 
-        public override void Delete(Expression<Func<TEntity, bool>> expression)
+        public void Delete(Expression<Func<TEntity, bool>> expression)
         {
             this._collection.DeleteOne(expression);
         }
 
-        public override async Task<IList<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? expression = null)
+        public async Task<IList<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? expression = null)
         {
             expression ??= e => true;
             return await this._collection.Find(expression).ToListAsync().ConfigureAwait(false);
         }
 
-        public override IList<TEntity> GetAll(Expression<Func<TEntity, bool>>? expression)
+        public IList<TEntity> GetAll(Expression<Func<TEntity, bool>>? expression)
         {
             expression ??= e => true;
 
@@ -65,7 +65,7 @@ namespace CQ.UnitOfWork.MongoDriver
         }
 
 
-        public override async Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> expression)
+        public async Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> expression)
         {
             var entity = await this.GetOrDefaultAsync(expression).ConfigureAwait(false);
 
@@ -77,7 +77,7 @@ namespace CQ.UnitOfWork.MongoDriver
             return entity;
         }
 
-        public override TEntity Get(Expression<Func<TEntity, bool>> expression)
+        public TEntity Get(Expression<Func<TEntity, bool>> expression)
         {
             var entity = this.GetOrDefault(expression);
 
@@ -89,7 +89,7 @@ namespace CQ.UnitOfWork.MongoDriver
             return entity;
         }
 
-        public override async Task<TEntity> GetByPropAsync(string value, string? prop = null)
+        public async Task<TEntity> GetByPropAsync(string value, string? prop = null)
         {
             prop ??= "_id";
             var filter = Builders<BsonDocument>.Filter.Eq(prop, value);
@@ -104,7 +104,7 @@ namespace CQ.UnitOfWork.MongoDriver
             return BsonSerializer.Deserialize<TEntity>(entity);
         }
 
-        public override TEntity GetByProp(string value, string? prop = "_id")
+        public TEntity GetByProp(string value, string? prop = "_id")
         {
             var filter = Builders<BsonDocument>.Filter.Eq(prop, value);
 
@@ -118,14 +118,14 @@ namespace CQ.UnitOfWork.MongoDriver
             return BsonSerializer.Deserialize<TEntity>(entity);
         }
 
-        public override async Task<TEntity?> GetOrDefaultAsync(Expression<Func<TEntity, bool>> expression)
+        public async Task<TEntity?> GetOrDefaultAsync(Expression<Func<TEntity, bool>> expression)
         {
             var entity = await this._collection.Find(expression).FirstOrDefaultAsync().ConfigureAwait(false);
 
             return entity;
         }
 
-        public override TEntity? GetOrDefault(Expression<Func<TEntity, bool>> expression)
+        public TEntity? GetOrDefault(Expression<Func<TEntity, bool>> expression)
         {
             return this._collection.Find(expression).FirstOrDefault();
         }

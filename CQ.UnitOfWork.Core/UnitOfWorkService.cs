@@ -7,34 +7,21 @@ namespace CQ.UnitOfWork
     {
         private readonly IServiceProvider _services;
 
-        private readonly OrmConfig _defaultOrmConfig;
-
-        public UnitOfWorkService(IServiceProvider services, OrmConfig defaultOrmConfig)
+        public UnitOfWorkService(IServiceProvider services)
         {
             this._services = services;
-            this._defaultOrmConfig = defaultOrmConfig;
         }
 
-        public IRepository<TEntity> GetEntityRepository<TEntity>(Orm? orm, string? databaseName) where TEntity : class
+        public IRepository<TEntity> GetEntityRepository<TEntity>() where TEntity : class
         {
-            orm ??= this._defaultOrmConfig.Orm;
-            databaseName ??= this._defaultOrmConfig.DatabaseConnection.DatabaseName;
-
-            var entityRepositories= this._services.GetServices<Repository<TEntity>>();
+            var entityRepositories= this._services.GetServices<IRepository<TEntity>>();
 
             if(entityRepositories is null || !entityRepositories.Any())
             {
                 throw new ArgumentException($"Repository for entity ${typeof(TEntity).Name} not loaded");
             }
 
-            entityRepositories = entityRepositories.Where(repo => repo.Orm == orm);
-
-            if(!entityRepositories.Any())
-            {
-                throw new ArgumentException($"Repository for entity ${typeof(TEntity).Name} of orm {orm} not loaded");
-            }
-
-            var entityRepository = entityRepositories.FirstOrDefault(repo => repo.ConnectedTo == databaseName);
+            var entityRepository = entityRepositories.FirstOrDefault();
 
             if(entityRepository is null)
             {

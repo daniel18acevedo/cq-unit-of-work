@@ -69,7 +69,6 @@ namespace CQ.UnitOfWork.MongoDriver
                 return new MongoDriverRepository<TEntity>(mongoContext, collectionName);
             };
 
-            services.AddService<Repository<TEntity>>(implementationFactory, lifeCycle);
             services.AddService<IRepository<TEntity>>(implementationFactory, lifeCycle);
             services.AddService<IMongoDriverRepository<TEntity>>(implementationFactory, lifeCycle);
         }
@@ -79,7 +78,6 @@ namespace CQ.UnitOfWork.MongoDriver
             where TRepository : MongoDriverRepository<TEntity>
         {
 
-            services.AddService<Repository<TEntity>, TRepository>(lifeCycle);
             services.AddService<IRepository<TEntity>, TRepository>(lifeCycle);
             services.AddService<IMongoDriverRepository<TEntity>, TRepository>(lifeCycle);
         }
@@ -90,7 +88,6 @@ namespace CQ.UnitOfWork.MongoDriver
             where TRepository : MongoDriverRepository<TEntity>, TService
         {
 
-            services.AddService<Repository<TEntity>, TRepository>(lifeCycle);
             services.AddService<IRepository<TEntity>, TRepository>(lifeCycle);
             services.AddService<IMongoDriverRepository<TEntity>, TRepository>(lifeCycle);
             services.AddService<TService, TRepository>(lifeCycle);

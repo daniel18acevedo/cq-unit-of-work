@@ -8,7 +8,7 @@ using System.Linq.Expressions;
 
 namespace CQ.UnitOfWork.EfCore
 {
-    public class EfCoreRepository<TEntity> : Repository<TEntity>, IEfCoreRepository<TEntity>
+    public class EfCoreRepository<TEntity> : IEfCoreRepository<TEntity>
        where TEntity : class
     {
         private readonly DbSet<TEntity> _dbSet;
@@ -30,7 +30,7 @@ namespace CQ.UnitOfWork.EfCore
         }
 
         #region Create
-        public override async Task<TEntity> CreateAsync(TEntity entity)
+        public async Task<TEntity> CreateAsync(TEntity entity)
         {
             await this._dbSet.AddAsync(entity).ConfigureAwait(false);
 
@@ -39,7 +39,7 @@ namespace CQ.UnitOfWork.EfCore
             return entity;
         }
 
-        public override TEntity Create(TEntity entity)
+        public TEntity Create(TEntity entity)
         {
             this._dbSet.Add(entity);
 
@@ -50,7 +50,7 @@ namespace CQ.UnitOfWork.EfCore
         #endregion
 
         #region Delete
-        public override async Task DeleteAsync(Expression<Func<TEntity, bool>> expression)
+        public async Task DeleteAsync(Expression<Func<TEntity, bool>> expression)
         {
             var entitiesToRemove = this._dbSet.Where(expression);
 
@@ -59,7 +59,7 @@ namespace CQ.UnitOfWork.EfCore
             await this._efCoreConnection.SaveChangesAsync().ConfigureAwait(false);
         }
 
-        public override async void Delete(Expression<Func<TEntity, bool>> expression)
+        public async void Delete(Expression<Func<TEntity, bool>> expression)
         {
             var entitiesToRemove = this._dbSet.Where(expression);
 
@@ -70,12 +70,12 @@ namespace CQ.UnitOfWork.EfCore
         #endregion
 
         #region GetAll
-        public override async Task<IList<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? expression = null)
+        public async Task<IList<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? expression = null)
         {
             return await this._dbSet.NullableWhere(expression).ToListAsync().ConfigureAwait(false);
         }
 
-        public override IList<TEntity> GetAll(Expression<Func<TEntity, bool>>? expression = null)
+        public IList<TEntity> GetAll(Expression<Func<TEntity, bool>>? expression = null)
         {
             return this._dbSet.NullableWhere(expression).ToList();
         }
@@ -94,7 +94,7 @@ namespace CQ.UnitOfWork.EfCore
         #endregion
 
         #region Get
-        public override async Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> expression)
+        public async Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> expression)
         {
             var entity = await this.GetOrDefaultAsync(expression).ConfigureAwait(false);
 
@@ -106,7 +106,7 @@ namespace CQ.UnitOfWork.EfCore
             return entity;
         }
 
-        public override TEntity Get(Expression<Func<TEntity, bool>> expression)
+        public TEntity Get(Expression<Func<TEntity, bool>> expression)
         {
             var entity = this.GetOrDefault(expression);
 
@@ -120,7 +120,7 @@ namespace CQ.UnitOfWork.EfCore
         #endregion
 
         #region GetByProp
-        public override async Task<TEntity> GetByPropAsync(string value, string? prop = null)
+        public async Task<TEntity> GetByPropAsync(string value, string? prop = null)
         {
             prop ??= "Id";
             var entity = await this._dbSet.FirstOrDefaultAsync(e => EF.Property<string>(e, prop) == value).ConfigureAwait(false);
@@ -133,7 +133,7 @@ namespace CQ.UnitOfWork.EfCore
             return entity;
         }
 
-        public override TEntity GetByProp(string value, string? prop = "Id")
+        public TEntity GetByProp(string value, string? prop = "Id")
         {
             var entity = this._dbSet.FirstOrDefault(e => EF.Property<string>(e, prop) == value);
 
@@ -147,12 +147,12 @@ namespace CQ.UnitOfWork.EfCore
         #endregion
 
         #region GetOrDefault
-        public override async Task<TEntity?> GetOrDefaultAsync(Expression<Func<TEntity, bool>> expression)
+        public async Task<TEntity?> GetOrDefaultAsync(Expression<Func<TEntity, bool>> expression)
         {
             return await this._dbSet.Where(expression).FirstOrDefaultAsync().ConfigureAwait(false);
         }
 
-        public override TEntity? GetOrDefault(Expression<Func<TEntity, bool>> expression)
+        public TEntity? GetOrDefault(Expression<Func<TEntity, bool>> expression)
         {
             return this._dbSet.Where(expression).FirstOrDefault();
         }

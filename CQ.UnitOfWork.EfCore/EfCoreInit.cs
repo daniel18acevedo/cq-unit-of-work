@@ -56,7 +56,6 @@ namespace CQ.UnitOfWork.EfCore
 
         public static void AddEfCoreRepository<TEntity>(this IServiceCollection services, LifeCycle lifeCycle = LifeCycle.SCOPED) where TEntity : class
         {
-            services.AddService<Repository<TEntity>, EfCoreRepository<TEntity>>(lifeCycle);
             services.AddService<IRepository<TEntity>, EfCoreRepository<TEntity>>(lifeCycle);
             services.AddService<IEfCoreRepository<TEntity>, EfCoreRepository<TEntity>>(lifeCycle);
         }
@@ -65,7 +64,6 @@ namespace CQ.UnitOfWork.EfCore
             where TEntity : class
             where TRepository : EfCoreRepository<TEntity>
         {
-            services.AddService<Repository<TEntity>, TRepository>(lifeCycle);
             services.AddService<IRepository<TEntity>, TRepository>(lifeCycle);
             services.AddService<IEfCoreRepository<TEntity>, TRepository>(lifeCycle);
         }
@@ -75,7 +73,6 @@ namespace CQ.UnitOfWork.EfCore
             where TEntity : class
             where TRepository : EfCoreRepository<TEntity>, TService
         {
-            services.AddService<Repository<TEntity>, TRepository>(lifeCycle);
             services.AddService<IRepository<TEntity>, TRepository>(lifeCycle);
             services.AddService<IEfCoreRepository<TEntity>, TRepository>(lifeCycle);
             services.AddService<TService, TRepository>(lifeCycle);
