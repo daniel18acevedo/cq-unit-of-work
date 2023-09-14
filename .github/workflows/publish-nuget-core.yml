@@ -2,9 +2,6 @@ on:
   push:
     branches:
     - main-UoW
-  pull_request:
-    branches :
-    - main-UoW
 jobs:
   Publish:
     runs-on: ubuntu-latest
@@ -15,10 +12,10 @@ jobs:
     - name: Locate to UoW core
       run: cd CQ.UnitOfWork.Core
     - name: Build
-      run: dotnet build --configuration Release /p:Version=${VERSION}
+      run: dotnet build --configuration Release
     - name: Pack
-      run: dotnet pack --configuration Release /p:Version=${VERSION} --no-build --output .
+      run: dotnet pack --configuration Release --no-build --output .
     - name: Push
-      run: dotnet nuget push CQ.UnitOfWork.${VERSION}.nupkg --source https://api.nuget.org/v3/index.json --api-key ${NUGET_API_KEY}
+      run: dotnet nuget push CQ.UnitOfWork.nupkg --source https://api.nuget.org/v3/index.json --api-key ${NUGET_API_KEY}
       env:
         NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
