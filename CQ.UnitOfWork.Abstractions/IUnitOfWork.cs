@@ -2,7 +2,7 @@
 {
     public interface IUnitOfWork
     {
-        IRepository<TEntity> GetEntityRepository<TEntity>(Orm? orm) where TEntity : class;
+        IRepository<TEntity> GetEntityRepository<TEntity>() where TEntity : class;
 
         TRepository GetRepository<TRepository>() where TRepository : class;
     }

@@ -1,4 +1,5 @@
 using CQ.UnitOfWork.Abstractions;
+using CQ.UnitOfWork.Api.MongoDriver.DataAccess;
 using CQ.UnitOfWork.MongoDriver;
 using CQ.UnitOfWork.MongoDriver.Abstractions;
 using Microsoft.AspNetCore.Mvc;
@@ -12,16 +13,18 @@ namespace CQ.UnitOfWork.Api.Controllers
     public class UserMongoController : ControllerBase
     {
         private readonly IMongoDriverRepository<UserMongo> _repository;
+        private readonly IRepository<UserMongo> _genericRepository;
 
         public UserMongoController(IUnitOfWork unitOfWork)
         {
             this._repository = unitOfWork.GetRepository<IMongoDriverRepository<UserMongo>>();
+            this._genericRepository= unitOfWork.GetEntityRepository<UserMongo>();
         }
 
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var users = await this._repository.GetAllAsync().ConfigureAwait(false);
+            var users = await this._genericRepository.GetAllAsync().ConfigureAwait(false);
 
             return Ok(users);
         }
@@ -46,40 +49,5 @@ namespace CQ.UnitOfWork.Api.Controllers
 
             return Ok(userCreated);
         }
-    }
-
-    [BsonIgnoreExtraElements]
-    public class UserMongo
-    {
-        [BsonId]
-        public string Id { get; set; }
-
-        public string Name { get; set; }
-
-        public BookMongo Book { get; set; }
-
-        public UserMongo()
-        {
-            Id = Guid.NewGuid().ToString().Replace("-", "");
-        }
-    }
-
-    [BsonIgnoreExtraElements]
-    public class BookMongo
-    {
-        [BsonId]
-        public string Id { get; set; }
-
-        public string Name { get; set; }
-
-        public BookMongo()
-        {
-            Id = Guid.NewGuid().ToString().Replace("-", "");
-        }
-    }
-
-    public class UserMongoRepository: MongoDriverRepository<UserMongo>
-    {
-        public UserMongoRepository(MongoContext context) : base(context, "Users") { }
     }
 }

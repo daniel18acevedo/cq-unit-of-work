@@ -17,7 +17,7 @@ namespace CQ.UnitOfWork.EfCore
 
         private readonly string _tableName;
 
-        public EfCoreRepository(EfCoreContext efCoreContext) : base(Orm.EF_CORE, efCoreContext.Database.ProviderName)
+        public EfCoreRepository(EfCoreContext efCoreContext)
         {
             if (efCoreContext is null)
             {

@@ -13,7 +13,7 @@ namespace CQ.UnitOfWork.MongoDriver
         protected readonly IMongoCollection<BsonDocument> _genericCollection;
         protected readonly string _collectionName;
 
-        public MongoDriverRepository(MongoContext mongoContext, string? collectionName = null) : base(Orm.MONGO_DRIVER)
+        public MongoDriverRepository(MongoContext mongoContext, string? collectionName = null)
         {
             if (mongoContext is null)
             {

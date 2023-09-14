@@ -25,7 +25,7 @@ namespace CQ.UnitOfWork
 
             if(entityRepository is null)
             {
-                throw new ArgumentException($"Repository for entity ${typeof(TEntity).Name} of orm {orm} connected to {databaseName} not loaded");
+                throw new ArgumentException($"Repository for entity ${typeof(TEntity).Name} not loaded");
             }
 
             return entityRepository;

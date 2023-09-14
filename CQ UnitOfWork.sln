@@ -13,17 +13,23 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CQ.EfCore.Migrations", "CQ.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnitOfWork", "UnitOfWork", "{3A37B592-E953-4FAF-B921-63A102369E63}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQ.UnitOfWork", "CQ.UnitOfWork.Core\CQ.UnitOfWork.csproj", "{C11BBDFE-DB3A-4183-9E7F-9A92FE4E4D24}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CQ.UnitOfWork", "CQ.UnitOfWork.Core\CQ.UnitOfWork.csproj", "{C11BBDFE-DB3A-4183-9E7F-9A92FE4E4D24}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQ.UnitOfWork.EfCore", "CQ.UnitOfWork.EfCore\CQ.UnitOfWork.EfCore.csproj", "{7D63907A-F440-42C9-BD00-5A2FC8D8F042}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CQ.UnitOfWork.EfCore", "CQ.UnitOfWork.EfCore\CQ.UnitOfWork.EfCore.csproj", "{7D63907A-F440-42C9-BD00-5A2FC8D8F042}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQ.UnitOfWork.Abstractions", "CQ.UnitOfWork.Abstractions\CQ.UnitOfWork.Abstractions.csproj", "{511B174F-B6E3-4E5F-8837-711BC3CF5B8B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CQ.UnitOfWork.Abstractions", "CQ.UnitOfWork.Abstractions\CQ.UnitOfWork.Abstractions.csproj", "{511B174F-B6E3-4E5F-8837-711BC3CF5B8B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQ.UnitOfWork.EfCore.Abstractions", "CQ.UnitOfWork.EfCore.Abstractions\CQ.UnitOfWork.EfCore.Abstractions.csproj", "{A4427AFD-8291-4AB8-AB3B-3541AC08CC14}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CQ.UnitOfWork.EfCore.Abstractions", "CQ.UnitOfWork.EfCore.Abstractions\CQ.UnitOfWork.EfCore.Abstractions.csproj", "{A4427AFD-8291-4AB8-AB3B-3541AC08CC14}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQ.UnitOfWork.MongoDriver", "CQ.UnitOfWork.MongoDriver\CQ.UnitOfWork.MongoDriver.csproj", "{4085511C-3BD9-408A-A0D1-CC2D0A74B35A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CQ.UnitOfWork.MongoDriver", "CQ.UnitOfWork.MongoDriver\CQ.UnitOfWork.MongoDriver.csproj", "{4085511C-3BD9-408A-A0D1-CC2D0A74B35A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQ.UnitOfWork.MongoDriver.Abstractions", "CQ.UnitOfWork.MongoDriver.Abstractions\CQ.UnitOfWork.MongoDriver.Abstractions.csproj", "{5B6683FB-F914-4E52-B00F-FD2D76C2B5DE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CQ.UnitOfWork.MongoDriver.Abstractions", "CQ.UnitOfWork.MongoDriver.Abstractions\CQ.UnitOfWork.MongoDriver.Abstractions.csproj", "{5B6683FB-F914-4E52-B00F-FD2D76C2B5DE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Api use", "Api use", "{49E5EF16-20B9-4400-8827-DBC41363D71E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQ.UnitOfWork.Api.EfCore.DataAccess", "CQ.UnitOfWork.Api.DataAccess\CQ.UnitOfWork.Api.EfCore.DataAccess.csproj", "{80AA0341-C30D-485F-8819-4BF3D8AB32CE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQ.UnitOfWork.Api.MongoDriver.DataAccess", "CQ.UnitOfWork.Api.MongoDriver.DataAccess\CQ.UnitOfWork.Api.MongoDriver.DataAccess.csproj", "{CDAB4FBA-140E-4120-A44A-D4E71E6BE5AC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -70,17 +76,28 @@ Global
 		{5B6683FB-F914-4E52-B00F-FD2D76C2B5DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5B6683FB-F914-4E52-B00F-FD2D76C2B5DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5B6683FB-F914-4E52-B00F-FD2D76C2B5DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80AA0341-C30D-485F-8819-4BF3D8AB32CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80AA0341-C30D-485F-8819-4BF3D8AB32CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80AA0341-C30D-485F-8819-4BF3D8AB32CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80AA0341-C30D-485F-8819-4BF3D8AB32CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CDAB4FBA-140E-4120-A44A-D4E71E6BE5AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CDAB4FBA-140E-4120-A44A-D4E71E6BE5AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CDAB4FBA-140E-4120-A44A-D4E71E6BE5AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CDAB4FBA-140E-4120-A44A-D4E71E6BE5AC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{273B2493-AC0E-4F87-BFD1-FB0348EC2B26} = {49E5EF16-20B9-4400-8827-DBC41363D71E}
 		{C11BBDFE-DB3A-4183-9E7F-9A92FE4E4D24} = {3A37B592-E953-4FAF-B921-63A102369E63}
 		{7D63907A-F440-42C9-BD00-5A2FC8D8F042} = {3A37B592-E953-4FAF-B921-63A102369E63}
 		{511B174F-B6E3-4E5F-8837-711BC3CF5B8B} = {3A37B592-E953-4FAF-B921-63A102369E63}
 		{A4427AFD-8291-4AB8-AB3B-3541AC08CC14} = {3A37B592-E953-4FAF-B921-63A102369E63}
 		{4085511C-3BD9-408A-A0D1-CC2D0A74B35A} = {3A37B592-E953-4FAF-B921-63A102369E63}
 		{5B6683FB-F914-4E52-B00F-FD2D76C2B5DE} = {3A37B592-E953-4FAF-B921-63A102369E63}
+		{80AA0341-C30D-485F-8819-4BF3D8AB32CE} = {49E5EF16-20B9-4400-8827-DBC41363D71E}
+		{CDAB4FBA-140E-4120-A44A-D4E71E6BE5AC} = {49E5EF16-20B9-4400-8827-DBC41363D71E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {14B7C1DA-270F-4DCC-8F85-0DFE44920C1F}

@@ -12,7 +12,8 @@ namespace CQ.UnitOfWork.EfCore
         public static void AddEfCoreContext<TContext>(
             this IServiceCollection services,
             EfCoreConfig config,
-            LifeCycle lifeCycle = LifeCycle.SCOPED) where TContext : EfCoreContext
+            LifeCycle lifeCycle = LifeCycle.SCOPED)
+            where TContext : EfCoreContext
         {
             config.Assert();
 
@@ -50,6 +51,7 @@ namespace CQ.UnitOfWork.EfCore
             var lifeTime = lifeCycle == LifeCycle.SCOPED ? ServiceLifetime.Scoped : lifeCycle == LifeCycle.TRANSIENT ? ServiceLifetime.Transient : ServiceLifetime.Singleton;
 
             services.AddDbContext<EfCoreContext, TContext>(actions, lifeTime);
+            services.AddService<IDatabaseContext, TContext>(lifeCycle);
         }
 
         public static void AddEfCoreRepository<TEntity>(this IServiceCollection services, LifeCycle lifeCycle = LifeCycle.SCOPED) where TEntity : class

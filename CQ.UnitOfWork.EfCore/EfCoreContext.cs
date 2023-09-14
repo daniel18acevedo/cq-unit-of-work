@@ -16,10 +16,20 @@ namespace CQ.UnitOfWork.EfCore
 
         public EfCoreContext() { }
 
+        /// <summary>
+        /// Option less complicated for migrations
+        /// </summary>
+        /// <param name="config"></param>
         public EfCoreContext(EfCoreConfig config)
         {
             this._config = config;
         }
+
+        /// <summary>
+        /// Necessary when using AddDbContext
+        /// </summary>
+        /// <param name="options"></param>
+        public EfCoreContext(DbContextOptions options) : base(options) { }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -82,9 +92,16 @@ namespace CQ.UnitOfWork.EfCore
 
         public bool Ping(string? collection = null)
         {
-            var ping = this.Database.ExecuteSqlRaw($"SELECT 1 FROM {collection ?? "USERS"};");
-
-            return ping == 1;
+            try
+            {
+                return this.Database.CanConnect();
+            }
+            catch (Exception ex)
+            {
+                // Handle or log the exception
+                Console.WriteLine($"Error pinging the database: {ex.Message}");
+                return false;
+            }
         }
 
         public DbSet<TEntity> GetEntitySet<TEntity>()

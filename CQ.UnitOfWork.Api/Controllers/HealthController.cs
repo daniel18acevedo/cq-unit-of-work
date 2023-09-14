@@ -13,8 +13,8 @@ namespace CQ.UnitOfWork.Api.Controllers
 
         public HealthController(IUnitOfWork unitOfWork, IDatabaseContext databaseContext)
         {
-            _unitOfWork = unitOfWork;
-            _dataBaseContext = databaseContext;
+            this._unitOfWork = unitOfWork;
+            this._dataBaseContext= databaseContext;
         }
 
         [HttpGet]

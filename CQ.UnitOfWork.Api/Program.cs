@@ -1,6 +1,8 @@
 using CQ.UnitOfWork;
 using CQ.UnitOfWork.Abstractions;
 using CQ.UnitOfWork.Api.Controllers;
+using CQ.UnitOfWork.Api.DataAccess;
+using CQ.UnitOfWork.Api.MongoDriver.DataAccess;
 using CQ.UnitOfWork.EfCore;
 using CQ.UnitOfWork.MongoDriver;
 using dotenv.net;
@@ -32,27 +34,25 @@ builder.Services.AddEfCoreContext<ConcreteContext>(new EfCoreConfig
 });
 
 builder.Services.AddEfCoreRepository<User>();
+builder.Services.AddEfCoreRepository<Book>();
 
 
 
 
 
 
+//var mongoConnectionString = Environment.GetEnvironmentVariable($"mongo-connection-string");
+//builder.Services.AddMongoContext(
+//        new MongoConfig
+//        {
+//            DatabaseConnection = new DatabaseConfig
+//            {
+//                ConnectionString = mongoConnectionString,
+//                DatabaseName = "UnitOfWork"
+//            }
+//        });
 
-
-
-var mongoConnectionString = Environment.GetEnvironmentVariable($"mongo-connection-string");
-builder.Services.AddMongoContext(
-        new MongoConfig
-        {
-            DatabaseConnection = new DatabaseConfig
-            {
-                ConnectionString = mongoConnectionString,
-                DatabaseName = "UnitOfWork"
-            }
-        });
-
-builder.Services.AddMongoRepository<UserMongo>("Users");
+//builder.Services.AddMongoRepository<UserMongo>("Users");
 
 
 var app = builder.Build();
@@ -66,8 +66,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-
-public class ConcreteContext : EfCoreContext
-{
-    public DbSet<User> Users { get; set; }
-}

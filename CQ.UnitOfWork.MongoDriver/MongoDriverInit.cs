@@ -30,14 +30,17 @@ namespace CQ.UnitOfWork.MongoDriver
                 return mongoClient;
             }, mongoClientLifeCycle);
 
-            services.AddService(serviceProvider =>
+            var contextImplementation = (IServiceProvider serviceProvider) =>
             {
                 var mongoClient = serviceProvider.GetRequiredService<IMongoClient>();
 
                 var mongoDatabase = mongoClient.GetDatabase(config.DatabaseConnection.DatabaseName);
 
                 return new MongoContext(mongoDatabase);
-            }, contextLifeCycle);
+            };
+
+            services.AddService(contextImplementation, contextLifeCycle);
+            services.AddService<IDatabaseContext>(contextImplementation, contextLifeCycle);
         }
 
         private static Action<ClusterBuilder>? BuildClusterConfigurator(Action<ClusterBuilder>? clusterConfigurator = null, bool useDefaultClusterConfigurator = false)

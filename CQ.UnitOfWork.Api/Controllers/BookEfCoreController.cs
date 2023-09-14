@@ -8,14 +8,14 @@ using MongoDB.Bson.Serialization.Attributes;
 namespace CQ.UnitOfWork.Api.Controllers
 {
     [ApiController]
-    [Route("ef-core/users")]
-    public class UserEfCoreController : ControllerBase
+    [Route("ef-core/books")]
+    public class BookEfCoreController : ControllerBase
     {
-        private readonly IEfCoreRepository<User> _repository;
+        private readonly IEfCoreRepository<Book> _repository;
 
-        public UserEfCoreController(IUnitOfWork unitOfWork)
+        public BookEfCoreController(IUnitOfWork unitOfWork)
         {
-            this._repository = unitOfWork.GetRepository<IEfCoreRepository<User>>();
+            this._repository = unitOfWork.GetRepository<IEfCoreRepository<Book>>();
         }
 
         [HttpGet]
@@ -37,7 +37,7 @@ namespace CQ.UnitOfWork.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateAsync()
         {
-            var user = new User
+            var user = new Book
             {
                 Name = "test",
             };
