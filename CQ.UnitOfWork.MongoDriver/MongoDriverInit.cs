@@ -16,8 +16,7 @@ namespace CQ.UnitOfWork.MongoDriver
             this IServiceCollection services,
             MongoConfig config,
             LifeCycle contextLifeCycle = LifeCycle.SCOPED,
-            LifeCycle mongoClientLifeCycle = LifeCycle.SINGLETON
-            LifeCycle ormConfigLifeCycle = LifeCycle.SCOPED)
+            LifeCycle mongoClientLifeCycle = LifeCycle.SINGLETON)
         {
             config.Assert();
 
@@ -39,8 +38,6 @@ namespace CQ.UnitOfWork.MongoDriver
 
                 return new MongoContext(mongoDatabase);
             }, contextLifeCycle);
-
-            services.AddService<OrmConfig, MongoConfig>((serviceProvider) => config, ormConfigLifeCycle);
         }
 
         private static Action<ClusterBuilder>? BuildClusterConfigurator(Action<ClusterBuilder>? clusterConfigurator = null, bool useDefaultClusterConfigurator = false)
