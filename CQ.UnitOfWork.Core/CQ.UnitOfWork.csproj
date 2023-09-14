@@ -13,7 +13,7 @@
 		<Company>Code Quality</Company>
 		<Product>Unit Of Work</Product>
 		<Description>
-			A package that implements the pattern unit of work and provides several base repositories for different ORMs.
+			A package that exports a service where you can get repositories for entities or specific repositories.
 		</Description>
 		<PackageTags>unitOfWork, cq, codeQuality</PackageTags>
 	</PropertyGroup>
