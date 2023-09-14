@@ -2,6 +2,9 @@ on:
   push:
     branches:
     - main-UoW
+  pull_request:
+    branches:
+    - main-UoW
 jobs:
   Publish:
     runs-on: ubuntu-latest
