@@ -16,6 +16,7 @@
 			A package that exports a service where you can get repositories for entities or specific repositories.
 		</Description>
 		<PackageTags>unitOfWork, cq, codeQuality</PackageTags>
+		<Version>1.1.1</Version>
 	</PropertyGroup>
 
   <ItemGroup>
