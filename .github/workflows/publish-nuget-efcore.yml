@@ -14,9 +14,6 @@ jobs:
       id: version
       run: echo "VERSION=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_ENV
 
-    - name: Locate to UoW efcore 
-      run: cd CQ.UnitOfWork.EfCore
-
     - name: Build
       run: dotnet build --configuration Release /p:Version=${VERSION}
     

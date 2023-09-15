@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-		<PackageId>CQ.UnitOfWork</PackageId>
+		<PackageId>CQ.UnitOfWork.EfCore</PackageId>
 		<RepositoryType>git</RepositoryType>
 		<RepositoryUrl>https://github.com/daniel18acevedo/cq-unit-of-work</RepositoryUrl>
 		<TargetFramework>net6.0</TargetFramework>
