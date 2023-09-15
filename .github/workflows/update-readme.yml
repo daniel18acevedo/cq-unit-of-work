@@ -13,4 +13,4 @@ jobs:
       - name: 'Learn Section Updater'
         uses: 'devorein/github-readme-learn-section-notion@master'
         with:
-          database_id: '0af55cbb35b24a0e9a483119432e8066'
+          database_id: 'b7b2f6ec85964936bb35d449b643ebfd'
