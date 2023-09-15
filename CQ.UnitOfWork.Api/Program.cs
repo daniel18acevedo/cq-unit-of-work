@@ -1,12 +1,8 @@
 using CQ.UnitOfWork;
 using CQ.UnitOfWork.Abstractions;
-using CQ.UnitOfWork.Api.Controllers;
-using CQ.UnitOfWork.Api.DataAccess;
-using CQ.UnitOfWork.Api.MongoDriver.DataAccess;
+using CQ.UnitOfWork.Api.EFCore.DataAccess;
 using CQ.UnitOfWork.EfCore;
-using CQ.UnitOfWork.MongoDriver;
 using dotenv.net;
-using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
