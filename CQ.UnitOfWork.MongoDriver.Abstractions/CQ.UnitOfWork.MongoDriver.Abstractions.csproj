@@ -8,12 +8,12 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-		<Title>Unit of Work with MongoDriver abstractions</Title>
+		<Title>Unit of Work with MongoDriver Abstractions</Title>
 		<Authors>Code Quality</Authors>
 		<Company>Code Quality</Company>
-		<Product>Unit of Work with MongoDriver abstractions</Product>
+		<Product>Unit Of Work with MongoDriver Abstractions</Product>
 		<Description>
-			A package that defines the abstractions to be used for mongo repositories.
+      A package that defines abstractions to be used to operate mongo-driver orm.
 		</Description>
 		<PackageTags>unitOfWork, cq, codeQuality</PackageTags>
 	</PropertyGroup>

@@ -1,7 +1,7 @@
 on:
   pull_request:
     branches:
-    - "main-UoW-mongodriver-abstractions"
+    - main-UoW-mongodriver-abstractions
 jobs:
   Publish:
     runs-on: ubuntu-latest
