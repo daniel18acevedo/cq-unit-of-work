@@ -12,7 +12,7 @@ jobs:
 
     - name: Get Version from branch name
       id: version
-      run: echo "VERSION=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+      run: echo "VERSION=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_ENV
 
     - name: Locate to UoW core
       run: cd CQ.UnitOfWork.Core
