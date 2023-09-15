@@ -1,7 +1,7 @@
 on:
   push:
-    tags:
-    - "UoW.Abstractions-v[0-9]+.[0-9]+.[0-9]+"
+    branches:
+    - main-UoW-abstractions
 jobs:
   Publish:
     runs-on: ubuntu-latest
@@ -9,12 +9,14 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - name: Verify commit exists in origin/main
-      run: |
-        git fetch --no-tags --prune --depth=1 origin +refs/heads/*:refs/remotes/origin/*
-        git branch --remote --contains | grep origin/main
-    - name: Set VERSION variable from tag
-      run: echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
+
+    - name: Get Version from branch name
+      id: version
+      run: echo "VERSION=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_ENV
+
+    - name: Locate to UoW abstractions
+      run: cd CQ.UnitOfWork.Abstractions
+
     - name: Build
       run: dotnet build --configuration Release /p:Version=${VERSION}
     - name: Pack

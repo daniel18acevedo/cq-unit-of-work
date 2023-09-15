@@ -1,7 +1,7 @@
 on:
   push:
-    tags:
-    - "UoW-v[0-9]+.[0-9]+.[0-9]+"
+    branches:
+    - main-UoW
 jobs:
   Publish:
     runs-on: ubuntu-latest
