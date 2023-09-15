@@ -1,10 +1,23 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+		<PackageId>CQ.UnitOfWork.EfCore.Abstractions</PackageId>
+		<RepositoryType>git</RepositoryType>
+		<RepositoryUrl>https://github.com/daniel18acevedo/cq-unit-of-work</RepositoryUrl>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Title>Unit of Work with Efcore abstractions</Title>
+		<Authors>Code Quality</Authors>
+		<Company>Code Quality</Company>
+		<Product>Unit of Work with Efcore abstractions</Product>
+		<Description>
+			A package that defines abstractions to be used for configuring efcore.
+		</Description>
+		<PackageTags>unitOfWork, cq, codeQuality</PackageTags>
+		<Version>1.0.2</Version>
+	</PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\CQ.UnitOfWork.Abstractions\CQ.UnitOfWork.Abstractions.csproj" />
