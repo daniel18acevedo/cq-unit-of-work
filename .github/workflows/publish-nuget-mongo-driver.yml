@@ -1,5 +1,5 @@
 on:
-  push:
+  pull_request:
     branches:
     - main-UoW-mongodriver
 jobs:
@@ -13,9 +13,6 @@ jobs:
     - name: Get Version from branch name
       id: version
       run: echo "VERSION=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_ENV
-
-    - name: Locate to mongo driver
-      run: cd CQ.UnitOfWork.MongoDriver
 
     - name: Build
       run: dotnet build --configuration Release /p:Version=${VERSION}

@@ -14,13 +14,12 @@ jobs:
       id: version
       run: echo "VERSION=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_ENV
 
-    - name: Locate to UoW abstractions
-      run: cd CQ.UnitOfWork.Abstractions
-
     - name: Build
       run: dotnet build --configuration Release /p:Version=${VERSION}
+
     - name: Pack
       run: dotnet pack --configuration Release /p:Version=${VERSION} --no-build --output .
+      
     - name: Push
       run: dotnet nuget push CQ.UnitOfWork.Abstractions.${VERSION}.nupkg --source https://api.nuget.org/v3/index.json --api-key ${NUGET_API_KEY}
       env:
