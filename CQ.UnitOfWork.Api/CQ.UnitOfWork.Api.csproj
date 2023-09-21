@@ -13,12 +13,14 @@
   <ItemGroup>
     <ProjectReference Include="..\CQ.UnitOfWork.Abstractions\CQ.UnitOfWork.Abstractions.csproj" />
     <ProjectReference Include="..\CQ.UnitOfWork.Api.DataAccess\CQ.UnitOfWork.Api.EfCore.DataAccess.csproj" />
+    <ProjectReference Include="..\CQ.UnitOfWork.Api.EFCore.DataAccess\CQ.UnitOfWork.Api.EfCore.DataAccess.csproj" />
     <ProjectReference Include="..\CQ.UnitOfWork.Api.MongoDriver.DataAccess\CQ.UnitOfWork.Api.MongoDriver.DataAccess.csproj" />
     <ProjectReference Include="..\CQ.UnitOfWork.Core\CQ.UnitOfWork.csproj" />
     <ProjectReference Include="..\CQ.UnitOfWork.EfCore.Abstractions\CQ.UnitOfWork.EfCore.Abstractions.csproj" />
     <ProjectReference Include="..\CQ.UnitOfWork.EfCore\CQ.UnitOfWork.EfCore.csproj" />
     <ProjectReference Include="..\CQ.UnitOfWork.MongoDriver.Abstractions\CQ.UnitOfWork.MongoDriver.Abstractions.csproj" />
     <ProjectReference Include="..\CQ.UnitOfWork.MongoDriver\CQ.UnitOfWork.MongoDriver.csproj" />
+    <ProjectReference Include="..\CQ.UnitOfWork\CQ.UnitOfWork.csproj" />
   </ItemGroup>
 
 </Project>
