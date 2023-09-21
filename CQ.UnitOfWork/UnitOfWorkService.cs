@@ -29,7 +29,7 @@ namespace CQ.UnitOfWork
 
             this._unitContext = context;
 
-            var repository = this._services.GetRequiredService<IUnitRepository>();
+            var repository = this._services.GetRequiredService<IUnitRepository<TEntity>>();
 
             repository.SetContext(context);
 

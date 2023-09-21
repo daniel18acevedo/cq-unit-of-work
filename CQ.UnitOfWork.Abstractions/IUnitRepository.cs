@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace CQ.UnitOfWork.Abstractions
 {
-    public interface IDatabaseContext
+    public interface IUnitRepository<TEntity> : IRepository<TEntity>
+        where TEntity : class
     {
-        bool Ping(string? collection = null);
-
-        Task SaveChangesAsync();
+        void SetContext(IDatabaseContext context);
     }
 }

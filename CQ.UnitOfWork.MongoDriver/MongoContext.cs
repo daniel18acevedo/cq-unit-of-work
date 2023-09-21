@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Metrics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,6 +14,8 @@ namespace CQ.UnitOfWork.MongoDriver
     public class MongoContext : IDatabaseContext
     {
         private readonly IMongoDatabase _mongoDatabase;
+
+        private List<Action> _actions;
 
         public MongoContext(IMongoDatabase mongoDatabase)
         {
@@ -49,6 +52,16 @@ namespace CQ.UnitOfWork.MongoDriver
         public IMongoCollection<BsonDocument> GetGenericCollection(string? collectionName)
         {
             return GetEntityCollection<BsonDocument>(collectionName);
+        }
+
+        public void AddAction(Action action)
+        {
+
+        }
+
+        public async Task SaveChangesAsync()
+        {
+
         }
     }
 }
