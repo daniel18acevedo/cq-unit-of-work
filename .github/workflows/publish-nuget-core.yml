@@ -12,24 +12,24 @@ jobs:
 
     - name: Detect c# project updated
       run: |
-      if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q "CQ.UnitOfWork/"; then
-        echo "C# project CQ.UnitOfWork updated."
-      fi
-      if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q "CQ.UnitOfWork.Abstractions/"; then
-        echo "C# project CQ.UnitOfWork Abstractions updated."
-      fi
-      if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q "CQ.UnitOfWork.EfCore/"; then
-        echo "C# project CQ.UnitOfWork EfCore updated."
-      fi
-      if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q "CQ.UnitOfWork.EfCore.Abstractions/"; then
-        echo "C# project CQ.UnitOfWork EfCore Abstractions updated."
-      fi
-      if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q "CQ.UnitOfWork.MongoDriver/"; then
-        echo "C# project CQ.UnitOfWork MongoDriver updated."
-      fi
-      if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q "CQ.UnitOfWork.MongoDriver.Abstractions/"; then
-        echo "C# project CQ.UnitOfWork MongoDriver Abstractions updated."
-      fi
+            if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q "CQ.UnitOfWork/"; then
+              echo "C# project CQ.UnitOfWork updated."
+            fi
+            if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q "CQ.UnitOfWork.Abstractions/"; then
+              echo "C# project CQ.UnitOfWork Abstractions updated."
+            fi
+            if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q "CQ.UnitOfWork.EfCore/"; then
+              echo "C# project CQ.UnitOfWork EfCore updated."
+            fi
+            if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q "CQ.UnitOfWork.EfCore.Abstractions/"; then
+              echo "C# project CQ.UnitOfWork EfCore Abstractions updated."
+            fi
+            if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q "CQ.UnitOfWork.MongoDriver/"; then
+              echo "C# project CQ.UnitOfWork MongoDriver updated."
+            fi
+            if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q "CQ.UnitOfWork.MongoDriver.Abstractions/"; then
+              echo "C# project CQ.UnitOfWork MongoDriver Abstractions updated."
+            fi
 
     # - name: Get Version from branch name
     #   id: version
