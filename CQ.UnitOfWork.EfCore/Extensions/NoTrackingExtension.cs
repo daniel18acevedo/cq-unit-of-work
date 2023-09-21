@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CQ.UnitOfWork.Core.EfCore.Extensions
+namespace CQ.UnitOfWork.EfCore.Extensions
 {
     internal static class NoTrackingExtension
     {

@@ -1,5 +1,5 @@
 ﻿using CQ.UnitOfWork.Abstractions;
-using CQ.UnitOfWork.Api.DataAccess;
+using CQ.UnitOfWork.Api.EFCore.DataAccess;
 using CQ.UnitOfWork.EfCore.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson.IO;
