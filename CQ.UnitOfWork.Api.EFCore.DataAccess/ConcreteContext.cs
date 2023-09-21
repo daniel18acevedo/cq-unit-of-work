@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 
-namespace CQ.UnitOfWork.Api.DataAccess
+namespace CQ.UnitOfWork.Api.EFCore.DataAccess
 {
 
     public class ConcreteContext : EfCoreContext

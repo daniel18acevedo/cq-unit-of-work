@@ -50,6 +50,7 @@ namespace CQ.UnitOfWork.EfCore
             };
             var lifeTime = lifeCycle == LifeCycle.SCOPED ? ServiceLifetime.Scoped : lifeCycle == LifeCycle.TRANSIENT ? ServiceLifetime.Transient : ServiceLifetime.Singleton;
 
+            services.AddDbContext<TContext>(actions, lifeTime);
             services.AddDbContext<EfCoreContext, TContext>(actions, lifeTime);
             services.AddService<IDatabaseContext, TContext>(lifeCycle);
         }
@@ -60,22 +61,27 @@ namespace CQ.UnitOfWork.EfCore
             services.AddService<IEfCoreRepository<TEntity>, EfCoreRepository<TEntity>>(lifeCycle);
         }
 
-        public static void AddEfCoreRepository<TEntity, TRepository>(this IServiceCollection services, LifeCycle lifeCycle = LifeCycle.SCOPED)
+        public static void AddEfCoreRepository<TEntity, TContext>(this IServiceCollection services, LifeCycle lifeCycle = LifeCycle.SCOPED) 
+            where TEntity : class
+            where TContext : EfCoreContext
+        {
+            var repositoryImplementation = (IServiceProvider serviceProvider) =>
+            {
+                var context = serviceProvider.GetRequiredService<TContext>();
+
+                return new EfCoreRepository<TEntity>(context);
+            };
+
+            services.AddService<IRepository<TEntity>>(repositoryImplementation, lifeCycle);
+            services.AddService<IEfCoreRepository<TEntity>>(repositoryImplementation, lifeCycle);
+        }
+
+        public static void AddCustomEfCoreRepository<TEntity, TRepository>(this IServiceCollection services, LifeCycle lifeCycle = LifeCycle.SCOPED)
             where TEntity : class
             where TRepository : EfCoreRepository<TEntity>
         {
             services.AddService<IRepository<TEntity>, TRepository>(lifeCycle);
             services.AddService<IEfCoreRepository<TEntity>, TRepository>(lifeCycle);
-        }
-
-        public static void AddEfCoreRepository<TService, TEntity, TRepository>(this IServiceCollection services, LifeCycle lifeCycle = LifeCycle.SCOPED)
-            where TService : class, IEfCoreRepository<TEntity>
-            where TEntity : class
-            where TRepository : EfCoreRepository<TEntity>, TService
-        {
-            services.AddService<IRepository<TEntity>, TRepository>(lifeCycle);
-            services.AddService<IEfCoreRepository<TEntity>, TRepository>(lifeCycle);
-            services.AddService<TService, TRepository>(lifeCycle);
         }
     }
 }
