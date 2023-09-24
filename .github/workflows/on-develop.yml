@@ -40,7 +40,7 @@ jobs:
       run: echo "${{steps.extract_version.outputs.version}} ${{steps.extract_branch.outputs.branch}}"
     
     - name: Set version
-      run: echo "VERSION=${{steps.extract_version.outputs.version}}" >> $GITHUB_ENV
+      run: echo "::set-env name=VERSION::${{steps.extract_version.outputs.version}}"
   
   use_version:
     name: Use version
@@ -52,4 +52,4 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Set version
-      run: echo "${{needs.extract_version.outputs.version}} ${{env.VERSION}}"    
+      run: echo "${{needs.extract_version.outputs.version}} $VERSION"    
