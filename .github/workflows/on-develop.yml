@@ -18,8 +18,8 @@ jobs:
 
     - name: Get Version from branch name
       env:
-        BRANCH: ${GITHUB_REF#refs/heads/}
-      run: echo "VERSION=${BRANCH#v}" >> $GITHUB_ENV
+        Branch: ${GITHUB_REF#refs/heads/}
+      run: echo "$Branch"
 
     # - name: Get Version from branch name
     #   id: version
