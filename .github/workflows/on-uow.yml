@@ -2,9 +2,6 @@ on:
   push:
     branches:
     - main-uow
-  pull_request:
-    branches:
-    - main-uow
 jobs:
   extract_version:
     name: Extract version
