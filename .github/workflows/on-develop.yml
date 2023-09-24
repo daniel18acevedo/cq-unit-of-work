@@ -42,7 +42,7 @@ jobs:
       run: echo "${{steps.extract_version.outputs.version}} ${{steps.extract_branch.outputs.branch}}"
     
     - name: Set version
-      run: echo "${{env.VERSION}}=${{steps.extract_version.outputs.version}}"
+      run: echo "$VERSION=${{steps.extract_version.outputs.version}}"
   
   use_version:
     name: Use version
