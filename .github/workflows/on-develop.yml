@@ -21,22 +21,22 @@ jobs:
     name: Extract version
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    outputs:
+      branch: ${{ steps.extract_branch.outputs.branch }}
+      version: ${{ steps.extract_version.outputs.version }}
     steps:
     - name: Checkout
       uses: actions/checkout@v2
 
     - name: Extract branch name
-      shell: bash
-      run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
       id: extract_branch
+      run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
 
     - name: Extract version from branch
-      shell: bash
-      run: echo "version=$(echo ${{ steps.extract_branch.outputs.branch }} | sed 's/^v//')" >> $GITHUB_OUTPUT
       id: extract_version
+      run: echo "version=$(echo ${{ steps.extract_branch.outputs.branch }} | sed 's/^v//')" >> $GITHUB_OUTPUT
 
     - name: Print version
-      shell: bash
       run: echo "${{steps.extract_version.outputs.version}} ${{steps.extract_branch.outputs.branch}}"
     
     - name: Set version
@@ -50,4 +50,5 @@ jobs:
     steps:
     - env:
         VERSION: ${{ needs.extract_version.outputs.version }}
-      run: echo "${{ needs.extract_version.outputs.version }} $VERSION"    
+      name: Print version
+      run: echo "${{ needs.extract_version.outputs.version }}"    
