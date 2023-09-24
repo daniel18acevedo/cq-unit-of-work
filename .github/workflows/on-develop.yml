@@ -17,6 +17,7 @@ jobs:
       run: dotnet build --configuration Release
 
     - name: Get Version from branch name
+      shell: bash
       env:
         Branch: ${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
       run: echo "$Branch" >> $GITHUB_OUTPUT
