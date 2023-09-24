@@ -55,5 +55,5 @@ jobs:
 
     - name: Print version
       shell: bash
-      run: echo "$VERSION"
+      run: echo "Version file $VERSION"
     
