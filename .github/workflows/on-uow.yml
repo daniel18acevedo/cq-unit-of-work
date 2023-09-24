@@ -30,7 +30,7 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release /p:Version=${steps.extract_version.outputs.version}
 
-    -name: Show files
+    - name: Show files
       run: ls -la
 
     # - name: Pack
