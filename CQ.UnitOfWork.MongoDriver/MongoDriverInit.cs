@@ -1,5 +1,5 @@
 ﻿using CQ.UnitOfWork.Abstractions;
-using CQ.UnitOfWork.Abstractions.Extensions;
+using CQ.UnitOfWork.Extensions;
 using CQ.UnitOfWork.MongoDriver.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson;
@@ -59,7 +59,14 @@ namespace CQ.UnitOfWork.MongoDriver
 
             return clusterConfigurator;
         }
-
+        
+        /// <summary>
+        /// Use default mongo context
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="services"></param>
+        /// <param name="collectionName"></param>
+        /// <param name="lifeCycle"></param>
         public static void AddMongoRepository<TEntity>(this IServiceCollection services, string? collectionName = null, LifeCycle lifeCycle = LifeCycle.SCOPED) where TEntity : class
         {
             var implementationFactory = (IServiceProvider serviceProvider) =>
@@ -70,27 +77,42 @@ namespace CQ.UnitOfWork.MongoDriver
             };
 
             services.AddService<IRepository<TEntity>>(implementationFactory, lifeCycle);
+            services.AddService<IUnitRepository<TEntity>>(implementationFactory, lifeCycle);
             services.AddService<IMongoDriverRepository<TEntity>>(implementationFactory, lifeCycle);
         }
 
+        /// <summary>
+        /// Use specific context. Usefull when are multiple ef core context defined.
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <typeparam name="TRepository"></typeparam>
+        /// <param name="services"></param>
+        /// <param name="lifeCycle"></param>
         public static void AddMongoRepository<TEntity, TRepository>(this IServiceCollection services, LifeCycle lifeCycle = LifeCycle.SCOPED)
             where TEntity : class
             where TRepository : MongoDriverRepository<TEntity>
         {
 
             services.AddService<IRepository<TEntity>, TRepository>(lifeCycle);
+            services.AddService<IUnitRepository<TEntity>, TRepository>(lifeCycle);
             services.AddService<IMongoDriverRepository<TEntity>, TRepository>(lifeCycle);
         }
 
-        public static void AddMongoRepository<TService, TEntity, TRepository>(this IServiceCollection services, LifeCycle lifeCycle = LifeCycle.SCOPED)
-            where TService : class, IMongoDriverRepository<TEntity>
+        /// <summary>
+        /// Sets custom repository under repository interfaces.
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <typeparam name="TRepository"></typeparam>
+        /// <param name="services"></param>
+        /// <param name="lifeCycle"></param>
+        public static void AddCustomMongoRepository<TEntity, TRepository>(this IServiceCollection services, LifeCycle lifeCycle = LifeCycle.SCOPED)
             where TEntity : class
-            where TRepository : MongoDriverRepository<TEntity>, TService
+            where TRepository : MongoDriverRepository<TEntity>
         {
 
             services.AddService<IRepository<TEntity>, TRepository>(lifeCycle);
+            services.AddService<IUnitRepository<TEntity>, TRepository>(lifeCycle);
             services.AddService<IMongoDriverRepository<TEntity>, TRepository>(lifeCycle);
-            services.AddService<TService, TRepository>(lifeCycle);
         }
     }
 }

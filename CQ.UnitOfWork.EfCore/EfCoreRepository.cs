@@ -8,29 +8,22 @@ using System.Linq.Expressions;
 
 namespace CQ.UnitOfWork.EfCore
 {
-    public class EfCoreRepository<TEntity> : IEfCoreRepository<TEntity>
+    public class EfCoreRepository<TEntity> : IEfCoreRepository<TEntity>, IUnitRepository<TEntity>
        where TEntity : class
     {
-        private readonly DbSet<TEntity> _dbSet;
+        protected DbSet<TEntity> _dbSet;
 
-        private readonly EfCoreContext _efCoreConnection;
+        protected EfCoreContext _efCoreConnection;
 
-        private readonly string _tableName;
+        protected string _tableName;
 
         public EfCoreRepository(EfCoreContext efCoreContext)
         {
-            if (efCoreContext is null)
-            {
-                throw new ArgumentNullException(nameof(efCoreContext));
-            }
-
-            this._dbSet = efCoreContext.GetEntitySet<TEntity>();
-            this._tableName = efCoreContext.GetTableName<TEntity>();
-            this._efCoreConnection = efCoreContext;
+            this.SetContext(efCoreContext);    
         }
 
         #region Create
-        public async Task<TEntity> CreateAsync(TEntity entity)
+        public virtual async Task<TEntity> CreateAsync(TEntity entity)
         {
             await this._dbSet.AddAsync(entity).ConfigureAwait(false);
 
@@ -39,7 +32,7 @@ namespace CQ.UnitOfWork.EfCore
             return entity;
         }
 
-        public TEntity Create(TEntity entity)
+        public virtual TEntity Create(TEntity entity)
         {
             this._dbSet.Add(entity);
 
@@ -50,7 +43,7 @@ namespace CQ.UnitOfWork.EfCore
         #endregion
 
         #region Delete
-        public async Task DeleteAsync(Expression<Func<TEntity, bool>> expression)
+        public virtual async Task DeleteAsync(Expression<Func<TEntity, bool>> expression)
         {
             var entitiesToRemove = this._dbSet.Where(expression);
 
@@ -59,7 +52,7 @@ namespace CQ.UnitOfWork.EfCore
             await this._efCoreConnection.SaveChangesAsync().ConfigureAwait(false);
         }
 
-        public async void Delete(Expression<Func<TEntity, bool>> expression)
+        public virtual async void Delete(Expression<Func<TEntity, bool>> expression)
         {
             var entitiesToRemove = this._dbSet.Where(expression);
 
@@ -70,23 +63,23 @@ namespace CQ.UnitOfWork.EfCore
         #endregion
 
         #region GetAll
-        public async Task<IList<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? expression = null)
+        public virtual async Task<IList<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? expression = null)
         {
             return await this._dbSet.NullableWhere(expression).ToListAsync().ConfigureAwait(false);
         }
 
-        public IList<TEntity> GetAll(Expression<Func<TEntity, bool>>? expression = null)
+        public virtual IList<TEntity> GetAll(Expression<Func<TEntity, bool>>? expression = null)
         {
             return this._dbSet.NullableWhere(expression).ToList();
         }
 
-        public async Task<IList<TResult>> GetAllAsync<TResult>(Expression<Func<TEntity, TResult>> selector, Expression<Func<TEntity, bool>>? expression = null)
+        public virtual async Task<IList<TResult>> GetAllAsync<TResult>(Expression<Func<TEntity, TResult>> selector, Expression<Func<TEntity, bool>>? expression = null)
             where TResult : class
         {
             return await this._dbSet.NullableWhere(expression).Select(selector).ToListAsync().ConfigureAwait(false);
         }
 
-        public IList<TResult> GetAll<TResult>(Expression<Func<TEntity, TResult>> selector, Expression<Func<TEntity, bool>>? expression = null)
+        public virtual IList<TResult> GetAll<TResult>(Expression<Func<TEntity, TResult>> selector, Expression<Func<TEntity, bool>>? expression = null)
             where TResult : class
         {
             return this._dbSet.NullableWhere(expression).Select(selector).ToList();
@@ -94,7 +87,7 @@ namespace CQ.UnitOfWork.EfCore
         #endregion
 
         #region Get
-        public async Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> expression)
+        public virtual async Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> expression)
         {
             var entity = await this.GetOrDefaultAsync(expression).ConfigureAwait(false);
 
@@ -106,7 +99,7 @@ namespace CQ.UnitOfWork.EfCore
             return entity;
         }
 
-        public TEntity Get(Expression<Func<TEntity, bool>> expression)
+        public virtual TEntity Get(Expression<Func<TEntity, bool>> expression)
         {
             var entity = this.GetOrDefault(expression);
 
@@ -120,7 +113,7 @@ namespace CQ.UnitOfWork.EfCore
         #endregion
 
         #region GetByProp
-        public async Task<TEntity> GetByPropAsync(string value, string? prop = null)
+        public virtual async Task<TEntity> GetByPropAsync(string value, string? prop = null)
         {
             prop ??= "Id";
             var entity = await this._dbSet.FirstOrDefaultAsync(e => EF.Property<string>(e, prop) == value).ConfigureAwait(false);
@@ -133,7 +126,7 @@ namespace CQ.UnitOfWork.EfCore
             return entity;
         }
 
-        public TEntity GetByProp(string value, string? prop = "Id")
+        public virtual TEntity GetByProp(string value, string? prop = "Id")
         {
             var entity = this._dbSet.FirstOrDefault(e => EF.Property<string>(e, prop) == value);
 
@@ -147,31 +140,60 @@ namespace CQ.UnitOfWork.EfCore
         #endregion
 
         #region GetOrDefault
-        public async Task<TEntity?> GetOrDefaultAsync(Expression<Func<TEntity, bool>> expression)
+        public virtual async Task<TEntity?> GetOrDefaultAsync(Expression<Func<TEntity, bool>> expression)
         {
             return await this._dbSet.Where(expression).FirstOrDefaultAsync().ConfigureAwait(false);
         }
 
-        public TEntity? GetOrDefault(Expression<Func<TEntity, bool>> expression)
+        public virtual TEntity? GetOrDefault(Expression<Func<TEntity, bool>> expression)
         {
             return this._dbSet.Where(expression).FirstOrDefault();
         }
         #endregion
 
         #region Update
-        public async Task UpdateAsync(TEntity updated)
+        public virtual async Task UpdateAsync(TEntity updated)
         {
             await Task.Run(() => this._dbSet.Update(updated)).ConfigureAwait(false);
 
             await this._efCoreConnection.SaveChangesAsync().ConfigureAwait(false);
         }
 
-        public void Update(TEntity updated)
+        public virtual void Update(TEntity updated)
         {
             this._dbSet.Update(updated);
 
             this._efCoreConnection.SaveChanges();
         }
         #endregion
+
+        public virtual void SetContext(IDatabaseContext context)
+        {
+            var efCoreContext = (EfCoreContext)context;
+
+            if (context is null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
+            this.SetCollectionInfo(efCoreContext);
+        }
+
+        private void SetCollectionInfo(EfCoreContext efCoreContext)
+        {
+            this._dbSet = efCoreContext.GetEntitySet<TEntity>();
+            this._tableName = efCoreContext.GetTableName<TEntity>();
+            this._efCoreConnection = efCoreContext;
+        }
+
+        public virtual async Task CreateWithoutCommitAsync(TEntity entity)
+        {
+            await this._dbSet.AddAsync(entity).ConfigureAwait(false);
+        }
+
+        public virtual void CreateWithoutCommit(TEntity entity)
+        {
+            this._dbSet.Add(entity);
+        }
     }
 }

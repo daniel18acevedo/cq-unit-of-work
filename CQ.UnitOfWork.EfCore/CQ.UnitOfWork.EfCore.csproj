@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CQ.UnitOfWork.EfCore.Abstractions\CQ.UnitOfWork.EfCore.Abstractions.csproj" />
+    <ProjectReference Include="..\CQ.UnitOfWork\CQ.UnitOfWork.csproj" />
   </ItemGroup>
 
 </Project>
