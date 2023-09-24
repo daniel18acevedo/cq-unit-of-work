@@ -2,9 +2,6 @@ on:
   push:
     branches:
     - main-uow
-  pull_request:
-    branches:
-    - main-uow
 jobs:
   extract_version:
     name: Extract version
@@ -28,8 +25,8 @@ jobs:
     - name: Print version and branch
       run: echo "${{steps.extract_version.outputs.version}} ${{steps.extract_branch.outputs.branch}}"
 
-  build_pack:
-    name: Build and pack
+  build_pack_publish:
+    name: Build, pack and publish
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs: extract_version
@@ -49,7 +46,7 @@ jobs:
     - name: Show files
       run: ls -la
     
-    - name: Push
+    - name: Publish
       run: dotnet nuget push CQ.UnitOfWork.$VERSION.nupkg --source https://api.nuget.org/v3/index.json --api-key ${NUGET_API_KEY}
       env:
         NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}

@@ -1,10 +1,10 @@
 on:
   push:
-    branches:
-    - main
   pull_request:
     branches:
     - main
+    - develop
+    - main-uow 
 jobs:
   build:
     runs-on: ubuntu-latest
