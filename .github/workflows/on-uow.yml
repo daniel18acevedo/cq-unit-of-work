@@ -20,7 +20,7 @@ jobs:
 
     - name: Extract version from branch
       shell: bash
-      run: echo "version=${{ steps.extract_branch.outputs.branch/#v/ }}" >> $GITHUB_OUTPUT
+      run: echo "version=$(echo ${{ steps.extract_branch.outputs.branch }} | sed 's/^v//')" >> $GITHUB_OUTPUT
       id: extract_version
 
     - name: Print version
