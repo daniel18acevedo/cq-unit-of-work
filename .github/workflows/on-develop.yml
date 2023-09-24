@@ -41,7 +41,7 @@ jobs:
   
   use_version:
     name: Use version
-    runs-on: ubuntu-latest
+    runs-on: [ubuntu-latest, "${{ needs.extract_version.outputs.version }}"]
     timeout-minutes: 15
     needs: extract_version
     steps:
