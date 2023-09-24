@@ -50,6 +50,4 @@ jobs:
     steps:
     - env:
         VERSION: ${{ needs.extract_version.outputs.version }}
-
-    - name: Print version
-      run: echo "$VERSION"    
+        run: echo "${{ needs.extract_version.outputs.version }} $VERSION"    
