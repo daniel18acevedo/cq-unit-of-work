@@ -57,3 +57,6 @@ jobs:
       shell: bash
       run: echo "Version file $VERSION"
     
+    - name: Env
+      run: env
+    
