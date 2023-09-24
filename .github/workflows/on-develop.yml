@@ -48,8 +48,8 @@ jobs:
     timeout-minutes: 15
     needs: extract_version
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
+      env:
+        VERSION: ${{ needs.extract_version.outputs.version }}
 
     - name: Print version
-      run: echo "${{ jobs.extract_version.env.VERSION }}"    
+      run: echo "$VERSION"    
