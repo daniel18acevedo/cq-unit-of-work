@@ -1,7 +1,7 @@
 ﻿
 using CQ.UnitOfWork.Abstractions;
-using CQ.UnitOfWork.Abstractions.Extensions;
 using CQ.UnitOfWork.EfCore.Abstractions;
+using CQ.UnitOfWork.Extensions;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq.Expressions;
