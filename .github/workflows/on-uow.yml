@@ -6,7 +6,8 @@ on:
     branches:
     - main-uow
 jobs:
-  Publish:
+  publish:
+    name: Publish
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -35,9 +36,8 @@ jobs:
 
     - name: Show files
       run: ls -la
-
       
-    # - name: Push
-    #   run: dotnet nuget push CQ.UnitOfWork.${VERSION}.nupkg --source https://api.nuget.org/v3/index.json --api-key ${NUGET_API_KEY}
-    #   env:
-    #     NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+    - name: Push
+      run: dotnet nuget push CQ.UnitOfWork.${VERSION}.nupkg --source https://api.nuget.org/v3/index.json --api-key ${NUGET_API_KEY}
+      env:
+        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}

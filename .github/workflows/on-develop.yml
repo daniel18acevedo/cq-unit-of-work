@@ -6,7 +6,8 @@ on:
     branches:
     - develop
 jobs:
-  Publish:
+  build:
+    name: Build
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -15,18 +16,27 @@ jobs:
 
     - name: Build
       run: dotnet build --configuration Release
+  
+  extract_version:
+    name: Extract version
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
 
-    # - name: Get Version from branch name
-    #   id: version
-    #   run: echo "VERSION=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_ENV
+    - name: Extract branch name
+      shell: bash
+      run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+      id: extract_branch
 
-    # - name: Build
-    #   run: dotnet build --configuration Release /p:Version=${VERSION}
+    - name: Extract version from branch
+      shell: bash
+      run: echo "VERSION=$(echo ${{ steps.extract_branch.outputs.branch }} | sed 's/^v//')" >> $GITHUB_ENV
 
-    # - name: Pack
-    #   run: dotnet pack --configuration Release /p:Version=${VERSION} --no-build --output .
-      
-    # - name: Push
-    #   run: dotnet nuget push CQ.UnitOfWork.${VERSION}.nupkg --source https://api.nuget.org/v3/index.json --api-key ${NUGET_API_KEY}
-    #   env:
-    #     NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+  print_version:
+    name: Print version
+    runs-on: ubuntu-latest
+    - name: Print version
+      shell: bash
+      run: echo "${VERSION}"
+    
