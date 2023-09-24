@@ -20,6 +20,7 @@ jobs:
   extract_version:
     name: Extract version
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -31,32 +32,21 @@ jobs:
 
     - name: Extract version from branch
       shell: bash
-      run: echo "VERSION=$(echo ${{ steps.extract_branch.outputs.branch }} | sed 's/^v//')" >> version.env
-    
-    - name: Upload version env
-      uses: actions/upload-artifact@v2
-      with:
-        name: version.env
-        path: version.env
-
-  print_version:
-    name: Print version
-    needs: [extract_version]
-    runs-on: ubuntu-latest
-    steps:
-    - name: Download version env
-      uses: actions/download-artifact@v2
-      with:
-        name: version.env
-    
-    - name: Load version env
-      shell: bash
-      run: source version.env
+      run: echo "version=$(echo ${{ steps.extract_branch.outputs.branch }} | sed 's/^v//')" >> $GITHUB_OUTPUT
+      id: extract_version
 
     - name: Print version
       shell: bash
-      run: echo "Version file $VERSION"
-    
-    - name: Env
-      run: env
+      run: echo "${{steps.extract_version.outputs.version}} ${{steps.extract_branch.outputs.branch}}"
+  
+  use_version:
+    name: Use version
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: extract_version
+    steps:
+
+    - name: Print version
+      shell: bash
+      run: echo "${{needs.extract_version.outputs.version}}"
     
