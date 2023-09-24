@@ -4,7 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
-namespace CQ.UnitOfWork.Abstractions.Extensions
+namespace CQ.UnitOfWork.Extensions
 {
     public static class NullableSelectExtension
     {

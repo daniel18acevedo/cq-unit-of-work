@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace CQ.UnitOfWork.Abstractions
 {
-    public enum LifeCycle
+    public class DatabaseInfo
     {
-        SCOPED,
-        TRANSIENT,
-        SINGLETON
+        public string Name { get; set; }
+
+        public string Provider { get; set; }
     }
 }

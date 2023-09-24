@@ -15,7 +15,9 @@ namespace CQ.UnitOfWork.MongoDriver
     {
         private readonly IMongoDatabase _mongoDatabase;
 
-        private List<Action> _actions;
+        private List<Action> _actions = new List<Action>();
+
+        private List<Func<Task>> _actionsTask = new List<Func<Task>>();
 
         public MongoContext(IMongoDatabase mongoDatabase)
         {
@@ -54,14 +56,36 @@ namespace CQ.UnitOfWork.MongoDriver
             return GetEntityCollection<BsonDocument>(collectionName);
         }
 
+        public void AddActionAsync(Func<Task> action)
+        {
+            this._actionsTask.Add(action);
+        }
+
         public void AddAction(Action action)
         {
-
+            this._actions.Add(action);
         }
 
         public async Task SaveChangesAsync()
         {
+            this._actions.ForEach(action =>
+            {
+                action();
+            });
 
+            Parallel.ForEach(this._actionsTask, async action =>
+            {
+                await action().ConfigureAwait(false);
+            });
+        }
+
+        public DatabaseInfo GetDatabaseInfo()
+        {
+            return new DatabaseInfo
+            {
+                Provider = "Mongo",
+                Name = this._mongoDatabase.DatabaseNamespace.DatabaseName
+            };
         }
     }
 }
