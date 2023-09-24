@@ -48,7 +48,7 @@ jobs:
     timeout-minutes: 15
     needs: extract_version
     steps:
-      env:
+    - env:
         VERSION: ${{ needs.extract_version.outputs.version }}
 
     - name: Print version
