@@ -35,7 +35,9 @@ jobs:
 
   print_version:
     name: Print version
+    needs: [extract_version]
     runs-on: ubuntu-latest
+    steps:
     - name: Print version
       shell: bash
       run: echo "${VERSION}"
