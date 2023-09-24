@@ -14,17 +14,23 @@ namespace CQ.UnitOfWork.Api.Controllers
         public HealthController(IUnitOfWork unitOfWork, IDatabaseContext databaseContext)
         {
             this._unitOfWork = unitOfWork;
-            this._dataBaseContext= databaseContext;
+            this._dataBaseContext = databaseContext;
         }
 
         [HttpGet]
         public object Get()
         {
+            var databaseInfo = this._dataBaseContext.GetDatabaseInfo();
 
             return new
             {
                 Alive = true,
-                DatabaseConnection = this._dataBaseContext == null ? false : this._dataBaseContext.Ping()
+                Database = new
+                {
+                    Name = databaseInfo.Name,
+                    Provider = databaseInfo.Provider,
+                    Alive = this._dataBaseContext == null ? false : this._dataBaseContext.Ping()
+                }
             };
         }
     }

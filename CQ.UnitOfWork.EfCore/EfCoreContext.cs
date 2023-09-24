@@ -3,6 +3,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -118,6 +119,32 @@ namespace CQ.UnitOfWork.EfCore
         public async Task SaveChangesAsync()
         {
             await this.SaveChangesAsync().ConfigureAwait(false);
+        }
+
+        public DatabaseInfo GetDatabaseInfo()
+        {
+            var databaseInfo = new DatabaseInfo
+            {
+                Provider = this.Database.ProviderName,
+                Name = this.Database.GetDbConnection().Database
+            };
+            var dbConnection = this.Database.GetDbConnection();
+
+            var connectionString = dbConnection.ConnectionString;
+
+            var builder = new DbConnectionStringBuilder
+            {
+                ConnectionString = connectionString,
+            };
+
+            if (builder.TryGetValue("Database", out var dbName))
+            {
+                databaseInfo.Name = dbName.ToString();
+
+                return databaseInfo;
+            }
+
+            return databaseInfo;
         }
     }
 }
