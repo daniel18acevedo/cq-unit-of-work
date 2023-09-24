@@ -1,6 +1,3 @@
-[![.github/workflows/publish-nuget-core.yml](https://github.com/daniel18acevedo/cq-unit-of-work/actions/workflows/publish-nuget-core.yml/badge.svg)](https://github.com/daniel18acevedo/cq-unit-of-work/actions/workflows/publish-nuget-core.yml)
-
-
 This is a project to reduce the devoplment time when dealing with ORMs and basic repositories.
 
 ## Description of each package and goals:

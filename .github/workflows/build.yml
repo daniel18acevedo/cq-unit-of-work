@@ -1,14 +1,13 @@
 on:
   push:
-    branches:
-    - main
   pull_request:
     branches:
     - main
+    - develop
+    - main-uow 
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
     steps:
     - name: Checkout
       uses: actions/checkout@v2
