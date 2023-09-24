@@ -1,0 +1,30 @@
+on:
+  push:
+    branches:
+    - main-uow
+  pull_request:
+    branches:
+    - main-uow
+jobs:
+  Publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Get Version from branch name
+      env:
+        BRANCH: ${{GITHUB_REF#refs/heads/}}
+      run: echo "VERSION=${BRANCH#v}" >> $GITHUB_ENV
+
+    - name: Build
+      run: dotnet build --configuration Release /p:Version=${VERSION}
+
+    - name: Pack
+      run: dotnet pack --configuration Release /p:Version=${VERSION} --no-build --output .
+      
+    - name: Push
+      run: dotnet nuget push CQ.UnitOfWork.${VERSION}.nupkg --source https://api.nuget.org/v3/index.json --api-key ${NUGET_API_KEY}
+      env:
+        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}

@@ -1,3 +1,10 @@
+on:
+  push:
+    branches:
+    - develop
+  pull_request:
+    branches:
+    - develop
 jobs:
   Publish:
     runs-on: ubuntu-latest
@@ -5,6 +12,9 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
+      
+    - name: Build
+      run: dotnet build --configuration Release
 
     # - name: Get Version from branch name
     #   id: version
