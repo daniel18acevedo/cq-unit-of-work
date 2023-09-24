@@ -16,7 +16,7 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release
 
-      - name: Get Version from branch name
+    - name: Get Version from branch name
       env:
         BRANCH: ${{GITHUB_REF#refs/heads/}}
       run: echo "VERSION=${BRANCH#v}" >> $GITHUB_ENV
