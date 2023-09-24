@@ -23,12 +23,12 @@ jobs:
 
     - name: Extract version from branch
       shell: bash
-      run: echo "version=${branch#v}" >> $GITHUB_OUTPUT
+      run: echo "version=${{ steps.extract_branch.outputs.branch }}#v" >> $GITHUB_OUTPUT
       id: extract_version
-    
+
     - name: Print version
       shell: bash
-      run: echo "${version}"
+      run: echo "${{steps.extract_version.outputs.version}} ${{steps.extract_branch.outputs.branch}}"
     # - name: Get Version from branch name
     #   id: version
     #   run: echo "VERSION=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_ENV
