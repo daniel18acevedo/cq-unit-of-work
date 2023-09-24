@@ -3,12 +3,10 @@ on:
     branches:
     - main
     - develop
-    - main-uow 
   pull_request:
     branches:
     - main
     - develop
-    - main-uow 
 jobs:
   build:
     runs-on: ubuntu-latest
