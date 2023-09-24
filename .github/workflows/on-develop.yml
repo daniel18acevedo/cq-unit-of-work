@@ -38,10 +38,7 @@ jobs:
 
     - name: Print version
       run: echo "${{steps.extract_version.outputs.version}} ${{steps.extract_branch.outputs.branch}}"
-    
-    - name: Set version
-      run: echo "VERSION=${{steps.extract_version.outputs.version}}" >> $GITHUB_ENV
-  
+      
   use_version:
     name: Use version
     runs-on: ubuntu-latest
@@ -51,4 +48,4 @@ jobs:
     - env:
         VERSION: ${{ needs.extract_version.outputs.version }}
       name: Print version
-      run: echo "${{ needs.extract_version.outputs.version }}"    
+      run: echo "$VERSION"    
