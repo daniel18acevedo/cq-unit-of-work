@@ -27,8 +27,11 @@ jobs:
       shell: bash
       run: echo "${{steps.extract_version.outputs.version}} ${{steps.extract_branch.outputs.branch}}"
 
-    # - name: Build
-    #   run: dotnet build --configuration Release /p:Version=${VERSION}
+    - name: Build
+      run: dotnet build --configuration Release /p:Version=${steps.extract_version.outputs.version}
+
+    -name: Show files
+      run: ls -la
 
     # - name: Pack
     #   run: dotnet pack --configuration Release /p:Version=${VERSION} --no-build --output .
