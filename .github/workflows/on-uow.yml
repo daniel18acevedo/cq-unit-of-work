@@ -30,11 +30,12 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release /p:Version=${{steps.extract_version.outputs.version}}
 
+    - name: Pack
+      run: dotnet pack --configuration Release /p:Version=${{steps.extract_version.outputs.version}} --no-build --output .
+
     - name: Show files
       run: ls -la
 
-    # - name: Pack
-    #   run: dotnet pack --configuration Release /p:Version=${VERSION} --no-build --output .
       
     # - name: Push
     #   run: dotnet nuget push CQ.UnitOfWork.${VERSION}.nupkg --source https://api.nuget.org/v3/index.json --api-key ${NUGET_API_KEY}
