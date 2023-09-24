@@ -1,7 +1,7 @@
 on:
   pull_request:
     branches:
-    - main-uow-abstractions
+    - main-uow-efcore
 jobs:
   extract_version:
     name: Extract version
