@@ -21,8 +21,14 @@ jobs:
       run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
       id: extract_branch
 
-    - name: Print branch name
-      run: echo "branch=${{ steps.extract_branch.outputs.branch }}"
+    - name: Extract version from branch
+      shell: bash
+      run: echo "version=${branch#v}" >> $GITHUB_OUTPUT
+      id: extract_version
+    
+    - name: Print version
+      shell: bash
+      run: echo "${version}"
     # - name: Get Version from branch name
     #   id: version
     #   run: echo "VERSION=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_ENV
