@@ -1,5 +1,8 @@
 on:
   push:
+    - main
+    - develop
+    - main-uow 
   pull_request:
     branches:
     - main
