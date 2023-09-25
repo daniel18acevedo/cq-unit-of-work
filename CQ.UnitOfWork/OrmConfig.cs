@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CQ.UnitOfWork.Abstractions
+namespace CQ.UnitOfWork
 {
     public abstract class OrmConfig
     {
@@ -12,7 +12,7 @@ namespace CQ.UnitOfWork.Abstractions
 
         public bool UseDefaultQueryLogger { get; set; }
 
-        public Orm Orm { get; set; }
+        public Orm Orm { get; private set; }
 
         public OrmConfig(Orm orm)
         {
