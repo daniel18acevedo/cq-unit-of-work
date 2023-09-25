@@ -11,5 +11,7 @@ namespace CQ.UnitOfWork.Abstractions
         bool Ping(string? collection = null);
 
         Task SaveChangesAsync();
+
+        DatabaseInfo GetDatabaseInfo();
     }
 }

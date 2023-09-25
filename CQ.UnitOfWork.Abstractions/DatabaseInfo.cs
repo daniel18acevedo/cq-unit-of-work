@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace CQ.UnitOfWork.Abstractions
 {
-    public enum Orm
+    public class DatabaseInfo
     {
-        EF_CORE,
-        MONGO_DRIVER
+        public string Name { get; set; }
+
+        public string Provider { get; set; }
     }
 }
