@@ -1,4 +1,5 @@
-﻿using CQ.UnitOfWork.Abstractions;
+﻿using CQ.UnitOfWork;
+using CQ.UnitOfWork.Abstractions;
 using CQ.UnitOfWork.Api.EFCore.DataAccess;
 using CQ.UnitOfWork.EfCore;
 using Microsoft.EntityFrameworkCore.Design;
