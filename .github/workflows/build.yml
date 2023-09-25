@@ -18,5 +18,7 @@ jobs:
     - name: Show files
       run: ls
     - name: Step in folder
-      run: cd CQ.UnitOfWork.MongoDriver  
+      run: cd CQ.UnitOfWork.MongoDriver
+    - name: Show files
+      run: ls  
     
