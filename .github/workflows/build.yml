@@ -20,5 +20,7 @@ jobs:
     - name: Step in folder
       run: |
         cd CQ.UnitOfWork.MongoDriver
-        ls  
+        dotnet build --configuration Release /p:Version=1.0.0
+        dotnet pack --configuration Release /p:Version=1.0.0 --no-build --output .
+        ls
     
