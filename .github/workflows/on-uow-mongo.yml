@@ -43,9 +43,9 @@ jobs:
         dotnet build --configuration Release /p:Version=$VERSION
         dotnet pack --configuration Release /p:Version=$VERSION --no-build --output .
         ls
-      #   dotnet nuget push CQ.UnitOfWork.MongoDriver.$VERSION.nupkg --source https://api.nuget.org/v3/index.json --api-key ${NUGET_API_KEY}
-      # env:
-      #   NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        dotnet nuget push CQ.UnitOfWork.MongoDriver.$VERSION.nupkg --source https://api.nuget.org/v3/index.json --api-key ${NUGET_API_KEY}
+      env:
+        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
 
     # - name: Pack
     #   run: dotnet pack --configuration Release /p:Version=$VERSION --no-build --output .
