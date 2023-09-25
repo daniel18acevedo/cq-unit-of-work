@@ -1,7 +1,7 @@
 on:
   pull_request:
     branches:
-    - main-uow
+    - main-uow-efcore
 jobs:
   extract_version:
     name: Extract version
@@ -47,6 +47,6 @@ jobs:
       run: ls -la
     
     - name: Publish
-      run: dotnet nuget push CQ.UnitOfWork.$VERSION.nupkg --source https://api.nuget.org/v3/index.json --api-key ${NUGET_API_KEY}
+      run: dotnet nuget push CQ.UnitOfWork.EfCore.$VERSION.nupkg --source https://api.nuget.org/v3/index.json --api-key ${NUGET_API_KEY}
       env:
         NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
