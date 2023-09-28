@@ -195,6 +195,20 @@ namespace CQ.UnitOfWork.MongoDriver
             var updateResult = this._genericCollection.UpdateOne(filter, updateDefinition);
         }
 
+        public async Task<bool> ExistAsync(Expression<Func<TEntity, bool>> predicate)
+        {
+            var amount = await this._collection.CountAsync(predicate).ConfigureAwait(false);
+
+            return amount > 0;
+        }
+
+        public bool Exist(Expression<Func<TEntity, bool>> predicate)
+        {
+            var amount = this._collection.Count(predicate);
+
+            return amount > 0;
+        }
+
         public virtual void SetContext(IDatabaseContext context)
         {
             var mongoContext = (MongoContext)context;

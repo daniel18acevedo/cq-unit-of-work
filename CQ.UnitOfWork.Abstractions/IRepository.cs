@@ -60,5 +60,9 @@ namespace CQ.UnitOfWork.Abstractions
 
         TEntity? GetOrDefault(Expression<Func<TEntity, bool>> predicate);
         #endregion
+
+        Task<bool> ExistAsync(Expression<Func<TEntity, bool>> predicate);
+
+        bool Exist(Expression<Func<TEntity, bool>> predicate);
     }
 }

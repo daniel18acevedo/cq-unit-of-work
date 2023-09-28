@@ -178,6 +178,16 @@ namespace CQ.UnitOfWork.EfCore
         }
         #endregion
 
+        public async Task<bool> ExistAsync(Expression<Func<TEntity, bool>> predicate)
+        {
+            return await this._dbSet.AnyAsync(predicate).ConfigureAwait(false);
+        }
+
+        public bool Exist(Expression<Func<TEntity, bool>> predicate)
+        {
+            return this._dbSet.Any(predicate);
+        }
+
         public virtual void SetContext(IDatabaseContext context)
         {
             var efCoreContext = (EfCoreContext)context;
