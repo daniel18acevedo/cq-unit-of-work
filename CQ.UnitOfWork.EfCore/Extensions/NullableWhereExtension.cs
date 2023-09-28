@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace CQ.UnitOfWork.Extensions
+namespace CQ.UnitOfWork.EfCore.Extensions
 {
     public static class NullableWhereExtension
     {
