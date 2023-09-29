@@ -1,6 +1,7 @@
 ﻿
 using CQ.UnitOfWork.Abstractions;
 using CQ.UnitOfWork.EfCore.Abstractions;
+using CQ.UnitOfWork.EfCore.Extensions;
 using CQ.UnitOfWork.Extensions;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -43,18 +44,18 @@ namespace CQ.UnitOfWork.EfCore
         #endregion
 
         #region Delete
-        public virtual async Task DeleteAsync(Expression<Func<TEntity, bool>> expression)
+        public virtual async Task DeleteAsync(Expression<Func<TEntity, bool>> predicate)
         {
-            var entitiesToRemove = this._dbSet.Where(expression);
+            var entitiesToRemove = this._dbSet.Where(predicate);
 
             await Task.Run(() => this._dbSet.RemoveRange(entitiesToRemove)).ConfigureAwait(false);
 
             await this._efCoreConnection.SaveChangesAsync().ConfigureAwait(false);
         }
 
-        public virtual async void Delete(Expression<Func<TEntity, bool>> expression)
+        public virtual async void Delete(Expression<Func<TEntity, bool>> predicate)
         {
-            var entitiesToRemove = this._dbSet.Where(expression);
+            var entitiesToRemove = this._dbSet.Where(predicate);
 
             this._dbSet.RemoveRange(entitiesToRemove);
 
@@ -63,33 +64,43 @@ namespace CQ.UnitOfWork.EfCore
         #endregion
 
         #region GetAll
-        public virtual async Task<IList<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? expression = null)
+        public virtual async Task<IList<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? predicate = null)
         {
-            return await this._dbSet.NullableWhere(expression).ToListAsync().ConfigureAwait(false);
+            return await this._dbSet.NullableWhere(predicate).ToListAsync().ConfigureAwait(false);
         }
 
-        public virtual IList<TEntity> GetAll(Expression<Func<TEntity, bool>>? expression = null)
+        public virtual IList<TEntity> GetAll(Expression<Func<TEntity, bool>>? predicate = null)
         {
-            return this._dbSet.NullableWhere(expression).ToList();
+            return this._dbSet.NullableWhere(predicate).ToList();
         }
 
-        public virtual async Task<IList<TResult>> GetAllAsync<TResult>(Expression<Func<TEntity, TResult>> selector, Expression<Func<TEntity, bool>>? expression = null)
+        public virtual async Task<IList<TResult>> GetAllAsync<TResult>(Expression<Func<TEntity, TResult>> selector, Expression<Func<TEntity, bool>>? predicate = null)
             where TResult : class
         {
-            return await this._dbSet.NullableWhere(expression).Select(selector).ToListAsync().ConfigureAwait(false);
+            return await this._dbSet.NullableWhere(predicate).Select(selector).ToListAsync().ConfigureAwait(false);
         }
 
-        public virtual IList<TResult> GetAll<TResult>(Expression<Func<TEntity, TResult>> selector, Expression<Func<TEntity, bool>>? expression = null)
+        public virtual IList<TResult> GetAll<TResult>(Expression<Func<TEntity, TResult>> selector, Expression<Func<TEntity, bool>>? predicate = null)
             where TResult : class
         {
-            return this._dbSet.NullableWhere(expression).Select(selector).ToList();
+            return this._dbSet.NullableWhere(predicate).Select(selector).ToList();
+        }
+
+        public virtual async Task<IList<TResult>> GetAllAsync<TResult>(Expression<Func<TEntity, bool>>? predicate = null) 
+        {
+            return await this._dbSet.NullableWhere(predicate).SelectTo<TEntity, TResult>().ToListAsync().ConfigureAwait(false);
+        }
+
+        public virtual IList<TResult> GetAll<TResult>(Expression<Func<TEntity, bool>>? predicate = null) 
+        {
+            return this._dbSet.NullableWhere(predicate).SelectTo<TEntity, TResult>().ToList();
         }
         #endregion
 
         #region Get
-        public virtual async Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> expression)
+        public virtual async Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> predicate)
         {
-            var entity = await this.GetOrDefaultAsync(expression).ConfigureAwait(false);
+            var entity = await this.GetOrDefaultAsync(predicate).ConfigureAwait(false);
 
             if (entity is null)
             {
@@ -99,9 +110,9 @@ namespace CQ.UnitOfWork.EfCore
             return entity;
         }
 
-        public virtual TEntity Get(Expression<Func<TEntity, bool>> expression)
+        public virtual TEntity Get(Expression<Func<TEntity, bool>> predicate)
         {
-            var entity = this.GetOrDefault(expression);
+            var entity = this.GetOrDefault(predicate);
 
             if (entity is null)
             {
@@ -140,14 +151,14 @@ namespace CQ.UnitOfWork.EfCore
         #endregion
 
         #region GetOrDefault
-        public virtual async Task<TEntity?> GetOrDefaultAsync(Expression<Func<TEntity, bool>> expression)
+        public virtual async Task<TEntity?> GetOrDefaultAsync(Expression<Func<TEntity, bool>> predicate)
         {
-            return await this._dbSet.Where(expression).FirstOrDefaultAsync().ConfigureAwait(false);
+            return await this._dbSet.Where(predicate).FirstOrDefaultAsync().ConfigureAwait(false);
         }
 
-        public virtual TEntity? GetOrDefault(Expression<Func<TEntity, bool>> expression)
+        public virtual TEntity? GetOrDefault(Expression<Func<TEntity, bool>> predicate)
         {
-            return this._dbSet.Where(expression).FirstOrDefault();
+            return this._dbSet.Where(predicate).FirstOrDefault();
         }
         #endregion
 
@@ -166,6 +177,16 @@ namespace CQ.UnitOfWork.EfCore
             this._efCoreConnection.SaveChanges();
         }
         #endregion
+
+        public async Task<bool> ExistAsync(Expression<Func<TEntity, bool>> predicate)
+        {
+            return await this._dbSet.AnyAsync(predicate).ConfigureAwait(false);
+        }
+
+        public bool Exist(Expression<Func<TEntity, bool>> predicate)
+        {
+            return this._dbSet.Any(predicate);
+        }
 
         public virtual void SetContext(IDatabaseContext context)
         {
