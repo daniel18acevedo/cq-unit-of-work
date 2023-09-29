@@ -18,8 +18,4 @@
 		<PackageTags>unitOfWork, cq, codeQuality</PackageTags>
 	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\CQ.UnitOfWork.Abstractions\CQ.UnitOfWork.Abstractions.csproj" />
-  </ItemGroup>
-
 </Project>
