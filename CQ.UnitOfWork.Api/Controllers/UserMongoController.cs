@@ -37,6 +37,14 @@ namespace CQ.UnitOfWork.Api.Controllers
             return Ok(user);
         }
 
+        [HttpGet("mini")]
+        public async Task<IActionResult> GetMiniAsync()
+        {
+            var user = await _repository.GetAllAsync<MiniUserMongo>().ConfigureAwait(false);
+
+            return Ok(user);
+        }
+
         [HttpPost]
         public async Task<IActionResult> CreateAsync()
         {

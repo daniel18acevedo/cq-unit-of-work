@@ -32,6 +32,13 @@ namespace CQ.UnitOfWork.Api.EFCore.DataAccess
         }
     }
 
+    public class MiniUser
+    {
+        public string Id { get; set; }
+
+        public string Name { get; set; }
+    }
+
     public class Book
     {
         public string Id { get; set; }

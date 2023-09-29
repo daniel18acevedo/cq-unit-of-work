@@ -26,6 +26,14 @@ namespace CQ.UnitOfWork.Api.Controllers
             return Ok(users);
         }
 
+        [HttpGet("mini")]
+        public async Task<IActionResult> GetMini()
+        {
+            var users = await this._repository.GetAllAsync<MiniUser>().ConfigureAwait(false);
+
+            return Ok(users);
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetAsync([FromRoute] string id)
         {
