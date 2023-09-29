@@ -25,10 +25,10 @@
     <PackageReference Include="MongoDB.Driver" Version="2.20.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\CQ.UnitOfWork.Abstractions\CQ.UnitOfWork.Abstractions.csproj" Version="1.1.3"/>
-    <ProjectReference Include="..\CQ.UnitOfWork.MongoDriver.Abstractions\CQ.UnitOfWork.MongoDriver.Abstractions.csproj" Version="1.1.2"/>
-    <ProjectReference Include="..\CQ.UnitOfWork\CQ.UnitOfWork.csproj" Version="1.1.3"/>
-  </ItemGroup>
+   <ItemGroup>
+    <ProjectReference Include="..\CQ.UnitOfWork.Abstractions\CQ.UnitOfWork.Abstractions.csproj" />
+    <ProjectReference Include="..\CQ.UnitOfWork.MongoDriver.Abstractions\CQ.UnitOfWork.MongoDriver.Abstractions.csproj" />
+    <ProjectReference Include="..\CQ.UnitOfWork\CQ.UnitOfWork.csproj" />
+  </ItemGroup> 
 
 </Project>

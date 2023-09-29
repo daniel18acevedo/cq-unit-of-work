@@ -1,7 +1,7 @@
 on:
   pull_request:
     branches:
-    - main-uow-mongo
+    - same-version
 jobs:
   extract_version:
     name: Extract version
@@ -39,7 +39,7 @@ jobs:
     
     - name: Build
       run: dotnet build --configuration Release /p:Version=$VERSION
-
+    
     - name: Pack
       run: dotnet pack --configuration Release /p:Version=$VERSION --no-build --output .
     
@@ -47,6 +47,12 @@ jobs:
       run: ls -la
     
     - name: Publish
-      run: dotnet nuget push CQ.UnitOfWork.MongoDriver.$VERSION.nupkg --source https://api.nuget.org/v3/index.json --api-key ${NUGET_API_KEY}
+      run: |
+        dotnet nuget push CQ.UnitOfWork.$VERSION.nupkg --source https://api.nuget.org/v3/index.json --api-key ${NUGET_API_KEY}
+        dotnet nuget push CQ.UnitOfWork.Abstractions.$VERSION.nupkg --source https://api.nuget.org/v3/index.json --api-key ${NUGET_API_KEY}
+        dotnet nuget push CQ.UnitOfWork.EfCore.$VERSION.nupkg --source https://api.nuget.org/v3/index.json --api-key ${NUGET_API_KEY}
+        dotnet nuget push CQ.UnitOfWork.EfCore.Abstractions.$VERSION.nupkg --source https://api.nuget.org/v3/index.json --api-key ${NUGET_API_KEY}
+        dotnet nuget push CQ.UnitOfWork.MongoDriver.$VERSION.nupkg --source https://api.nuget.org/v3/index.json --api-key ${NUGET_API_KEY}
+        dotnet nuget push CQ.UnitOfWork.MongoDriver.Abstractions.$VERSION.nupkg --source https://api.nuget.org/v3/index.json --api-key ${NUGET_API_KEY}
       env:
         NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}

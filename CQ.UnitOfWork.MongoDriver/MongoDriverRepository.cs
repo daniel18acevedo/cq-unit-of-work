@@ -1,5 +1,6 @@
 ﻿using CQ.UnitOfWork.Abstractions;
 using CQ.UnitOfWork.MongoDriver.Abstractions;
+using CQ.UnitOfWork.MongoDriver.Extensions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
@@ -36,32 +37,58 @@ namespace CQ.UnitOfWork.MongoDriver
             return entity;
         }
 
-        public virtual async Task DeleteAsync(Expression<Func<TEntity, bool>> expression)
+        public virtual async Task DeleteAsync(Expression<Func<TEntity, bool>> predicate)
         {
-            var deleteResult = await this._collection.DeleteOneAsync(expression).ConfigureAwait(false);
+            var deleteResult = await this._collection.DeleteOneAsync(predicate).ConfigureAwait(false);
         }
 
-        public virtual void Delete(Expression<Func<TEntity, bool>> expression)
+        public virtual void Delete(Expression<Func<TEntity, bool>> predicate)
         {
-            this._collection.DeleteOne(expression);
+            this._collection.DeleteOne(predicate);
         }
 
-        public virtual async Task<IList<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? expression = null)
+        public virtual async Task<IList<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? predicate = null)
         {
-            expression ??= e => true;
-            return await this._collection.Find(expression).ToListAsync().ConfigureAwait(false);
+            return await this._collection.NullableFind(predicate).ToListAsync().ConfigureAwait(false);
         }
 
-        public virtual IList<TEntity> GetAll(Expression<Func<TEntity, bool>>? expression)
+        public virtual IList<TEntity> GetAll(Expression<Func<TEntity, bool>>? predicate)
         {
-            expression ??= e => true;
-
-            return this._collection.Find(expression).ToList();
+            return this._collection.NullableFind(predicate).ToList();
         }
 
-        public virtual async Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> expression)
+        public virtual async Task<IList<TResult>> GetAllAsync<TResult>(Expression<Func<TEntity, bool>>? predicate = null)
         {
-            var entity = await this.GetOrDefaultAsync(expression).ConfigureAwait(false);
+            var filter = Builders<TEntity>.Filter.NullableWhere(predicate);
+
+            var projection = Builders<TEntity>.Projection.ProjectTo<TEntity, TResult>();
+
+            var cursor = await _collection
+                .Find(filter)
+                .Project(projection)
+                .ToListAsync()
+                .ConfigureAwait(false);
+
+            return cursor;
+        }
+
+        public virtual IList<TResult> GetAll<TResult>(Expression<Func<TEntity, bool>>? predicate = null)
+        {
+            var filter = Builders<TEntity>.Filter.NullableWhere(predicate);
+
+            var projection = Builders<TEntity>.Projection.ProjectTo<TEntity, TResult>();
+
+            var cursor = _collection
+                .Find(filter)
+                .Project(projection)
+                .ToList();
+
+            return cursor;
+        }
+
+        public virtual async Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> predicate)
+        {
+            var entity = await this.GetOrDefaultAsync(predicate).ConfigureAwait(false);
 
             if (entity is null)
             {
@@ -71,9 +98,9 @@ namespace CQ.UnitOfWork.MongoDriver
             return entity;
         }
 
-        public virtual TEntity Get(Expression<Func<TEntity, bool>> expression)
+        public virtual TEntity Get(Expression<Func<TEntity, bool>> predicate)
         {
-            var entity = this.GetOrDefault(expression);
+            var entity = this.GetOrDefault(predicate);
 
             if (entity is null)
             {
@@ -112,28 +139,35 @@ namespace CQ.UnitOfWork.MongoDriver
             return BsonSerializer.Deserialize<TEntity>(entity);
         }
 
-        public virtual async Task<TEntity?> GetOrDefaultAsync(Expression<Func<TEntity, bool>> expression)
+        public virtual async Task<TEntity?> GetOrDefaultAsync(Expression<Func<TEntity, bool>> predicate)
         {
-            var entity = await this._collection.Find(expression).FirstOrDefaultAsync().ConfigureAwait(false);
+            var entity = await this._collection.Find(predicate).FirstOrDefaultAsync().ConfigureAwait(false);
 
             return entity;
         }
 
-        public virtual TEntity? GetOrDefault(Expression<Func<TEntity, bool>> expression)
+        public virtual TEntity? GetOrDefault(Expression<Func<TEntity, bool>> predicate)
         {
-            return this._collection.Find(expression).FirstOrDefault();
+            return this._collection.Find(predicate).FirstOrDefault();
         }
 
         public virtual async Task UpdateByPropAsync(string value, object updates, string prop = "_id")
         {
-            var (filter, updateDefinition) = BuilderFilterAndUpdateDefinition(value, updates, prop);
+            var filter = this.BuildFilterByProp(value, prop);
+            var updateDefinition = this.BuildUpdateDefinition(updates);
 
             var updateResult = await this._genericCollection.UpdateOneAsync(filter, updateDefinition).ConfigureAwait(false);
         }
 
-        private (FilterDefinition<BsonDocument> filter, UpdateDefinition<BsonDocument> update) BuilderFilterAndUpdateDefinition(string value, object updates, string prop)
+        private FilterDefinition<BsonDocument> BuildFilterByProp(string value, string prop)
         {
             var filter = Builders<BsonDocument>.Filter.Eq(prop, value);
+
+            return filter;
+        }
+
+        private UpdateDefinition<BsonDocument> BuildUpdateDefinition(object updates)
+        {
             var updateBuilder = Builders<BsonDocument>.Update;
 
             var propertiesToUpdate = updates.GetType().GetProperties().ToList();
@@ -150,14 +184,29 @@ namespace CQ.UnitOfWork.MongoDriver
 
             var updateDefinition = updateBuilder.Combine(updateDefinitionList);
 
-            return (filter, updateDefinition);
+            return  updateDefinition;
         }
 
         public virtual void UpdateByProp(string value, object updates, string prop = "_id")
         {
-            var (filter, updateDefinition) = BuilderFilterAndUpdateDefinition(value, updates, prop);
+            var filter = this.BuildFilterByProp(value, prop);
+            var updateDefinition = BuildUpdateDefinition(updates);
 
             var updateResult = this._genericCollection.UpdateOne(filter, updateDefinition);
+        }
+
+        public async Task<bool> ExistAsync(Expression<Func<TEntity, bool>> predicate)
+        {
+            var amount = await this._collection.CountAsync(predicate).ConfigureAwait(false);
+
+            return amount > 0;
+        }
+
+        public bool Exist(Expression<Func<TEntity, bool>> predicate)
+        {
+            var amount = this._collection.Count(predicate);
+
+            return amount > 0;
         }
 
         public virtual void SetContext(IDatabaseContext context)
