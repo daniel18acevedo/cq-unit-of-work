@@ -19,7 +19,7 @@
 	</PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CQ.UnitOfWork.Abstractions" Version="1.1.8" />
+    <ProjectReference Include="..\CQ.UnitOfWork.Abstractions\CQ.UnitOfWork.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>
