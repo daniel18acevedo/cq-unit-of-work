@@ -52,7 +52,7 @@ builder.Services.AddMongoContext(
             UseDefaultQueryLogger= true
         });
 
-builder.Services.AddMongoRepository<UserMongo>("users",LifeTime.Transient);
+builder.Services.AddMongoRepository<UserMongo>("users");
 
 
 var app = builder.Build();
