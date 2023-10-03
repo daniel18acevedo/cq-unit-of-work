@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace CQ.UnitOfWork
 {
-    public enum LifeCycle
+    public enum LifeTime
     {
-        SCOPED,
-        TRANSIENT,
-        SINGLETON
+        Scoped,
+        Transient,
+        Singleton
     }
 }
