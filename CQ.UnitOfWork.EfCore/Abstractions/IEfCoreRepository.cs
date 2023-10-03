@@ -10,10 +10,10 @@ namespace CQ.UnitOfWork.EfCore.Abstractions
 {
     public interface IEfCoreRepository<TEntity> : IRepository<TEntity> where TEntity : class
     {
-        Task<IList<TResult>> GetAllAsync<TResult>(Expression<Func<TEntity, TResult>> selector, Expression<Func<TEntity, bool>>? expression = null)
+        Task<IList<TResult>> GetAllAsync<TResult>(Expression<Func<TEntity, TResult>> selector, Expression<Func<TEntity, bool>>? predicate = null)
         where TResult : class;
 
-        IList<TResult> GetAll<TResult>(Expression<Func<TEntity, TResult>> selector, Expression<Func<TEntity, bool>>? expression = null)
+        IList<TResult> GetAll<TResult>(Expression<Func<TEntity, TResult>> selector, Expression<Func<TEntity, bool>>? predicate = null)
             where TResult : class;
 
         Task UpdateAsync(TEntity updated);

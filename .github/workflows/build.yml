@@ -1,26 +1,20 @@
 on:
   push:
     branches:
-    - main
-    - develop
+      - main
+      - develop
   pull_request:
     branches:
-    - main
-    - develop
+      - main
+      - develop
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v2
+      
     - name: Build
       run: dotnet build --configuration Release
-    - name: Show files
-      run: ls
-    - name: Step in folder
-      run: |
-        cd CQ.UnitOfWork.MongoDriver
-        dotnet build --configuration Release /p:Version=1.0.0
-        dotnet pack --configuration Release /p:Version=1.0.0 --no-build --output .
-        ls
     

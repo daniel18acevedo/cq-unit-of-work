@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace CQ.UnitOfWork.Extensions
+namespace CQ.UnitOfWork.EfCore.Extensions
 {
     public static class NullableOrderByExtension
     {
