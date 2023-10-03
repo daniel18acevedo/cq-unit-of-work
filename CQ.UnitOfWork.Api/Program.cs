@@ -32,8 +32,8 @@ builder.Services.AddEfCoreContext<ConcreteContext>(new EfCoreConfig
     UseDefaultQueryLogger= true
 });
 
-builder.Services.AddEfCoreRepository<User>();
-builder.Services.AddEfCoreRepository<Book>();
+builder.Services.AddEfCoreRepository<User>(LifeTime.Transient);
+builder.Services.AddEfCoreRepository<Book>(LifeTime.Transient);
 
 
 
@@ -52,7 +52,7 @@ builder.Services.AddMongoContext(
             UseDefaultQueryLogger= true
         });
 
-builder.Services.AddMongoRepository<UserMongo>("Users");
+builder.Services.AddMongoRepository<UserMongo>("users",LifeTime.Transient);
 
 
 var app = builder.Build();
