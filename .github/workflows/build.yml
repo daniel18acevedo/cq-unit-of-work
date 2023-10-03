@@ -1,17 +1,20 @@
 on:
   push:
     branches:
-    - main
-    - develop
+      - main
+      - develop
   pull_request:
     branches:
-    - main
-    - develop
+      - main
+      - develop
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v2
+      
     - name: Build
       run: dotnet build --configuration Release
+    
