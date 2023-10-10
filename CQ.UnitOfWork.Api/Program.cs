@@ -1,3 +1,4 @@
+using CQ.ServiceExtension;
 using CQ.UnitOfWork;
 using CQ.UnitOfWork.Abstractions;
 using CQ.UnitOfWork.Api.EFCore.DataAccess;
