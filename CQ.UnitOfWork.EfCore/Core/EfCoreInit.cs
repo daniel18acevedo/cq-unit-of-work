@@ -1,7 +1,7 @@
 ﻿using CQ.UnitOfWork;
 using CQ.UnitOfWork.Abstractions;
 using CQ.UnitOfWork.EfCore.Abstractions;
-using CQ.UnitOfWork.Extensions;
+using CQ.ServiceExtension;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
