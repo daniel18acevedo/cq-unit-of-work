@@ -39,7 +39,7 @@ jobs:
     
     - name: Build
       run: dotnet build --configuration Release /p:Version=$VERSION
-    
+
     - name: Pack
       run: dotnet pack --configuration Release /p:Version=$VERSION --no-build --output .
     

@@ -1,7 +1,7 @@
 ﻿using CQ.UnitOfWork;
 using CQ.UnitOfWork.Abstractions;
 using CQ.UnitOfWork.EfCore.Abstractions;
-using CQ.UnitOfWork.Extensions;
+using CQ.ServiceExtension;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,7 +13,7 @@ namespace CQ.UnitOfWork.EfCore
         public static void AddEfCoreContext<TContext>(
             this IServiceCollection services,
             EfCoreConfig config,
-            LifeCycle lifeCycle = LifeCycle.SCOPED)
+            LifeTime lifeTime = LifeTime.Scoped)
             where TContext : EfCoreContext
         {
             config.Assert();
@@ -49,11 +49,11 @@ namespace CQ.UnitOfWork.EfCore
                     optionsBuilder.LogTo(config.Logger);
                 }
             };
-            var lifeTime = lifeCycle == LifeCycle.SCOPED ? ServiceLifetime.Scoped : lifeCycle == LifeCycle.TRANSIENT ? ServiceLifetime.Transient : ServiceLifetime.Singleton;
+            var lifeTimeDb = lifeTime == LifeTime.Scoped ? ServiceLifetime.Scoped : lifeTime == LifeTime.Transient ? ServiceLifetime.Transient : ServiceLifetime.Singleton;
 
-            services.AddDbContext<TContext>(actions, lifeTime);
-            services.AddDbContext<EfCoreContext, TContext>(actions, lifeTime);
-            services.AddService<IDatabaseContext, TContext>(lifeCycle);
+            services.AddDbContext<TContext>(actions, lifeTimeDb);
+            services.AddDbContext<EfCoreContext, TContext>(actions, (ServiceLifetime)lifeTime);
+            services.AddService<IDatabaseContext, TContext>(lifeTime);
         }
 
         /// <summary>
@@ -61,12 +61,12 @@ namespace CQ.UnitOfWork.EfCore
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="services"></param>
-        /// <param name="lifeCycle"></param>
-        public static void AddEfCoreRepository<TEntity>(this IServiceCollection services, LifeCycle lifeCycle = LifeCycle.SCOPED) where TEntity : class
+        /// <param name="lifeTime"></param>
+        public static void AddEfCoreRepository<TEntity>(this IServiceCollection services, LifeTime lifeTime = LifeTime.Scoped) where TEntity : class
         {
-            services.AddService<IRepository<TEntity>, EfCoreRepository<TEntity>>(lifeCycle);
-            services.AddService<IUnitRepository<TEntity>, EfCoreRepository<TEntity>>(lifeCycle);
-            services.AddService<IEfCoreRepository<TEntity>, EfCoreRepository<TEntity>>(lifeCycle);
+            services.AddService<IRepository<TEntity>, EfCoreRepository<TEntity>>(lifeTime);
+            services.AddService<IUnitRepository<TEntity>, EfCoreRepository<TEntity>>(lifeTime);
+            services.AddService<IEfCoreRepository<TEntity>, EfCoreRepository<TEntity>>(lifeTime);
         }
 
         /// <summary>
@@ -75,8 +75,8 @@ namespace CQ.UnitOfWork.EfCore
         /// <typeparam name="TEntity"></typeparam>
         /// <typeparam name="TContext"></typeparam>
         /// <param name="services"></param>
-        /// <param name="lifeCycle"></param>
-        public static void AddEfCoreRepository<TEntity, TContext>(this IServiceCollection services, LifeCycle lifeCycle = LifeCycle.SCOPED) 
+        /// <param name="lifeTime"></param>
+        public static void AddEfCoreRepository<TEntity, TContext>(this IServiceCollection services, LifeTime lifeTime = LifeTime.Scoped) 
             where TEntity : class
             where TContext : EfCoreContext
         {
@@ -87,9 +87,9 @@ namespace CQ.UnitOfWork.EfCore
                 return new EfCoreRepository<TEntity>(context);
             };
 
-            services.AddService<IRepository<TEntity>>(repositoryImplementation, lifeCycle);
-            services.AddService<IUnitRepository<TEntity>>(repositoryImplementation, lifeCycle);
-            services.AddService<IEfCoreRepository<TEntity>>(repositoryImplementation, lifeCycle);
+            services.AddService<IRepository<TEntity>>(repositoryImplementation, lifeTime);
+            services.AddService<IUnitRepository<TEntity>>(repositoryImplementation, lifeTime);
+            services.AddService<IEfCoreRepository<TEntity>>(repositoryImplementation, lifeTime);
         }
 
         /// <summary>
@@ -98,14 +98,14 @@ namespace CQ.UnitOfWork.EfCore
         /// <typeparam name="TEntity"></typeparam>
         /// <typeparam name="TRepository"></typeparam>
         /// <param name="services"></param>
-        /// <param name="lifeCycle"></param>
-        public static void AddCustomEfCoreRepository<TEntity, TRepository>(this IServiceCollection services, LifeCycle lifeCycle = LifeCycle.SCOPED)
+        /// <param name="lifeTime"></param>
+        public static void AddCustomEfCoreRepository<TEntity, TRepository>(this IServiceCollection services, LifeTime lifeTime = LifeTime.Scoped)
             where TEntity : class
             where TRepository : EfCoreRepository<TEntity>
         {
-            services.AddService<IRepository<TEntity>, TRepository>(lifeCycle);
-            services.AddService<IUnitRepository<TEntity>, TRepository>(lifeCycle);
-            services.AddService<IEfCoreRepository<TEntity>, TRepository>(lifeCycle);
+            services.AddService<IRepository<TEntity>, TRepository>(lifeTime);
+            services.AddService<IUnitRepository<TEntity>, TRepository>(lifeTime);
+            services.AddService<IEfCoreRepository<TEntity>, TRepository>(lifeTime);
         }
     }
 }
