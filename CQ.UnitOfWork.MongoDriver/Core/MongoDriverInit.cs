@@ -1,5 +1,5 @@
 ﻿using CQ.UnitOfWork.Abstractions;
-using CQ.UnitOfWork.Extensions;
+using CQ.ServiceExtension;
 using CQ.UnitOfWork.MongoDriver.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson;
