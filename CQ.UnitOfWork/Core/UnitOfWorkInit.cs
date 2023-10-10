@@ -1,5 +1,5 @@
 ﻿using CQ.UnitOfWork.Abstractions;
-using CQ.UnitOfWork.Extensions;
+using CQ.ServiceExtension;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CQ.UnitOfWork
