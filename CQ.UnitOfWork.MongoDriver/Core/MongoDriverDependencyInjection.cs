@@ -10,25 +10,22 @@ using MongoDB.Driver.Core.Events;
 
 namespace CQ.UnitOfWork.MongoDriver
 {
-    public static class MongoDriverInit
+    public static class MongoDriverDependencyInjection
     {
-        public static void AddMongoContext(
+        /// <summary>
+        /// Base on the config, injects IMongoClient and MongoContext
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="config"></param>
+        /// <param name="contextLifeTime"></param>
+        /// <param name="mongoClientLifeTime"></param>
+        public static IServiceCollection AddMongoContext(
             this IServiceCollection services,
             MongoConfig config,
             LifeTime contextLifeTime = LifeTime.Scoped,
             LifeTime mongoClientLifeTime = LifeTime.Singleton)
         {
             config.Assert();
-
-            services.AddService<IMongoClient>((serviceProvider) =>
-            {
-                var mongoClientSettings = MongoClientSettings.FromConnectionString(config.DatabaseConnection.ConnectionString);
-                mongoClientSettings.ClusterConfigurator = BuildClusterConfigurator(config.ClusterConfigurator, config.UseDefaultQueryLogger);
-
-                var mongoClient = new MongoClient(mongoClientSettings);
-
-                return mongoClient;
-            }, mongoClientLifeTime);
 
             var contextImplementation = (IServiceProvider serviceProvider) =>
             {
@@ -39,8 +36,20 @@ namespace CQ.UnitOfWork.MongoDriver
                 return new MongoContext(mongoDatabase);
             };
 
-            services.AddService(contextImplementation, contextLifeTime);
-            services.AddService<IDatabaseContext>(contextImplementation, contextLifeTime);
+            services
+                .AddService<IMongoClient>((serviceProvider) =>
+            {
+                var mongoClientSettings = MongoClientSettings.FromConnectionString(config.DatabaseConnection.ConnectionString);
+                mongoClientSettings.ClusterConfigurator = BuildClusterConfigurator(config.ClusterConfigurator, config.UseDefaultQueryLogger);
+
+                var mongoClient = new MongoClient(mongoClientSettings);
+
+                return mongoClient;
+            }, mongoClientLifeTime)
+                .AddService(contextImplementation, contextLifeTime)
+                .AddService<IDatabaseContext>(contextImplementation, contextLifeTime);
+
+            return services;
         }
 
         private static Action<ClusterBuilder>? BuildClusterConfigurator(Action<ClusterBuilder>? clusterConfigurator = null, bool useDefaultClusterConfigurator = false)
@@ -61,13 +70,13 @@ namespace CQ.UnitOfWork.MongoDriver
         }
         
         /// <summary>
-        /// Use default mongo context
+        /// Injects MongoDriverRepository under IRepository, IUnitRepository, IMongoDriverRepository, and use defaultMongoContext
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="services"></param>
         /// <param name="collectionName"></param>
         /// <param name="lifeTime"></param>
-        public static void AddMongoRepository<TEntity>(this IServiceCollection services, string? collectionName = null, LifeTime lifeTime = LifeTime.Scoped) where TEntity : class
+        public static IServiceCollection AddMongoRepository<TEntity>(this IServiceCollection services, string? collectionName = null, LifeTime lifeTime = LifeTime.Scoped) where TEntity : class
         {
             var implementationFactory = (IServiceProvider serviceProvider) =>
             {
@@ -76,13 +85,16 @@ namespace CQ.UnitOfWork.MongoDriver
                 return new MongoDriverRepository<TEntity>(mongoContext, collectionName);
             };
 
-            services.AddService<IRepository<TEntity>>(implementationFactory, lifeTime);
-            services.AddService<IUnitRepository<TEntity>>(implementationFactory, lifeTime);
-            services.AddService<IMongoDriverRepository<TEntity>>(implementationFactory, lifeTime);
+            services
+                .AddService<IRepository<TEntity>>(implementationFactory, lifeTime)
+                .AddService<IUnitRepository<TEntity>>(implementationFactory, lifeTime)
+                .AddService<IMongoDriverRepository<TEntity>>(implementationFactory, lifeTime);
+
+            return services;
         }
 
         /// <summary>
-        /// Use specific context. Usefull when are multiple ef core context defined.
+        /// Injects TRepository under IRepository, IUnitRepository, IMongoDriverRepository, and use defaultMongoContext
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <typeparam name="TRepository"></typeparam>
@@ -99,20 +111,22 @@ namespace CQ.UnitOfWork.MongoDriver
         }
 
         /// <summary>
-        /// Sets custom repository under repository interfaces.
+        /// Injects TImplementation under IRepository, IUnitRepository, IMongoDriverRepository, TRepository, and use defaultMongoContext
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <typeparam name="TRepository"></typeparam>
         /// <param name="services"></param>
         /// <param name="lifeTime"></param>
-        public static void AddCustomMongoRepository<TEntity, TRepository>(this IServiceCollection services, LifeTime lifeTime = LifeTime.Scoped)
+        public static void AddCustomMongoRepository<TEntity, TRepository, TImplementation>(this IServiceCollection services, LifeTime lifeTime = LifeTime.Scoped)
             where TEntity : class
-            where TRepository : MongoDriverRepository<TEntity>
+            where TRepository : class
+            where TImplementation: MongoDriverRepository<TEntity>, TRepository
         {
 
-            services.AddService<IRepository<TEntity>, TRepository>(lifeTime);
-            services.AddService<IUnitRepository<TEntity>, TRepository>(lifeTime);
-            services.AddService<IMongoDriverRepository<TEntity>, TRepository>(lifeTime);
+            services.AddService<IRepository<TEntity>, TImplementation>(lifeTime);
+            services.AddService<IUnitRepository<TEntity>, TImplementation>(lifeTime);
+            services.AddService<IMongoDriverRepository<TEntity>, TImplementation>(lifeTime);
+            services.AddService<TRepository, TImplementation>(lifeTime);
         }
     }
 }
