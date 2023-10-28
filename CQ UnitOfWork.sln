@@ -21,6 +21,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CQ.UnitOfWork.Api.EfCore.Da
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CQ.UnitOfWork", "CQ.UnitOfWork\CQ.UnitOfWork.csproj", "{6FC42EA1-50B8-473C-A0E9-BB49C3E814DE}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5F048AF3-1D3F-4089-BCE4-E16C9519EDD4}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\build.yml = .github\workflows\build.yml
+		.github\workflows\on-same-version.yml = .github\workflows\on-same-version.yml
+		.github\workflows\on-uow-efcore.yml = .github\workflows\on-uow-efcore.yml
+		.github\workflows\on-uow-mongo.yml = .github\workflows\on-uow-mongo.yml
+		.github\workflows\on-uow.yml = .github\workflows\on-uow.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
