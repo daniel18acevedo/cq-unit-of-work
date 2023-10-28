@@ -1,3 +1,5 @@
+name: Publish UnitOfWork
+
 on:
   pull_request:
     branches:
