@@ -1,9 +1,6 @@
 name: Publish UnitOfWork
 
 on:
-  workflow_run:
-    workflows:
-    - Build 
   pull_request:
     branches:
     - main-uow

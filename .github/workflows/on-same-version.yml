@@ -1,8 +1,5 @@
 name: Publish All
 on:
-  workflow_run:
-    workflows:
-    - Build   
   pull_request:
     branches:
     - same-version
