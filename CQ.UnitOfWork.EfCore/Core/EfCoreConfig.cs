@@ -11,7 +11,5 @@ namespace CQ.UnitOfWork.EfCore
         public Action<string>? Logger { get; set; }
 
         public EfCoreDataBaseEngine Engine { get; set; } = EfCoreDataBaseEngine.SQL;
-
-        public EfCoreConfig() : base(Orm.EF_CORE) { }
     }
 }

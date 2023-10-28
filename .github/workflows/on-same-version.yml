@@ -1,3 +1,4 @@
+name: Publish All
 on:
   pull_request:
     branches:
