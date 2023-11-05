@@ -11,10 +11,10 @@ namespace CQ.UnitOfWork.MongoDriver
 {
     public class MongoDriverRepository<TEntity> : IMongoDriverRepository<TEntity>, IUnitRepository<TEntity> where TEntity : class
     {
-        protected MongoContext _mongoContext;
-        protected IMongoCollection<TEntity> _collection;
-        protected IMongoCollection<BsonDocument> _genericCollection;
-        protected string _collectionName;
+        protected MongoContext _mongoContext = null!;
+        protected IMongoCollection<TEntity> _collection = null!;
+        protected IMongoCollection<BsonDocument> _genericCollection = null!;
+        protected string _collectionName = null!;
 
         public MongoDriverRepository(MongoContext mongoContext, string? collectionName = null)
         {
@@ -90,10 +90,7 @@ namespace CQ.UnitOfWork.MongoDriver
         {
             var entity = await this.GetOrDefaultAsync(predicate).ConfigureAwait(false);
 
-            if (entity is null)
-            {
-                throw new ArgumentException($"{this._collectionName} not found");
-            }
+            if (entity is null) throw new InvalidOperationException($"{this._collectionName} not found");
 
             return entity;
         }
@@ -102,10 +99,7 @@ namespace CQ.UnitOfWork.MongoDriver
         {
             var entity = this.GetOrDefault(predicate);
 
-            if (entity is null)
-            {
-                throw new ArgumentException($"{this._collectionName} not found");
-            }
+            if (entity is null) throw new InvalidOperationException($"{this._collectionName} not found");
 
             return entity;
         }
@@ -117,10 +111,7 @@ namespace CQ.UnitOfWork.MongoDriver
 
             var entity = await this._genericCollection.Find(filter).FirstOrDefaultAsync().ConfigureAwait(false);
 
-            if (entity is null)
-            {
-                throw new ArgumentException($"{this._collectionName} not found");
-            }
+            if (entity is null) throw new InvalidOperationException($"{this._collectionName} not found");
 
             return BsonSerializer.Deserialize<TEntity>(entity);
         }
@@ -131,10 +122,7 @@ namespace CQ.UnitOfWork.MongoDriver
 
             var entity = this._genericCollection.Find(filter).FirstOrDefault();
 
-            if (entity is null)
-            {
-                throw new ArgumentException($"{this._collectionName} not found");
-            }
+            if (entity is null) throw new InvalidOperationException($"{this._collectionName} not found");
 
             return BsonSerializer.Deserialize<TEntity>(entity);
         }
@@ -151,7 +139,33 @@ namespace CQ.UnitOfWork.MongoDriver
             return this._collection.Find(predicate).FirstOrDefault();
         }
 
-        public virtual async Task UpdateByPropAsync(string value, object updates, string prop = "_id")
+        public virtual TEntity? Get<TException>(Func<Expression<Func<TEntity, bool>>, TEntity?> func, Expression<Func<TEntity, bool>> predicate)
+            where TException : Exception, new()
+        {
+            try
+            {
+                return func(predicate);
+            }
+            catch (Exception)
+            {
+                throw new TException();
+            }
+        }
+
+        public virtual async Task<TEntity?> GetAsync<TException>(Func<Expression<Func<TEntity, bool>>, Task<TEntity?>> func, Expression<Func<TEntity, bool>> predicate)
+            where TException : Exception, new()
+        {
+            try
+            {
+                return await func(predicate).ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                throw new TException();
+            }
+        }
+
+        public virtual async Task UpdateByPropAsync(string value, object updates, string? prop = "_id")
         {
             var filter = this.BuildFilterByProp(value, prop);
             var updateDefinition = this.BuildUpdateDefinition(updates);
@@ -184,10 +198,10 @@ namespace CQ.UnitOfWork.MongoDriver
 
             var updateDefinition = updateBuilder.Combine(updateDefinitionList);
 
-            return  updateDefinition;
+            return updateDefinition;
         }
 
-        public virtual void UpdateByProp(string value, object updates, string prop = "_id")
+        public virtual void UpdateByProp(string value, object updates, string? prop = "_id")
         {
             var filter = this.BuildFilterByProp(value, prop);
             var updateDefinition = BuildUpdateDefinition(updates);
@@ -212,7 +226,7 @@ namespace CQ.UnitOfWork.MongoDriver
         public virtual void SetContext(IDatabaseContext context)
         {
             var mongoContext = (MongoContext)context;
-            if (context is null)
+            if (context == null)
             {
                 throw new ArgumentNullException(nameof(mongoContext));
             }
@@ -233,6 +247,56 @@ namespace CQ.UnitOfWork.MongoDriver
         public virtual void CreateWithoutCommit(TEntity entity)
         {
             this._mongoContext.AddAction(() => this._collection.InsertOne(entity));
+        }
+
+        public virtual TEntity? GetByProp<TException>(Func<string, string?, TEntity?> func, string value, string? prop = null)
+            where TException : Exception, new()
+        {
+            try
+            {
+                return func(value, prop);
+            }
+            catch (Exception)
+            {
+                throw new TException();
+            }
+        }
+
+        public virtual async Task<TEntity?> GetByPropAsync<TException>(Func<string, string?, Task<TEntity?>> func, string value, string? prop = null)
+            where TException : Exception, new()
+        {
+            try
+            {
+                return await func(value, prop).ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                throw new TException();
+            }
+        }
+
+        public virtual async Task<TEntity?> GetOrDefaultByPropAsync(string value, string? prop = null)
+        {
+            try
+            {
+                return await this.GetByPropAsync(value, prop).ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public virtual TEntity? GetOrDefaultByProp(string value, string? prop = null)
+        {
+            try
+            {
+                return this.GetByProp(value, prop);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
     }
 }

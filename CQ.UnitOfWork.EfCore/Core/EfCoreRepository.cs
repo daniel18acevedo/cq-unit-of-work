@@ -3,6 +3,7 @@ using CQ.UnitOfWork.Abstractions;
 using CQ.UnitOfWork.EfCore.Abstractions;
 using CQ.UnitOfWork.EfCore.Extensions;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
@@ -11,15 +12,15 @@ namespace CQ.UnitOfWork.EfCore
     public class EfCoreRepository<TEntity> : IEfCoreRepository<TEntity>, IUnitRepository<TEntity>
        where TEntity : class
     {
-        protected DbSet<TEntity> _dbSet;
+        protected DbSet<TEntity> _dbSet = null!;
 
-        protected EfCoreContext _efCoreConnection;
+        protected EfCoreContext _efCoreConnection = null!;
 
-        protected string _tableName;
+        protected string _tableName = null!;
 
         public EfCoreRepository(EfCoreContext efCoreContext)
         {
-            this.SetContext(efCoreContext);    
+            this.SetContext(efCoreContext);
         }
 
         #region Create
@@ -85,12 +86,12 @@ namespace CQ.UnitOfWork.EfCore
             return this._dbSet.NullableWhere(predicate).Select(selector).ToList();
         }
 
-        public virtual async Task<IList<TResult>> GetAllAsync<TResult>(Expression<Func<TEntity, bool>>? predicate = null) 
+        public virtual async Task<IList<TResult>> GetAllAsync<TResult>(Expression<Func<TEntity, bool>>? predicate = null)
         {
             return await this._dbSet.NullableWhere(predicate).SelectTo<TEntity, TResult>().ToListAsync().ConfigureAwait(false);
         }
 
-        public virtual IList<TResult> GetAll<TResult>(Expression<Func<TEntity, bool>>? predicate = null) 
+        public virtual IList<TResult> GetAll<TResult>(Expression<Func<TEntity, bool>>? predicate = null)
         {
             return this._dbSet.NullableWhere(predicate).SelectTo<TEntity, TResult>().ToList();
         }
@@ -101,10 +102,7 @@ namespace CQ.UnitOfWork.EfCore
         {
             var entity = await this.GetOrDefaultAsync(predicate).ConfigureAwait(false);
 
-            if (entity is null)
-            {
-                throw new ArgumentException($"{this._tableName} not found");
-            }
+            if (entity is null) throw new InvalidOperationException($"{this._tableName} not found");
 
             return entity;
         }
@@ -113,10 +111,7 @@ namespace CQ.UnitOfWork.EfCore
         {
             var entity = this.GetOrDefault(predicate);
 
-            if (entity is null)
-            {
-                throw new ArgumentException($"{this._tableName} not found");
-            }
+            if (entity is null) throw new InvalidOperationException($"{this._tableName} not found");
 
             return entity;
         }
@@ -128,10 +123,7 @@ namespace CQ.UnitOfWork.EfCore
             prop ??= "Id";
             var entity = await this._dbSet.FirstOrDefaultAsync(e => EF.Property<string>(e, prop) == value).ConfigureAwait(false);
 
-            if (entity is null)
-            {
-                throw new ArgumentException($"{this._tableName} not found");
-            }
+            if (entity is null) throw new InvalidOperationException($"{this._tableName} not found");
 
             return entity;
         }
@@ -140,10 +132,7 @@ namespace CQ.UnitOfWork.EfCore
         {
             var entity = this._dbSet.FirstOrDefault(e => EF.Property<string>(e, prop) == value);
 
-            if (entity is null)
-            {
-                throw new ArgumentException($"{this._tableName} not found");
-            }
+            if (entity is null) throw new InvalidOperationException($"{this._tableName} not found");
 
             return entity;
         }
@@ -177,7 +166,7 @@ namespace CQ.UnitOfWork.EfCore
         }
         #endregion
 
-        public async Task<bool> ExistAsync(Expression<Func<TEntity, bool>> predicate)
+        public virtual async Task<bool> ExistAsync(Expression<Func<TEntity, bool>> predicate)
         {
             return await this._dbSet.AnyAsync(predicate).ConfigureAwait(false);
         }
@@ -214,6 +203,78 @@ namespace CQ.UnitOfWork.EfCore
         public virtual void CreateWithoutCommit(TEntity entity)
         {
             this._dbSet.Add(entity);
+        }
+
+        public virtual TEntity? Get<TException>(Func<Expression<Func<TEntity, bool>>, TEntity?> function, Expression<Func<TEntity, bool>> predicate) where TException : Exception, new()
+        {
+            try
+            {
+                return function(predicate);
+            }
+            catch (Exception)
+            {
+                throw new TException();
+            }
+        }
+
+        public virtual async Task<TEntity?> GetAsync<TException>(Func<Expression<Func<TEntity, bool>>, Task<TEntity?>> function, Expression<Func<TEntity, bool>> predicate) where TException : Exception, new()
+        {
+            try
+            {
+                return await function(predicate).ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                throw new TException();
+            }
+        }
+
+        public virtual async Task<TEntity?> GetOrDefaultByPropAsync(string value, string? prop = null)
+        {
+            try
+            {
+                return await this.GetByPropAsync(value, prop).ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public virtual TEntity? GetOrDefaultByProp(string value, string? prop = null)
+        {
+            try
+            {
+                return this.GetByProp(value, prop);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public virtual TEntity? GetByProp<TException>(Func<string, string?, TEntity?> func, string value, string? prop = null) where TException : Exception, new()
+        {
+            try
+            {
+                return func(value, prop);
+            }
+            catch (Exception)
+            {
+                throw new TException();
+            }
+        }
+
+        public virtual async Task<TEntity?> GetByPropAsync<TException>(Func<string, string?, Task<TEntity?>> func, string value, string? prop = null) where TException : Exception, new()
+        {
+            try
+            {
+                return await func(value, prop).ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                throw new TException();
+            }
         }
     }
 }

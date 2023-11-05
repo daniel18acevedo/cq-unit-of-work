@@ -33,7 +33,7 @@ namespace CQ.UnitOfWork.Abstractions
         IList<TEntity> GetAll(Expression<Func<TEntity, bool>>? predicate = null);
 
         Task<IList<TResult>> GetAllAsync<TResult>(Expression<Func<TEntity, bool>>? predicate = null);
-        
+
         IList<TResult> GetAll<TResult>(Expression<Func<TEntity, bool>>? predicate = null);
         #endregion
 
@@ -41,6 +41,18 @@ namespace CQ.UnitOfWork.Abstractions
         Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> predicate);
 
         TEntity Get(Expression<Func<TEntity, bool>> predicate);
+        #endregion
+
+        #region Fetch entity or default
+        Task<TEntity?> GetOrDefaultAsync(Expression<Func<TEntity, bool>> predicate);
+
+        TEntity? GetOrDefault(Expression<Func<TEntity, bool>> predicate);
+        #endregion
+
+        #region Fetch entity in common
+        TEntity? Get<TException>(Func<Expression<Func<TEntity, bool>>, TEntity?> function, Expression<Func<TEntity, bool>> predicate) where TException : Exception, new();
+
+        Task<TEntity?> GetAsync<TException>(Func<Expression<Func<TEntity, bool>>, Task<TEntity?>> function, Expression<Func<TEntity, bool>> predicate) where TException : Exception, new();
         #endregion
 
         #region Fetch entity by prop
@@ -55,11 +67,18 @@ namespace CQ.UnitOfWork.Abstractions
         TEntity GetByProp(string value, string? prop = null);
         #endregion
 
-        #region Fetch entity or default
-        Task<TEntity?> GetOrDefaultAsync(Expression<Func<TEntity, bool>> predicate);
+        #region Fetch entity or default by prop
+        Task<TEntity?> GetOrDefaultByPropAsync(string value, string? prop = null);
 
-        TEntity? GetOrDefault(Expression<Func<TEntity, bool>> predicate);
+        TEntity? GetOrDefaultByProp(string value, string? prop = null);
         #endregion
+
+        #region Fetch entity by prop in common
+        TEntity? GetByProp<TException>(Func<string, string?, TEntity?> func, string value, string? propn = null) where TException : Exception, new();
+
+        Task<TEntity?> GetByPropAsync<TException>(Func<string, string?, Task<TEntity?>> func, string value, string? propn = null) where TException : Exception, new();
+        #endregion
+
 
         Task<bool> ExistAsync(Expression<Func<TEntity, bool>> predicate);
 
