@@ -9,7 +9,7 @@ using System.Linq.Expressions;
 
 namespace CQ.UnitOfWork.EfCore
 {
-    public class EfCoreRepository<TEntity> : IEfCoreRepository<TEntity>, IUnitRepository<TEntity>
+    public class EfCoreRepository<TEntity> : BaseRepository<TEntity>,IEfCoreRepository<TEntity>, IUnitRepository<TEntity>
        where TEntity : class
     {
         protected DbSet<TEntity> _dbSet = null!;
@@ -21,6 +21,24 @@ namespace CQ.UnitOfWork.EfCore
         public EfCoreRepository(EfCoreContext efCoreContext)
         {
             this.SetContext(efCoreContext);
+        }
+        public virtual void SetContext(IDatabaseContext context)
+        {
+            var efCoreContext = (EfCoreContext)context;
+
+            if (context is null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
+            this.SetCollectionInfo(efCoreContext);
+        }
+
+        private void SetCollectionInfo(EfCoreContext efCoreContext)
+        {
+            this._dbSet = efCoreContext.GetEntitySet<TEntity>();
+            this._tableName = efCoreContext.GetTableName<TEntity>();
+            this._efCoreConnection = efCoreContext;
         }
 
         #region Create
@@ -98,7 +116,7 @@ namespace CQ.UnitOfWork.EfCore
         #endregion
 
         #region Get
-        public virtual async Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> predicate)
+        public override async Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> predicate)
         {
             var entity = await this.GetOrDefaultAsync(predicate).ConfigureAwait(false);
 
@@ -107,7 +125,7 @@ namespace CQ.UnitOfWork.EfCore
             return entity;
         }
 
-        public virtual TEntity Get(Expression<Func<TEntity, bool>> predicate)
+        public override TEntity Get(Expression<Func<TEntity, bool>> predicate)
         {
             var entity = this.GetOrDefault(predicate);
 
@@ -118,19 +136,20 @@ namespace CQ.UnitOfWork.EfCore
         #endregion
 
         #region GetByProp
-        public virtual async Task<TEntity> GetByPropAsync(string value, string? prop = null)
+        public override async Task<TEntity> GetByPropAsync(string value, string? prop = null)
         {
             prop ??= "Id";
-            var entity = await this._dbSet.FirstOrDefaultAsync(e => EF.Property<string>(e, prop) == value).ConfigureAwait(false);
+            var entity = await this.GetOrDefaultAsync(e => EF.Property<string>(e, prop) == value).ConfigureAwait(false);
 
             if (entity is null) throw new InvalidOperationException($"{this._tableName} not found");
 
             return entity;
         }
 
-        public virtual TEntity GetByProp(string value, string? prop = "Id")
+        public override TEntity GetByProp(string value, string? prop = null)
         {
-            var entity = this._dbSet.FirstOrDefault(e => EF.Property<string>(e, prop) == value);
+            prop ??= "Id";
+            var entity = this.GetOrDefault(e => EF.Property<string>(e, prop) == value);
 
             if (entity is null) throw new InvalidOperationException($"{this._tableName} not found");
 
@@ -139,17 +158,43 @@ namespace CQ.UnitOfWork.EfCore
         #endregion
 
         #region GetOrDefault
-        public virtual async Task<TEntity?> GetOrDefaultAsync(Expression<Func<TEntity, bool>> predicate)
+        public override async Task<TEntity?> GetOrDefaultAsync(Expression<Func<TEntity, bool>> predicate)
         {
             return await this._dbSet.Where(predicate).FirstOrDefaultAsync().ConfigureAwait(false);
         }
 
-        public virtual TEntity? GetOrDefault(Expression<Func<TEntity, bool>> predicate)
+        public override TEntity? GetOrDefault(Expression<Func<TEntity, bool>> predicate)
         {
             return this._dbSet.Where(predicate).FirstOrDefault();
         }
         #endregion
 
+        #region GetOrDefaultByProp
+        public override async Task<TEntity?> GetOrDefaultByPropAsync(string value, string? prop = null)
+        {
+            try
+            {
+                return await this.GetByPropAsync(value, prop).ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public override TEntity? GetOrDefaultByProp(string value, string? prop = null)
+        {
+            try
+            {
+                return this.GetByProp(value, prop);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+        #endregion
+        
         #region Update
         public virtual async Task UpdateAsync(TEntity updated)
         {
@@ -166,6 +211,7 @@ namespace CQ.UnitOfWork.EfCore
         }
         #endregion
 
+        #region Exist
         public virtual async Task<bool> ExistAsync(Expression<Func<TEntity, bool>> predicate)
         {
             return await this._dbSet.AnyAsync(predicate).ConfigureAwait(false);
@@ -175,26 +221,9 @@ namespace CQ.UnitOfWork.EfCore
         {
             return this._dbSet.Any(predicate);
         }
+        #endregion
 
-        public virtual void SetContext(IDatabaseContext context)
-        {
-            var efCoreContext = (EfCoreContext)context;
-
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-
-            this.SetCollectionInfo(efCoreContext);
-        }
-
-        private void SetCollectionInfo(EfCoreContext efCoreContext)
-        {
-            this._dbSet = efCoreContext.GetEntitySet<TEntity>();
-            this._tableName = efCoreContext.GetTableName<TEntity>();
-            this._efCoreConnection = efCoreContext;
-        }
-
+        #region Unity
         public virtual async Task CreateWithoutCommitAsync(TEntity entity)
         {
             await this._dbSet.AddAsync(entity).ConfigureAwait(false);
@@ -205,76 +234,6 @@ namespace CQ.UnitOfWork.EfCore
             this._dbSet.Add(entity);
         }
 
-        public virtual TEntity? Get<TException>(Func<Expression<Func<TEntity, bool>>, TEntity?> function, Expression<Func<TEntity, bool>> predicate) where TException : Exception, new()
-        {
-            try
-            {
-                return function(predicate);
-            }
-            catch (Exception)
-            {
-                throw new TException();
-            }
-        }
-
-        public virtual async Task<TEntity?> GetAsync<TException>(Func<Expression<Func<TEntity, bool>>, Task<TEntity?>> function, Expression<Func<TEntity, bool>> predicate) where TException : Exception, new()
-        {
-            try
-            {
-                return await function(predicate).ConfigureAwait(false);
-            }
-            catch (Exception)
-            {
-                throw new TException();
-            }
-        }
-
-        public virtual async Task<TEntity?> GetOrDefaultByPropAsync(string value, string? prop = null)
-        {
-            try
-            {
-                return await this.GetByPropAsync(value, prop).ConfigureAwait(false);
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-        }
-
-        public virtual TEntity? GetOrDefaultByProp(string value, string? prop = null)
-        {
-            try
-            {
-                return this.GetByProp(value, prop);
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-        }
-
-        public virtual TEntity? GetByProp<TException>(Func<string, string?, TEntity?> func, string value, string? prop = null) where TException : Exception, new()
-        {
-            try
-            {
-                return func(value, prop);
-            }
-            catch (Exception)
-            {
-                throw new TException();
-            }
-        }
-
-        public virtual async Task<TEntity?> GetByPropAsync<TException>(Func<string, string?, Task<TEntity?>> func, string value, string? prop = null) where TException : Exception, new()
-        {
-            try
-            {
-                return await func(value, prop).ConfigureAwait(false);
-            }
-            catch (Exception)
-            {
-                throw new TException();
-            }
-        }
+        #endregion
     }
 }

@@ -9,7 +9,8 @@ using System.Linq.Expressions;
 
 namespace CQ.UnitOfWork.MongoDriver
 {
-    public class MongoDriverRepository<TEntity> : IMongoDriverRepository<TEntity>, IUnitRepository<TEntity> where TEntity : class
+    public class MongoDriverRepository<TEntity> : BaseRepository<TEntity>,
+        IMongoDriverRepository<TEntity>, IUnitRepository<TEntity> where TEntity : class
     {
         protected MongoContext _mongoContext = null!;
         protected IMongoCollection<TEntity> _collection = null!;
@@ -22,7 +23,23 @@ namespace CQ.UnitOfWork.MongoDriver
 
             this.SetContext(mongoContext);
         }
+        public virtual void SetContext(IDatabaseContext context)
+        {
+            var mongoContext = (MongoContext)context;
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(mongoContext));
+            }
+            this._mongoContext = mongoContext;
 
+            this._collectionName = mongoContext.BuildCollectionName<TEntity>(this._collectionName);
+
+            this._collection = mongoContext.GetEntityCollection<TEntity>(this._collectionName);
+
+            this._genericCollection = mongoContext.GetGenericCollection(this._collectionName);
+        }
+
+        #region Create
         public virtual async Task<TEntity> CreateAsync(TEntity entity)
         {
             await this._collection.InsertOneAsync(entity).ConfigureAwait(false);
@@ -36,7 +53,9 @@ namespace CQ.UnitOfWork.MongoDriver
 
             return entity;
         }
+        #endregion
 
+        #region Delete
         public virtual async Task DeleteAsync(Expression<Func<TEntity, bool>> predicate)
         {
             var deleteResult = await this._collection.DeleteOneAsync(predicate).ConfigureAwait(false);
@@ -46,7 +65,9 @@ namespace CQ.UnitOfWork.MongoDriver
         {
             this._collection.DeleteOne(predicate);
         }
+        #endregion
 
+        #region Fetch all
         public virtual async Task<IList<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? predicate = null)
         {
             return await this._collection.NullableFind(predicate).ToListAsync().ConfigureAwait(false);
@@ -85,88 +106,13 @@ namespace CQ.UnitOfWork.MongoDriver
 
             return cursor;
         }
+        #endregion
 
-        public virtual async Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> predicate)
-        {
-            var entity = await this.GetOrDefaultAsync(predicate).ConfigureAwait(false);
-
-            if (entity is null) throw new InvalidOperationException($"{this._collectionName} not found");
-
-            return entity;
-        }
-
-        public virtual TEntity Get(Expression<Func<TEntity, bool>> predicate)
-        {
-            var entity = this.GetOrDefault(predicate);
-
-            if (entity is null) throw new InvalidOperationException($"{this._collectionName} not found");
-
-            return entity;
-        }
-
-        public virtual async Task<TEntity> GetByPropAsync(string value, string? prop = null)
+        #region Update
+        public virtual async Task UpdateByPropAsync(string value, object updates, string? prop =null)
         {
             prop ??= "_id";
-            var filter = Builders<BsonDocument>.Filter.Eq(prop, value);
 
-            var entity = await this._genericCollection.Find(filter).FirstOrDefaultAsync().ConfigureAwait(false);
-
-            if (entity is null) throw new InvalidOperationException($"{this._collectionName} not found");
-
-            return BsonSerializer.Deserialize<TEntity>(entity);
-        }
-
-        public virtual TEntity GetByProp(string value, string? prop = "_id")
-        {
-            var filter = Builders<BsonDocument>.Filter.Eq(prop, value);
-
-            var entity = this._genericCollection.Find(filter).FirstOrDefault();
-
-            if (entity is null) throw new InvalidOperationException($"{this._collectionName} not found");
-
-            return BsonSerializer.Deserialize<TEntity>(entity);
-        }
-
-        public virtual async Task<TEntity?> GetOrDefaultAsync(Expression<Func<TEntity, bool>> predicate)
-        {
-            var entity = await this._collection.Find(predicate).FirstOrDefaultAsync().ConfigureAwait(false);
-
-            return entity;
-        }
-
-        public virtual TEntity? GetOrDefault(Expression<Func<TEntity, bool>> predicate)
-        {
-            return this._collection.Find(predicate).FirstOrDefault();
-        }
-
-        public virtual TEntity? Get<TException>(Func<Expression<Func<TEntity, bool>>, TEntity?> func, Expression<Func<TEntity, bool>> predicate)
-            where TException : Exception, new()
-        {
-            try
-            {
-                return func(predicate);
-            }
-            catch (Exception)
-            {
-                throw new TException();
-            }
-        }
-
-        public virtual async Task<TEntity?> GetAsync<TException>(Func<Expression<Func<TEntity, bool>>, Task<TEntity?>> func, Expression<Func<TEntity, bool>> predicate)
-            where TException : Exception, new()
-        {
-            try
-            {
-                return await func(predicate).ConfigureAwait(false);
-            }
-            catch (Exception)
-            {
-                throw new TException();
-            }
-        }
-
-        public virtual async Task UpdateByPropAsync(string value, object updates, string? prop = "_id")
-        {
             var filter = this.BuildFilterByProp(value, prop);
             var updateDefinition = this.BuildUpdateDefinition(updates);
 
@@ -201,14 +147,18 @@ namespace CQ.UnitOfWork.MongoDriver
             return updateDefinition;
         }
 
-        public virtual void UpdateByProp(string value, object updates, string? prop = "_id")
+        public virtual void UpdateByProp(string value, object updates, string? prop)
         {
+            prop ??= "_id";
+
             var filter = this.BuildFilterByProp(value, prop);
             var updateDefinition = BuildUpdateDefinition(updates);
 
             var updateResult = this._genericCollection.UpdateOne(filter, updateDefinition);
         }
+        #endregion
 
+        #region Exist
         public async Task<bool> ExistAsync(Expression<Func<TEntity, bool>> predicate)
         {
             var amount = await this._collection.CountAsync(predicate).ConfigureAwait(false);
@@ -222,23 +172,9 @@ namespace CQ.UnitOfWork.MongoDriver
 
             return amount > 0;
         }
+        #endregion
 
-        public virtual void SetContext(IDatabaseContext context)
-        {
-            var mongoContext = (MongoContext)context;
-            if (context == null)
-            {
-                throw new ArgumentNullException(nameof(mongoContext));
-            }
-            this._mongoContext = mongoContext;
-
-            this._collectionName = mongoContext.BuildCollectionName<TEntity>(this._collectionName);
-
-            this._collection = mongoContext.GetEntityCollection<TEntity>(this._collectionName);
-
-            this._genericCollection = mongoContext.GetGenericCollection(this._collectionName);
-        }
-
+        #region Unity
         public virtual async Task CreateWithoutCommitAsync(TEntity entity)
         {
             await Task.Run(() => this._mongoContext.AddActionAsync(async () => await this._collection.InsertOneAsync(entity).ConfigureAwait(false))).ConfigureAwait(false);
@@ -248,34 +184,65 @@ namespace CQ.UnitOfWork.MongoDriver
         {
             this._mongoContext.AddAction(() => this._collection.InsertOne(entity));
         }
+        #endregion
 
-        public virtual TEntity? GetByProp<TException>(Func<string, string?, TEntity?> func, string value, string? prop = null)
-            where TException : Exception, new()
+        #region Fetch single
+        public override async Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> predicate)
         {
-            try
-            {
-                return func(value, prop);
-            }
-            catch (Exception)
-            {
-                throw new TException();
-            }
+            var entity = await this.GetOrDefaultAsync(predicate).ConfigureAwait(false);
+
+            if (entity is null) throw new InvalidOperationException($"{this._collectionName} not found");
+
+            return entity;
         }
 
-        public virtual async Task<TEntity?> GetByPropAsync<TException>(Func<string, string?, Task<TEntity?>> func, string value, string? prop = null)
-            where TException : Exception, new()
+        public override TEntity Get(Expression<Func<TEntity, bool>> predicate)
         {
-            try
-            {
-                return await func(value, prop).ConfigureAwait(false);
-            }
-            catch (Exception)
-            {
-                throw new TException();
-            }
+            var entity = this.GetOrDefault(predicate);
+
+            if (entity is null) throw new InvalidOperationException($"{this._collectionName} not found");
+
+            return entity;
         }
 
-        public virtual async Task<TEntity?> GetOrDefaultByPropAsync(string value, string? prop = null)
+        public override async Task<TEntity> GetByPropAsync(string value, string? prop = null)
+        {
+            prop ??= "_id";
+            var filter = Builders<BsonDocument>.Filter.Eq(prop, value);
+
+            var entity = await this._genericCollection.Find(filter).FirstOrDefaultAsync().ConfigureAwait(false);
+
+            if (entity is null) throw new InvalidOperationException($"{this._collectionName} not found");
+
+            return BsonSerializer.Deserialize<TEntity>(entity);
+        }
+
+        public override TEntity GetByProp(string value, string? prop = null)
+        {
+            prop ??= "_id";
+
+            var filter = Builders<BsonDocument>.Filter.Eq(prop, value);
+
+            var entity = this._genericCollection.Find(filter).FirstOrDefault();
+
+            if (entity is null) throw new InvalidOperationException($"{this._collectionName} not found");
+
+            return BsonSerializer.Deserialize<TEntity>(entity);
+        }
+
+        public override async Task<TEntity?> GetOrDefaultAsync(Expression<Func<TEntity, bool>> predicate)
+        {
+            var entity = await this._collection.Find(predicate).FirstOrDefaultAsync().ConfigureAwait(false);
+
+            return entity;
+        }
+
+        public override TEntity? GetOrDefault(Expression<Func<TEntity, bool>> predicate)
+        {
+            return this._collection.Find(predicate).FirstOrDefault();
+        }
+
+        public override async Task<TEntity?> GetOrDefaultByPropAsync(string value, string? prop = null)
         {
             try
             {
@@ -287,7 +254,7 @@ namespace CQ.UnitOfWork.MongoDriver
             }
         }
 
-        public virtual TEntity? GetOrDefaultByProp(string value, string? prop = null)
+        public override TEntity? GetOrDefaultByProp(string value, string? prop = null)
         {
             try
             {
@@ -298,5 +265,6 @@ namespace CQ.UnitOfWork.MongoDriver
                 return null;
             }
         }
+        #endregion
     }
 }

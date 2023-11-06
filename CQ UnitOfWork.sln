@@ -23,7 +23,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CQ.UnitOfWork", "CQ.UnitOfW
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{579769CD-5FF7-4E20-A85A-54EAD5DAC985}"
 	ProjectSection(SolutionItems) = preProject
+		.dockerignore = .dockerignore
+		.gitignore = .gitignore
 		.github\workflows\build.yml = .github\workflows\build.yml
+		docker-compose.yml = docker-compose.yml
+		Dockerfile = Dockerfile
 		.github\workflows\on-same-version.yml = .github\workflows\on-same-version.yml
 		.github\workflows\on-uow-efcore.yml = .github\workflows\on-uow-efcore.yml
 		.github\workflows\on-uow-mongo.yml = .github\workflows\on-uow-mongo.yml
