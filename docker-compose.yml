@@ -1,0 +1,16 @@
+version: '3'
+services:
+  mongo-server:
+    image: mongo
+    restart: always
+    ports:
+      - "27019:27017"
+  web-api:
+    depends_on: 
+      - mongo-server
+    restart: always
+    env_file:
+      - CQ.UnitOfWork.Api/.env.docker
+    build: .
+    ports:
+      - "7060:80"
