@@ -21,6 +21,7 @@
 
 
   <ItemGroup>
+    <PackageReference Include="CQ.ServiceExtension" Version="1.0.2" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
     <PackageReference Include="MongoDB.Driver" Version="2.20.0" />
   </ItemGroup>

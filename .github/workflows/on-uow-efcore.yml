@@ -1,3 +1,4 @@
+name: Publish EfCore
 on:
   push:
     branches:

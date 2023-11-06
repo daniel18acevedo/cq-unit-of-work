@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 
 namespace CQ.UnitOfWork.Abstractions
 {
-    public interface IRepository<TEntity> where TEntity : class
+    public interface IRepository<TEntity> : IFetchRepository<TEntity>
+        where TEntity : class
     {
         #region Create entity
         /// <summary>
@@ -33,33 +34,10 @@ namespace CQ.UnitOfWork.Abstractions
         IList<TEntity> GetAll(Expression<Func<TEntity, bool>>? predicate = null);
 
         Task<IList<TResult>> GetAllAsync<TResult>(Expression<Func<TEntity, bool>>? predicate = null);
-        
+
         IList<TResult> GetAll<TResult>(Expression<Func<TEntity, bool>>? predicate = null);
         #endregion
 
-        #region Fetch entity
-        Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> predicate);
-
-        TEntity Get(Expression<Func<TEntity, bool>> predicate);
-        #endregion
-
-        #region Fetch entity by prop
-        /// <summary>
-        /// Get element with value in prop. By default the value is id
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="prop"></param>
-        /// <returns></returns>
-        Task<TEntity> GetByPropAsync(string value, string? prop = null);
-
-        TEntity GetByProp(string value, string? prop = null);
-        #endregion
-
-        #region Fetch entity or default
-        Task<TEntity?> GetOrDefaultAsync(Expression<Func<TEntity, bool>> predicate);
-
-        TEntity? GetOrDefault(Expression<Func<TEntity, bool>> predicate);
-        #endregion
 
         Task<bool> ExistAsync(Expression<Func<TEntity, bool>> predicate);
 

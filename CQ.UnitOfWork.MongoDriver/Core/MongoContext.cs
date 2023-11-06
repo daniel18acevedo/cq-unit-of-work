@@ -48,7 +48,7 @@ namespace CQ.UnitOfWork.MongoDriver
 
         public string BuildCollectionName<TEntity>(string? collectionName)
         {
-            return string.IsNullOrEmpty(collectionName) ? $"{typeof(TEntity).Name}s" : collectionName;
+            return collectionName?? $"{typeof(TEntity).Name}s";
         }
 
         public IMongoCollection<BsonDocument> GetGenericCollection(string? collectionName)
