@@ -21,7 +21,7 @@ namespace CQ.UnitOfWork.Api.Controllers
             this._genericRepository= unitOfWork.GetEntityRepository<UserMongo>();
         }
 
-        [HttpGet]
+        [HttpGet("all")]
         public async Task<IActionResult> Get()
         {
             var users = await this._genericRepository.GetAllAsync().ConfigureAwait(false);
@@ -37,7 +37,15 @@ namespace CQ.UnitOfWork.Api.Controllers
             return Ok(user);
         }
 
-        [HttpGet("mini")]
+        [HttpGet("{id}/custom-exception")]
+        public async Task<IActionResult> GetCustomExceptionAsync([FromRoute] string id)
+        {
+            var user = await this._genericRepository.GetAsync<Exception>(this._genericRepository.GetAsync, u => u.Id == "no").ConfigureAwait(false);
+
+            return Ok(user);
+        }
+
+        [HttpGet("all/mini")]
         public async Task<IActionResult> GetMiniAsync()
         {
             var user = await _repository.GetAllAsync<MiniUserMongo>().ConfigureAwait(false);
