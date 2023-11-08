@@ -12,6 +12,8 @@ namespace CQ.UnitOfWork
 
         public bool UseDefaultQueryLogger { get; set; }
 
+        public bool DefaultToUse { get; set; }
+
         public void Assert()
         {
             if(this.DatabaseConnection is null)

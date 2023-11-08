@@ -9,28 +9,32 @@ namespace CQ.UnitOfWork.Api.Controllers
     public class HealthController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IDatabaseContext? _dataBaseContext;
+        private readonly IEnumerable<IDatabaseContext>? _dataBaseContexts;
 
-        public HealthController(IUnitOfWork unitOfWork, IDatabaseContext databaseContext)
+        public HealthController(IUnitOfWork unitOfWork, IEnumerable<IDatabaseContext> databaseContexts)
         {
             this._unitOfWork = unitOfWork;
-            this._dataBaseContext = databaseContext;
+            this._dataBaseContexts = databaseContexts;
         }
 
         [HttpGet]
         public object Get()
         {
-            var databaseInfo = this._dataBaseContext.GetDatabaseInfo();
 
             return new
             {
                 Alive = true,
-                Database = new
+                Databases = this._dataBaseContexts.Select(d =>
                 {
-                    Name = databaseInfo.Name,
-                    Provider = databaseInfo.Provider,
-                    Alive = this._dataBaseContext == null ? false : this._dataBaseContext.Ping()
-                }
+                    var databaseInfo = d.GetDatabaseInfo(); 
+                    
+                    return new
+                    {
+                        Name = databaseInfo.Name,
+                        Provider = databaseInfo.Provider,
+                        Alive = d.Ping()
+                    };
+                })
             };
         }
     }
