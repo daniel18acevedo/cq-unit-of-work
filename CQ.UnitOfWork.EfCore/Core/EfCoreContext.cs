@@ -15,7 +15,7 @@ namespace CQ.UnitOfWork.EfCore
     {
         private readonly EfCoreConfig? _config;
 
-        public EfCoreContext() { }
+        public readonly bool IsDefault;
 
         /// <summary>
         /// Option less complicated for migrations

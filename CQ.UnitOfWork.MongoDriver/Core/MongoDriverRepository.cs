@@ -17,10 +17,8 @@ namespace CQ.UnitOfWork.MongoDriver
         protected IMongoCollection<BsonDocument> _genericCollection = null!;
         protected string _collectionName = null!;
 
-        public MongoDriverRepository(MongoContext mongoContext, string? collectionName = null)
+        public MongoDriverRepository(MongoContext mongoContext)
         {
-            this._collectionName = collectionName;
-
             this.SetContext(mongoContext);
         }
         public virtual void SetContext(IDatabaseContext context)
@@ -32,11 +30,11 @@ namespace CQ.UnitOfWork.MongoDriver
             }
             this._mongoContext = mongoContext;
 
-            this._collectionName = mongoContext.BuildCollectionName<TEntity>(this._collectionName);
+            this._collectionName = mongoContext.GetCollectionName<TEntity>();
 
-            this._collection = mongoContext.GetEntityCollection<TEntity>(this._collectionName);
+            this._collection = mongoContext.GetEntityCollection<TEntity>();
 
-            this._genericCollection = mongoContext.GetGenericCollection(this._collectionName);
+            this._genericCollection = mongoContext.GetGenericCollection<TEntity>();
         }
 
         #region Create

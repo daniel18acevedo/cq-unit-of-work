@@ -9,6 +9,6 @@ namespace CQ.UnitOfWork.Api.MongoDriver.DataAccess
 {
     public class UserMongoRepository : MongoDriverRepository<UserMongo>
     {
-        public UserMongoRepository(MongoContext context) : base(context, "Users") { }
+        public UserMongoRepository(MongoContext context) : base(context) { }
     }
 }

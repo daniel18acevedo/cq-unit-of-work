@@ -12,19 +12,23 @@ namespace CQ.UnitOfWork.Api.Controllers
     [Route("mongo/users")]
     public class UserMongoController : ControllerBase
     {
-        private readonly IMongoDriverRepository<UserMongo> _repository;
-        private readonly IRepository<UserMongo> _genericRepository;
+        private readonly IMongoDriverRepository<UserMongo> _userUnitOfWorkMongoRepository;
+        private readonly IRepository<UserMongo> _userUnitOfWorkGenericRepository;
+        private readonly IRepository<UserMongo> _userGenericRepository;
+        private readonly IRepository<OtherUserMongo> _otherUserGenericRepository;
 
-        public UserMongoController(IUnitOfWork unitOfWork)
+        public UserMongoController(IUnitOfWork unitOfWork, IRepository<UserMongo> userGenericRepository, IRepository<OtherUserMongo> otherUserGenericRepository)
         {
-            this._repository = unitOfWork.GetRepository<IMongoDriverRepository<UserMongo>>();
-            this._genericRepository= unitOfWork.GetEntityRepository<UserMongo>();
+            this._userUnitOfWorkMongoRepository = unitOfWork.GetRepository<IMongoDriverRepository<UserMongo>>();
+            this._userUnitOfWorkGenericRepository= unitOfWork.GetEntityRepository<UserMongo>();
+            this._userGenericRepository = userGenericRepository;
+            this._otherUserGenericRepository = otherUserGenericRepository;
         }
 
         [HttpGet("all")]
         public async Task<IActionResult> Get()
         {
-            var users = await this._genericRepository.GetAllAsync().ConfigureAwait(false);
+            var users = await this._userUnitOfWorkGenericRepository.GetAllAsync().ConfigureAwait(false);
 
             return Ok(users);
         }
@@ -32,7 +36,7 @@ namespace CQ.UnitOfWork.Api.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetAsync([FromRoute]string id)
         {
-            var user = await _repository.GetByPropAsync(id).ConfigureAwait(false);
+            var user = await _userUnitOfWorkMongoRepository.GetByPropAsync(id).ConfigureAwait(false);
 
             return Ok(user);
         }
@@ -40,7 +44,7 @@ namespace CQ.UnitOfWork.Api.Controllers
         [HttpGet("{id}/custom-exception")]
         public async Task<IActionResult> GetCustomExceptionAsync([FromRoute] string id)
         {
-            var user = await this._genericRepository.GetAsync<Exception>(this._genericRepository.GetAsync, u => u.Id == "no").ConfigureAwait(false);
+            var user = await this._userUnitOfWorkGenericRepository.GetAsync<Exception>(this._userUnitOfWorkGenericRepository.GetAsync, u => u.Id == "no").ConfigureAwait(false);
 
             return Ok(user);
         }
@@ -48,7 +52,7 @@ namespace CQ.UnitOfWork.Api.Controllers
         [HttpGet("all/mini")]
         public async Task<IActionResult> GetMiniAsync()
         {
-            var user = await _repository.GetAllAsync<MiniUserMongo>().ConfigureAwait(false);
+            var user = await _userUnitOfWorkMongoRepository.GetAllAsync<MiniUserMongo>().ConfigureAwait(false);
 
             return Ok(user);
         }
@@ -61,7 +65,7 @@ namespace CQ.UnitOfWork.Api.Controllers
                 Name = "test",
             };
 
-            var userCreated = await _repository.CreateAsync(user).ConfigureAwait(false);
+            var userCreated = await _userUnitOfWorkMongoRepository.CreateAsync(user).ConfigureAwait(false);
 
             return Ok(userCreated);
         }

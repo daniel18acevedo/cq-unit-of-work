@@ -15,13 +15,18 @@ namespace CQ.UnitOfWork.MongoDriver
     {
         private readonly IMongoDatabase _mongoDatabase;
 
-        private List<Action> _actions = new List<Action>();
+        private readonly List<Action> _actions = new ();
 
-        private List<Func<Task>> _actionsTask = new List<Func<Task>>();
+        private readonly List<Func<Task>> _actionsTask = new ();
 
-        public MongoContext(IMongoDatabase mongoDatabase)
+        protected readonly IDictionary<Type, string> collections = new Dictionary<Type, string>();
+
+        public readonly bool IsDefault;
+
+        public MongoContext(IMongoDatabase mongoDatabase, bool isDefault)
         {
             _mongoDatabase = mongoDatabase;
+            IsDefault = isDefault;
         }
 
         public bool Ping(string? collection = null)
@@ -38,22 +43,30 @@ namespace CQ.UnitOfWork.MongoDriver
             }
         }
 
-        public IMongoCollection<TEntity> GetEntityCollection<TEntity>(string? collectionName)
+        public IMongoCollection<TEntity> GetEntityCollection<TEntity>()
         {
-            collectionName = this.BuildCollectionName<TEntity>(collectionName);
-            var collection = this._mongoDatabase.GetCollection<TEntity>(collectionName);
-
-            return collection;
+            var collectionName = this.GetCollectionName<TEntity>();
+         
+            return this._mongoDatabase.GetCollection<TEntity>(collectionName);
         }
 
-        public string BuildCollectionName<TEntity>(string? collectionName)
+        public bool HasCollectionRegistered<TEntity>()
         {
-            return collectionName?? $"{typeof(TEntity).Name}s";
+            return this.collections.ContainsKey(typeof(TEntity));
         }
 
-        public IMongoCollection<BsonDocument> GetGenericCollection(string? collectionName)
+        public string GetCollectionName<TEntity>()
         {
-            return GetEntityCollection<BsonDocument>(collectionName);
+            this.collections.TryGetValue(typeof(TEntity), out string? collectionName);
+
+            return collectionName ?? $"{typeof(TEntity).Name}s";
+        }
+
+        public IMongoCollection<BsonDocument> GetGenericCollection<TEntity>()
+        {
+            var collectionName = this.GetCollectionName<TEntity>();
+
+            return this._mongoDatabase.GetCollection<BsonDocument>(collectionName);
         }
 
         public void AddActionAsync(Func<Task> action)
@@ -66,7 +79,7 @@ namespace CQ.UnitOfWork.MongoDriver
             this._actions.Add(action);
         }
 
-        public async Task SaveChangesAsync()
+        public Task SaveChangesAsync()
         {
             this._actions.ForEach(action =>
             {
@@ -77,6 +90,8 @@ namespace CQ.UnitOfWork.MongoDriver
             {
                 await action().ConfigureAwait(false);
             });
+
+            return Task.CompletedTask;
         }
 
         public DatabaseInfo GetDatabaseInfo()

@@ -22,6 +22,7 @@ namespace CQ.UnitOfWork.EfCore
         {
             this.SetContext(efCoreContext);
         }
+
         public virtual void SetContext(IDatabaseContext context)
         {
             var efCoreContext = (EfCoreContext)context;

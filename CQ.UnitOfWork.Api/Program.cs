@@ -30,11 +30,11 @@ builder.Services.AddEfCoreContext<ConcreteContext>(new EfCoreConfig
         DatabaseName = "UnitOfWork"
     },
     Engine = EfCoreDataBaseEngine.SQL,
-    UseDefaultQueryLogger= true
+    UseDefaultQueryLogger = true
 });
 
-builder.Services.AddEfCoreRepository<User>(LifeTime.Transient);
-builder.Services.AddEfCoreRepository<Book>(LifeTime.Transient);
+builder.Services.AddEfCoreRepository<User>(lifeTime:LifeTime.Transient);
+builder.Services.AddEfCoreRepository<Book>(lifeTime: LifeTime.Transient);
 
 
 
@@ -50,10 +50,22 @@ builder.Services.AddMongoContext(
                 ConnectionString = mongoConnectionString,
                 DatabaseName = "UnitOfWork"
             },
-            UseDefaultQueryLogger= true
+            UseDefaultQueryLogger = true,
+            DefaultToUse = true,
+        });
+builder.Services.AddMongoContext(
+        new MongoConfig
+        {
+            DatabaseConnection = new DatabaseConfig
+            {
+                ConnectionString = mongoConnectionString,
+                DatabaseName = "OtherDatabase"
+            },
+            UseDefaultQueryLogger = true
         });
 
-builder.Services.AddMongoRepository<UserMongo>("users");
+builder.Services.AddMongoRepository<UserMongo>();
+builder.Services.AddMongoRepository<OtherUserMongo>("OtherDatabase");
 
 
 var app = builder.Build();

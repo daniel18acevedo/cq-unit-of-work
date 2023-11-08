@@ -11,8 +11,6 @@ namespace CQ.UnitOfWork.Api.EFCore.DataAccess
 
         public DbSet<Book> Books { get; set; }
 
-        public ConcreteContext() { }
-
         public ConcreteContext(EfCoreConfig config) : base(config) { }
 
         public ConcreteContext(DbContextOptions options) : base(options) { }
