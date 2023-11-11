@@ -16,8 +16,6 @@ namespace CQ.UnitOfWork.EfCore
 
         protected EfCoreContext _efCoreConnection = null!;
 
-        protected string _tableName = null!;
-
         public EfCoreRepository(EfCoreContext efCoreContext)
         {
             this.SetContext(efCoreContext);
@@ -38,7 +36,6 @@ namespace CQ.UnitOfWork.EfCore
         private void SetCollectionInfo(EfCoreContext efCoreContext)
         {
             this._dbSet = efCoreContext.GetEntitySet<TEntity>();
-            this._tableName = efCoreContext.GetTableName<TEntity>();
             this._efCoreConnection = efCoreContext;
         }
 
@@ -121,7 +118,7 @@ namespace CQ.UnitOfWork.EfCore
         {
             var entity = await this.GetOrDefaultAsync(predicate).ConfigureAwait(false);
 
-            if (entity is null) throw new InvalidOperationException($"{this._tableName} not found");
+            if (entity is null) throw new InvalidOperationException($"{base.EntityName} not found");
 
             return entity;
         }
@@ -130,7 +127,7 @@ namespace CQ.UnitOfWork.EfCore
         {
             var entity = this.GetOrDefault(predicate);
 
-            if (entity is null) throw new InvalidOperationException($"{this._tableName} not found");
+            if (entity is null) throw new InvalidOperationException($"{base.EntityName} not found");
 
             return entity;
         }
@@ -139,20 +136,18 @@ namespace CQ.UnitOfWork.EfCore
         #region GetByProp
         public override async Task<TEntity> GetByPropAsync(string value, string? prop = null)
         {
-            prop ??= "Id";
-            var entity = await this.GetOrDefaultAsync(e => EF.Property<string>(e, prop) == value).ConfigureAwait(false);
+            var entity = await this.GetOrDefaultByPropAsync(value, prop).ConfigureAwait(false);
 
-            if (entity is null) throw new InvalidOperationException($"{this._tableName} not found");
+            if (entity is null) throw new InvalidOperationException($"{base.EntityName} not found");
 
             return entity;
         }
 
         public override TEntity GetByProp(string value, string? prop = null)
         {
-            prop ??= "Id";
-            var entity = this.GetOrDefault(e => EF.Property<string>(e, prop) == value);
+            var entity = this.GetOrDefaultByProp(value, prop);
 
-            if (entity is null) throw new InvalidOperationException($"{this._tableName} not found");
+            if (entity is null) throw new InvalidOperationException($"{base.EntityName} not found");
 
             return entity;
         }
@@ -173,29 +168,23 @@ namespace CQ.UnitOfWork.EfCore
         #region GetOrDefaultByProp
         public override async Task<TEntity?> GetOrDefaultByPropAsync(string value, string? prop = null)
         {
-            try
-            {
-                return await this.GetByPropAsync(value, prop).ConfigureAwait(false);
-            }
-            catch (Exception)
-            {
-                return null;
-            }
+            prop ??= "Id";
+
+            var entity = await this.GetOrDefaultAsync(e => EF.Property<string>(e, prop) == value).ConfigureAwait(false);
+
+            return entity;
         }
 
         public override TEntity? GetOrDefaultByProp(string value, string? prop = null)
         {
-            try
-            {
-                return this.GetByProp(value, prop);
-            }
-            catch (Exception)
-            {
-                return null;
-            }
+            prop ??= "Id";
+
+            var entity = this.GetOrDefault(e => EF.Property<string>(e, prop) == value);
+
+            return entity;
         }
         #endregion
-        
+
         #region Update
         public virtual async Task UpdateAsync(TEntity updated)
         {

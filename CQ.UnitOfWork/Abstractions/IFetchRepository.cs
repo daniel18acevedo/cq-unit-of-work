@@ -13,7 +13,11 @@ namespace CQ.UnitOfWork.Abstractions
         #region Fetch entity
         Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> predicate);
 
+        Task<TEntity> GetAsync<TException>(Expression<Func<TEntity, bool>> predicate, TException exception) where TException : Exception;
+
         TEntity Get(Expression<Func<TEntity, bool>> predicate);
+
+        TEntity Get<TException>(Expression<Func<TEntity, bool>> predicate, TException exception) where TException : Exception;
         #endregion
 
         #region Fetch entity or default
@@ -22,11 +26,6 @@ namespace CQ.UnitOfWork.Abstractions
         TEntity? GetOrDefault(Expression<Func<TEntity, bool>> predicate);
         #endregion
 
-        #region Fetch entity in common
-        TEntity? Get<TException>(Func<Expression<Func<TEntity, bool>>, TEntity?> function, Expression<Func<TEntity, bool>> predicate) where TException : Exception, new();
-
-        Task<TEntity?> GetAsync<TException>(Func<Expression<Func<TEntity, bool>>, Task<TEntity?>> function, Expression<Func<TEntity, bool>> predicate) where TException : Exception, new();
-        #endregion
 
         #region Fetch entity by prop
         /// <summary>
@@ -37,19 +36,17 @@ namespace CQ.UnitOfWork.Abstractions
         /// <returns></returns>
         Task<TEntity> GetByPropAsync(string value, string? prop = null);
 
+        Task<TEntity> GetByPropAsync<TException>(string value, TException exception, string? prop = null) where TException : Exception;
+
         TEntity GetByProp(string value, string? prop = null);
+
+        TEntity GetByProp<TException>(string value, TException exception, string? prop = null) where TException : Exception;
         #endregion
 
         #region Fetch entity or default by prop
         Task<TEntity?> GetOrDefaultByPropAsync(string value, string? prop = null);
 
         TEntity? GetOrDefaultByProp(string value, string? prop = null);
-        #endregion
-
-        #region Fetch entity by prop in common
-        TEntity? GetByProp<TException>(Func<string, string?, TEntity?> function, string value, string? prop = null) where TException : Exception, new();
-
-        Task<TEntity?> GetByPropAsync<TException>(Func<string, string?, Task<TEntity?>> function, string value, string? prop = null) where TException : Exception, new();
         #endregion
     }
 }
