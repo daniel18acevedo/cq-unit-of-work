@@ -20,7 +20,7 @@ namespace CQ.UnitOfWork.Api.Controllers
         public UserMongoController(IUnitOfWork unitOfWork, IRepository<UserMongo> userGenericRepository, IRepository<OtherUserMongo> otherUserGenericRepository)
         {
             this._userUnitOfWorkMongoRepository = unitOfWork.GetRepository<IMongoDriverRepository<UserMongo>>();
-            this._userUnitOfWorkGenericRepository= unitOfWork.GetEntityRepository<UserMongo>();
+            this._userUnitOfWorkGenericRepository = unitOfWork.GetEntityRepository<UserMongo>();
             this._userGenericRepository = userGenericRepository;
             this._otherUserGenericRepository = otherUserGenericRepository;
         }
@@ -34,7 +34,7 @@ namespace CQ.UnitOfWork.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetAsync([FromRoute]string id)
+        public async Task<IActionResult> GetAsync([FromRoute] string id)
         {
             var user = await _userUnitOfWorkMongoRepository.GetByPropAsync(id).ConfigureAwait(false);
 
@@ -44,9 +44,13 @@ namespace CQ.UnitOfWork.Api.Controllers
         [HttpGet("{id}/custom-exception")]
         public async Task<IActionResult> GetCustomExceptionAsync([FromRoute] string id)
         {
-            var user = await this._userUnitOfWorkGenericRepository.GetAsync<Exception>(this._userUnitOfWorkGenericRepository.GetAsync, u => u.Id == "no").ConfigureAwait(false);
+            try
+            {
+                var user = await this._userUnitOfWorkGenericRepository.GetAsync(u => u.Id == "no", new InvalidOperationException()).ConfigureAwait(false);
 
-            return Ok(user);
+                return Ok(user);
+            }
+            catch (Exception ex) { return BadRequest(new { exception = ex.Message, innerException = ex.InnerException.Message }); }
         }
 
         [HttpGet("all/mini")]
