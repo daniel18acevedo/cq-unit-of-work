@@ -206,7 +206,7 @@ namespace CQ.UnitOfWork.EfCore
             var propsOfUpdates = typeofUpdates.GetProperties();
             var namesOfProps = propsOfUpdates.Select(p => $"p.Name={p.GetValue(updates)}");
 
-            this._dbSet.FromSqlRaw("UPDATE {0} SET {2} WHERE Id = {1}", this._tableName, id, string.Join(",",namesOfProps));
+            this._dbSet.FromSqlRaw("UPDATE {0} SET {2} WHERE Id = {1}", this._efCoreConnection.GetTableName<TEntity>(), id, string.Join(",",namesOfProps));
 
             return Task.CompletedTask;
         }
