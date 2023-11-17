@@ -111,7 +111,7 @@ namespace CQ.UnitOfWork.EfCore
             return this.Set<TEntity>();
         }
 
-        public string GetTableName<TEntity>()
+        public virtual string GetTableName<TEntity>()
         {
             return $"{typeof(TEntity).Name}s";
         }

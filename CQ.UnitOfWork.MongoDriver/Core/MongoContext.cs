@@ -15,9 +15,9 @@ namespace CQ.UnitOfWork.MongoDriver
     {
         private readonly IMongoDatabase _mongoDatabase;
 
-        private readonly List<Action> _actions = new ();
+        private readonly List<Action> _actions = new();
 
-        private readonly List<Func<Task>> _actionsTask = new ();
+        private readonly List<Func<Task>> _actionsTask = new();
 
         protected readonly IDictionary<Type, string> collections = new Dictionary<Type, string>();
 
@@ -27,6 +27,13 @@ namespace CQ.UnitOfWork.MongoDriver
         {
             _mongoDatabase = mongoDatabase;
             IsDefault = isDefault;
+        }
+
+        public MongoContext AddCollection<TEntity>(string collectionName)
+        {
+            this.collections.Add(typeof(TEntity), collectionName);
+
+            return this;
         }
 
         public bool Ping(string? collection = null)
@@ -46,7 +53,7 @@ namespace CQ.UnitOfWork.MongoDriver
         public IMongoCollection<TEntity> GetEntityCollection<TEntity>()
         {
             var collectionName = this.GetCollectionName<TEntity>();
-         
+
             return this._mongoDatabase.GetCollection<TEntity>(collectionName);
         }
 

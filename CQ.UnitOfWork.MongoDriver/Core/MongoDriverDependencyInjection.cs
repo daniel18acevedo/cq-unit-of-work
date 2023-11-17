@@ -72,8 +72,15 @@ namespace CQ.UnitOfWork.MongoDriver
             var contextImplementation = (IServiceProvider serviceProvider) =>
             {
                 IMongoDatabase mongoDatabase = BuildMongoDatabase(config, serviceProvider, clientSettings);
+                try
+                {
 
-                return (TContext)Activator.CreateInstance(typeof(TContext), mongoDatabase, config.DefaultToUse);
+                    return (TContext)Activator.CreateInstance(typeof(TContext), mongoDatabase, config.DefaultToUse);
+                }
+                catch (MissingMethodException)
+                {
+                    return (TContext)Activator.CreateInstance(typeof(TContext), mongoDatabase);
+                }
             };
 
             services

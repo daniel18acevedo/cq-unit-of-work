@@ -56,7 +56,7 @@ namespace CQ.UnitOfWork.Api.Controllers
         [HttpGet("all/mini")]
         public async Task<IActionResult> GetMiniAsync()
         {
-            var user = await _userUnitOfWorkMongoRepository.GetAllAsync<MiniUserMongo>().ConfigureAwait(false);
+            var user = await _userUnitOfWorkMongoRepository.GetAllAsync<MiniUserMongo>(r => false).ConfigureAwait(false);
 
             return Ok(user);
         }
@@ -72,6 +72,12 @@ namespace CQ.UnitOfWork.Api.Controllers
             var userCreated = await _userUnitOfWorkMongoRepository.CreateAsync(user).ConfigureAwait(false);
 
             return Ok(userCreated);
+        }
+
+        [HttpPut("{id}/generic")]
+        public async Task UpdateGenericAsync(string id, UserMongo updates)
+        {
+            await this._userGenericRepository.UpdateByIdAsync(id, new { updates.Name }).ConfigureAwait(false);
         }
     }
 }
