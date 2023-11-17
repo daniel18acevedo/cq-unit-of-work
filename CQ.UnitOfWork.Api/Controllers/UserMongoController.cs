@@ -20,7 +20,7 @@ namespace CQ.UnitOfWork.Api.Controllers
         public UserMongoController(IUnitOfWork unitOfWork, IRepository<UserMongo> userGenericRepository, IRepository<OtherUserMongo> otherUserGenericRepository)
         {
             this._userUnitOfWorkMongoRepository = unitOfWork.GetRepository<IMongoDriverRepository<UserMongo>>();
-            this._userUnitOfWorkGenericRepository= unitOfWork.GetEntityRepository<UserMongo>();
+            this._userUnitOfWorkGenericRepository = unitOfWork.GetEntityRepository<UserMongo>();
             this._userGenericRepository = userGenericRepository;
             this._otherUserGenericRepository = otherUserGenericRepository;
         }
@@ -34,7 +34,7 @@ namespace CQ.UnitOfWork.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetAsync([FromRoute]string id)
+        public async Task<IActionResult> GetAsync([FromRoute] string id)
         {
             var user = await _userUnitOfWorkMongoRepository.GetByPropAsync(id).ConfigureAwait(false);
 
@@ -52,7 +52,7 @@ namespace CQ.UnitOfWork.Api.Controllers
         [HttpGet("all/mini")]
         public async Task<IActionResult> GetMiniAsync()
         {
-            var user = await _userUnitOfWorkMongoRepository.GetAllAsync<MiniUserMongo>().ConfigureAwait(false);
+            var user = await _userUnitOfWorkMongoRepository.GetAllAsync<MiniUserMongo>(r => false).ConfigureAwait(false);
 
             return Ok(user);
         }
@@ -68,6 +68,12 @@ namespace CQ.UnitOfWork.Api.Controllers
             var userCreated = await _userUnitOfWorkMongoRepository.CreateAsync(user).ConfigureAwait(false);
 
             return Ok(userCreated);
+        }
+
+        [HttpPut("{id}/generic")]
+        public async Task UpdateGenericAsync(string id, UserMongo updates)
+        {
+            await this._userGenericRepository.UpdateByIdAsync(id, new { updates.Name }).ConfigureAwait(false);
         }
     }
 }

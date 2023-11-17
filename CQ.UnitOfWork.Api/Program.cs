@@ -12,7 +12,12 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 DotEnv.Load();
 
-builder.Services.AddControllers();
+builder.Services
+    .AddControllers()
+    .ConfigureApiBehaviorOptions(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
 
 
 builder.Services.AddUnitOfWork();
@@ -42,7 +47,7 @@ builder.Services.AddEfCoreRepository<Book>(lifeTime: LifeTime.Transient);
 
 
 var mongoConnectionString = Environment.GetEnvironmentVariable($"mongo-connection-string");
-builder.Services.AddMongoContext(
+builder.Services.AddMongoContext<UnitOfWorkMongoContext>(
         new MongoConfig
         {
             DatabaseConnection = new DatabaseConfig

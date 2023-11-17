@@ -9,7 +9,7 @@ using System.Linq.Expressions;
 
 namespace CQ.UnitOfWork.EfCore
 {
-    public class EfCoreRepository<TEntity> : BaseRepository<TEntity>,IEfCoreRepository<TEntity>, IUnitRepository<TEntity>
+    public class EfCoreRepository<TEntity> : BaseRepository<TEntity>, IEfCoreRepository<TEntity>, IUnitRepository<TEntity>
        where TEntity : class
     {
         protected DbSet<TEntity> _dbSet = null!;
@@ -195,11 +195,11 @@ namespace CQ.UnitOfWork.EfCore
             }
         }
         #endregion
-        
+
         #region Update
         public virtual async Task UpdateAsync(TEntity updated)
         {
-            await Task.Run(() => this._dbSet.Update(updated)).ConfigureAwait(false);
+            this._dbSet.Update(updated);
 
             await this._efCoreConnection.SaveChangesAsync().ConfigureAwait(false);
         }
@@ -209,6 +209,17 @@ namespace CQ.UnitOfWork.EfCore
             this._dbSet.Update(updated);
 
             this._efCoreConnection.SaveChanges();
+        }
+
+        public virtual Task UpdateByIdAsync(string id, object updates)
+        {
+            var typeofUpdates = updates.GetType();
+            var propsOfUpdates = typeofUpdates.GetProperties();
+            var namesOfProps = propsOfUpdates.Select(p => $"p.Name={p.GetValue(updates)}");
+
+            this._dbSet.FromSqlRaw("UPDATE {0} SET {2} WHERE Id = {1}", this._tableName, id, string.Join(",",namesOfProps));
+
+            return Task.CompletedTask;
         }
         #endregion
 

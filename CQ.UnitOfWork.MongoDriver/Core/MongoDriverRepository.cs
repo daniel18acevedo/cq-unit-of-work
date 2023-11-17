@@ -107,6 +107,11 @@ namespace CQ.UnitOfWork.MongoDriver
         #endregion
 
         #region Update
+        public virtual async Task UpdateByIdAsync(string id, object updates)
+        {
+            await this.UpdateByPropAsync(id, updates).ConfigureAwait(false);
+        }
+
         public virtual async Task UpdateByPropAsync(string value, object updates, string? prop =null)
         {
             prop ??= "_id";
