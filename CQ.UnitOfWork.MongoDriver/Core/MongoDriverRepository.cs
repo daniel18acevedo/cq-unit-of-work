@@ -9,13 +9,15 @@ using System.Linq.Expressions;
 
 namespace CQ.UnitOfWork.MongoDriver
 {
-    public class MongoDriverRepository<TEntity> : BaseRepository<TEntity>,
-        IMongoDriverRepository<TEntity>, IUnitRepository<TEntity> where TEntity : class
+    public class MongoDriverRepository<TEntity> :
+        BaseRepository<TEntity>,
+        IMongoDriverRepository<TEntity>,
+        IUnitRepository<TEntity>
+        where TEntity : class
     {
         protected MongoContext _mongoContext = null!;
         protected IMongoCollection<TEntity> _collection = null!;
         protected IMongoCollection<BsonDocument> _genericCollection = null!;
-        protected string _collectionName = null!;
 
         public MongoDriverRepository(MongoContext mongoContext)
         {
@@ -24,13 +26,10 @@ namespace CQ.UnitOfWork.MongoDriver
         public virtual void SetContext(IDatabaseContext context)
         {
             var mongoContext = (MongoContext)context;
-            if (context == null)
-            {
-                throw new ArgumentNullException(nameof(mongoContext));
-            }
-            this._mongoContext = mongoContext;
 
-            this._collectionName = mongoContext.GetCollectionName<TEntity>();
+            if (context == null) throw new ArgumentNullException(nameof(mongoContext));
+
+            this._mongoContext = mongoContext;
 
             this._collection = mongoContext.GetEntityCollection<TEntity>();
 
@@ -194,7 +193,7 @@ namespace CQ.UnitOfWork.MongoDriver
         {
             var entity = await this.GetOrDefaultAsync(predicate).ConfigureAwait(false);
 
-            if (entity is null) throw new InvalidOperationException($"{this._collectionName} not found");
+            if (entity is null) throw new InvalidOperationException($"{base.EntityName} not found");
 
             return entity;
         }
@@ -203,34 +202,27 @@ namespace CQ.UnitOfWork.MongoDriver
         {
             var entity = this.GetOrDefault(predicate);
 
-            if (entity is null) throw new InvalidOperationException($"{this._collectionName} not found");
+            if (entity is null) throw new InvalidOperationException($"{base.EntityName} not found");
 
             return entity;
         }
 
         public override async Task<TEntity> GetByPropAsync(string value, string? prop = null)
         {
-            prop ??= "_id";
-            var filter = Builders<BsonDocument>.Filter.Eq(prop, value);
+            var entity = await this.GetOrDefaultByPropAsync(value, prop).ConfigureAwait(false);
 
-            var entity = await this._genericCollection.Find(filter).FirstOrDefaultAsync().ConfigureAwait(false);
+            if (entity == null) throw new InvalidOperationException($"{base.EntityName} not found");
 
-            if (entity is null) throw new InvalidOperationException($"{this._collectionName} not found");
-
-            return BsonSerializer.Deserialize<TEntity>(entity);
+            return entity;
         }
 
         public override TEntity GetByProp(string value, string? prop = null)
         {
-            prop ??= "_id";
+            var entity = this.GetOrDefaultByProp(value, prop);
 
-            var filter = Builders<BsonDocument>.Filter.Eq(prop, value);
+            if (entity is null) throw new InvalidOperationException($"{base.EntityName} not found");
 
-            var entity = this._genericCollection.Find(filter).FirstOrDefault();
-
-            if (entity is null) throw new InvalidOperationException($"{this._collectionName} not found");
-
-            return BsonSerializer.Deserialize<TEntity>(entity);
+            return entity;
         }
 
         public override async Task<TEntity?> GetOrDefaultAsync(Expression<Func<TEntity, bool>> predicate)
@@ -247,26 +239,28 @@ namespace CQ.UnitOfWork.MongoDriver
 
         public override async Task<TEntity?> GetOrDefaultByPropAsync(string value, string? prop = null)
         {
-            try
-            {
-                return await this.GetByPropAsync(value, prop).ConfigureAwait(false);
-            }
-            catch (Exception)
-            {
-                return null;
-            }
+            prop ??= "_id";
+
+            var filter = Builders<BsonDocument>.Filter.Eq(prop, value);
+
+            var entity = await this._genericCollection.Find(filter).FirstOrDefaultAsync().ConfigureAwait(false);
+
+            if (entity == null) return null;
+
+            return BsonSerializer.Deserialize<TEntity>(entity);
         }
 
         public override TEntity? GetOrDefaultByProp(string value, string? prop = null)
         {
-            try
-            {
-                return this.GetByProp(value, prop);
-            }
-            catch (Exception)
-            {
-                return null;
-            }
+            prop ??= "_id";
+
+            var filter = Builders<BsonDocument>.Filter.Eq(prop, value);
+
+            var entity = this._genericCollection.Find(filter).FirstOrDefault();
+
+            if (entity == null) return null;
+
+            return BsonSerializer.Deserialize<TEntity>(entity);
         }
         #endregion
     }

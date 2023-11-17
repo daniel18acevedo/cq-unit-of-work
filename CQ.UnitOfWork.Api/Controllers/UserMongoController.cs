@@ -44,9 +44,13 @@ namespace CQ.UnitOfWork.Api.Controllers
         [HttpGet("{id}/custom-exception")]
         public async Task<IActionResult> GetCustomExceptionAsync([FromRoute] string id)
         {
-            var user = await this._userUnitOfWorkGenericRepository.GetAsync<Exception>(this._userUnitOfWorkGenericRepository.GetAsync, u => u.Id == "no").ConfigureAwait(false);
+            try
+            {
+                var user = await this._userUnitOfWorkGenericRepository.GetAsync(u => u.Id == "no", new InvalidOperationException()).ConfigureAwait(false);
 
-            return Ok(user);
+                return Ok(user);
+            }
+            catch (Exception ex) { return BadRequest(new { exception = ex.Message, innerException = ex.InnerException.Message }); }
         }
 
         [HttpGet("all/mini")]

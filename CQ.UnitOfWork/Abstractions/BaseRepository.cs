@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CQ.UnitOfWork.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -10,6 +11,8 @@ namespace CQ.UnitOfWork.Abstractions
     public abstract class BaseRepository<TEntity> : IFetchRepository<TEntity>
         where TEntity : class
     {
+        protected string EntityName => typeof(TEntity).Name;
+
         #region Abstractions
         public abstract TEntity Get(Expression<Func<TEntity, bool>> predicate);
 
@@ -28,69 +31,58 @@ namespace CQ.UnitOfWork.Abstractions
         public abstract Task<TEntity?> GetOrDefaultByPropAsync(string value, string? prop = null);
         #endregion
 
-
-        public virtual TEntity? Get<TException>(Func<Expression<Func<TEntity, bool>>, TEntity?> function, Expression<Func<TEntity, bool>> predicate) where TException : Exception, new()
+        public virtual async Task<TEntity> GetAsync<TException>(Expression<Func<TEntity, bool>> predicate, TException exception)
+            where TException : Exception
         {
             try
             {
-                return function(predicate);
+                return await this.GetAsync(predicate).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                throw BuildCustomException<TException>(ex);
+                exception.SetInnerException(ex);
+                throw exception;
             }
         }
 
-        public virtual async Task<TEntity?> GetAsync<TException>(Func<Expression<Func<TEntity, bool>>, Task<TEntity?>> function, Expression<Func<TEntity, bool>> predicate) where TException : Exception, new()
+        public virtual TEntity Get<TException>(Expression<Func<TEntity, bool>> predicate, TException exception)
+            where TException : Exception
         {
             try
             {
-                return await function(predicate).ConfigureAwait(false);
+                return this.Get(predicate);
             }
             catch (Exception ex)
             {
-                throw BuildCustomException<TException>(ex);
+                exception.SetInnerException(ex);
+                throw exception;
             }
         }
 
-        public virtual TEntity? GetByProp<TException>(Func<string, string?, TEntity?> function, string value, string? prop = null) where TException : Exception, new()
+        public virtual async Task<TEntity> GetByPropAsync<TException>(string value, TException exception, string? prop = null) where TException : Exception
         {
             try
             {
-                return function(value, prop);
+                return await this.GetByPropAsync(value, prop).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                throw BuildCustomException<TException>(ex);
+                exception.SetInnerException(ex);
+                throw exception;
             }
         }
 
-        public virtual async Task<TEntity?> GetByPropAsync<TException>(Func<string, string?, Task<TEntity?>> function, string value, string? prop = null) where TException : Exception, new()
+        public virtual TEntity GetByProp<TException>(string value, TException exception, string? prop = null) where TException : Exception
         {
             try
             {
-                return await function(value, prop).ConfigureAwait(false);
+                return this.GetByProp(value, prop);
             }
             catch (Exception ex)
             {
-                throw BuildCustomException<TException>(ex);
+                exception.SetInnerException(ex);
+                throw exception;
             }
-        }
-
-        private TException BuildCustomException<TException>(Exception origin)
-            where TException : Exception, new()
-        {
-            var customException = new TException();
-
-            customException.Data.Add("InnerException", origin);
-
-            if (origin.InnerException?.Message.ToLower() == "sequence contains no elements")
-            {
-                customException.Data.Add("ErrorCode", "ResourceNotFound");
-                customException.Data.Add("Message", $"{typeof(TEntity).Name} not found");
-            }
-
-            return customException;
         }
     }
 }
