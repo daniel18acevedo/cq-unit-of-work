@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CQ.UnitOfWork.MongoDriver.Extensions
 {
-    internal static class ProjectionExtension
+    public static class ProjectionExtension
     {
         public static ProjectionDefinition<TEntity, TResult> ProjectTo<TEntity, TResult>(this ProjectionDefinitionBuilder<TEntity> projection)
         {

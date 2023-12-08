@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CQ.UnitOfWork.MongoDriver.Extensions
 {
-    internal static class FilterExtension
+    public static class FilterExtension
     {
         public static FilterDefinition<TEntity> NullableWhere<TEntity>(this FilterDefinitionBuilder<TEntity> filter, Expression<Func<TEntity, bool>>? predicate)
         {

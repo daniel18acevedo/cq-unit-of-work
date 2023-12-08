@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CQ.UnitOfWork.MongoDriver.Extensions
 {
-    internal static class FindExtension
+    public static class FindExtension
     {
         public static IFindFluent<TEntity, TEntity> NullableFind<TEntity>(this IMongoCollection<TEntity> collection, Expression<Func<TEntity, bool>> predicate)
         {
