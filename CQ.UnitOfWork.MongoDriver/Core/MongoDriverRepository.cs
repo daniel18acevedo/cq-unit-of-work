@@ -6,6 +6,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using System.Collections;
 using System.Linq.Expressions;
+using System.Text.Json;
 
 namespace CQ.UnitOfWork.MongoDriver
 {
@@ -111,49 +112,55 @@ namespace CQ.UnitOfWork.MongoDriver
             await this.UpdateByPropAsync(id, updates).ConfigureAwait(false);
         }
 
-        public virtual async Task UpdateByPropAsync(string value, object updates, string? prop =null)
+        public virtual async Task UpdateByPropAsync(string value, object updates, string? prop = null)
         {
             prop ??= "_id";
 
-            var filter = this.BuildFilterByProp(value, prop);
-            var updateDefinition = this.BuildUpdateDefinition(updates);
+            var filter = BuildFilterByProp(value, prop);
+            var updateDefinition = BuildUpdateDefinition(updates);
 
             var updateResult = await this._genericCollection.UpdateOneAsync(filter, updateDefinition).ConfigureAwait(false);
         }
 
-        private FilterDefinition<BsonDocument> BuildFilterByProp(string value, string prop)
+        private static FilterDefinition<BsonDocument> BuildFilterByProp(string value, string prop)
         {
             var filter = Builders<BsonDocument>.Filter.Eq(prop, value);
 
             return filter;
         }
 
-        private UpdateDefinition<BsonDocument> BuildUpdateDefinition(object updates)
+        private static UpdateDefinition<BsonDocument> BuildUpdateDefinition(object updates)
         {
-            var updateBuilder = Builders<BsonDocument>.Update;
+            var updatesJson = JsonSerializer.Serialize(updates);
+            var updatesDocument = BsonDocument.Parse(updatesJson);
 
-            var propertiesToUpdate = updates.GetType().GetProperties().ToList();
-            var updateDefinitionList = new List<UpdateDefinition<BsonDocument>>();
 
-            propertiesToUpdate.ForEach(property =>
+            UpdateDefinition<BsonDocument>? update = null;
+            foreach (var change in updatesDocument)
             {
-                var fieldName = property.Name;
-                var fieldValue = property.GetValue(updates);
-                var updateDefinition = updateBuilder.Set(fieldName, fieldValue);
-
-                updateDefinitionList.Add(updateDefinition);
-            });
-
-            var updateDefinition = updateBuilder.Combine(updateDefinitionList);
-
-            return updateDefinition;
+                if (update == null)
+                {
+                    var builder = Builders<BsonDocument>.Update;
+                    update = builder.Set(change.Name, change.Value);
+                }
+                else
+                {
+                    update = update.Set(change.Name, change.Value);
+                }
+            }
+            return update;
         }
 
-        public virtual void UpdateByProp(string value, object updates, string? prop)
+        public virtual void UpdateById(string id, object updates)
+        {
+            this.UpdateByProp(id, updates);
+        }
+
+        public virtual void UpdateByProp(string value, object updates, string? prop = null)
         {
             prop ??= "_id";
 
-            var filter = this.BuildFilterByProp(value, prop);
+            var filter = BuildFilterByProp(value, prop);
             var updateDefinition = BuildUpdateDefinition(updates);
 
             var updateResult = this._genericCollection.UpdateOne(filter, updateDefinition);

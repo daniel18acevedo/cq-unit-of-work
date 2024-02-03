@@ -9,7 +9,10 @@ using System.Linq.Expressions;
 
 namespace CQ.UnitOfWork.EfCore
 {
-    public class EfCoreRepository<TEntity> : BaseRepository<TEntity>, IEfCoreRepository<TEntity>, IUnitRepository<TEntity>
+    public class EfCoreRepository<TEntity> : 
+        BaseRepository<TEntity>,
+        IEfCoreRepository<TEntity>,
+        IUnitRepository<TEntity>
        where TEntity : class
     {
         protected DbSet<TEntity> _dbSet = null!;
