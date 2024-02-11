@@ -60,6 +60,25 @@ namespace CQ.UnitOfWork.EfCore
 
             return entity;
         }
+
+        public virtual async Task<List<TEntity>> CreateBulkAsync(List<TEntity> entities)
+        {
+            await this._dbSet.AddRangeAsync(entities).ConfigureAwait(false);
+
+            await this._efCoreConnection.SaveChangesAsync().ConfigureAwait(false);
+
+            return entities;
+        }
+
+        public virtual List<TEntity> CreateBulk(List<TEntity> entities)
+        {
+            this._dbSet.AddRange(entities);
+
+            this._efCoreConnection.SaveChangesAsync();
+
+            return entities;
+        }
+
         #endregion
 
         #region Delete

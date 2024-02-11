@@ -20,6 +20,11 @@ namespace CQ.UnitOfWork.Abstractions
         Task<TEntity> CreateAsync(TEntity entity);
 
         TEntity Create(TEntity entity);
+
+        Task<List<TEntity>> CreateBulkAsync(List<TEntity> entities);
+
+        List<TEntity> CreateBulk(List<TEntity> entities);
+
         #endregion
 
         #region Delete entity

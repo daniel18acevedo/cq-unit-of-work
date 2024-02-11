@@ -51,6 +51,21 @@ namespace CQ.UnitOfWork.MongoDriver
 
             return entity;
         }
+
+        public virtual async Task<List<TEntity>> CreateBulkAsync(List<TEntity> entities)
+        {
+            await this._collection.InsertManyAsync(entities).ConfigureAwait(false);
+
+            return entities;
+        }
+
+        public virtual List<TEntity> CreateBulk(List<TEntity> entities)
+        {
+            this._collection.InsertMany(entities);
+
+            return entities;
+        }
+
         #endregion
 
         #region Delete
