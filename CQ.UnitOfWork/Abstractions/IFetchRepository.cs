@@ -26,7 +26,6 @@ namespace CQ.UnitOfWork.Abstractions
         TEntity? GetOrDefault(Expression<Func<TEntity, bool>> predicate);
         #endregion
 
-
         #region Fetch entity by prop
         /// <summary>
         /// Get element with value in prop. By default the value is id

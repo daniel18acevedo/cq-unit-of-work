@@ -222,15 +222,38 @@ namespace CQ.UnitOfWork.EfCore
             this._efCoreConnection.SaveChanges();
         }
 
-        public virtual Task UpdateByIdAsync(string id, object updates)
+        public virtual async Task UpdateByIdAsync(string id, object updates)
+        {
+            await UpdateByPropAsync(id, updates, "Id").ConfigureAwait(false);    
+        }
+
+        public virtual void UpdateById(string id, object updates)
+        {
+            UpdateByProp(id, updates, "Id");
+        }
+
+        public virtual async Task UpdateByPropAsync(string value, object updates, string prop)
+        {
+            UpdateByProp(value, updates, prop);
+
+            await this._efCoreConnection.SaveChangesAsync().ConfigureAwait(false);
+        }
+
+        private void BuildUpdateQuery(string value, object updates, string prop)
         {
             var typeofUpdates = updates.GetType();
             var propsOfUpdates = typeofUpdates.GetProperties();
-            var namesOfProps = propsOfUpdates.Select(p => $"p.Name={p.GetValue(updates)}");
+            var namesOfProps = propsOfUpdates.Select(p => $"{p.Name}={p.GetValue(updates)}");
+            var updatesSql = string.Join(",", namesOfProps);
 
-            this._dbSet.FromSqlRaw("UPDATE {0} SET {2} WHERE Id = {1}", this._efCoreConnection.GetTableName<TEntity>(), id, string.Join(",",namesOfProps));
+            this._dbSet.FromSqlRaw("UPDATE {0} SET {1} WHERE {2} = {3}", this._efCoreConnection.GetTableName<TEntity>(), updatesSql, prop, value);
+        }
 
-            return Task.CompletedTask;
+        public virtual void UpdateByProp(string value, object updates, string prop)
+        {
+            BuildUpdateQuery(value, updates, prop);
+
+            this._efCoreConnection.SaveChanges();
         }
         #endregion
 

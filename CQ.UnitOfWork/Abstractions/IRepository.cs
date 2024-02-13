@@ -43,7 +43,15 @@ namespace CQ.UnitOfWork.Abstractions
         IList<TResult> GetAll<TResult>(Expression<Func<TEntity, bool>>? predicate = null);
         #endregion
 
+        #region Update entity
         Task UpdateByIdAsync(string id, object updates);
+
+        void UpdateById(string id, object updates);
+
+        Task UpdateByPropAsync(string value, object updates, string prop);
+
+        void UpdateByProp(string value, object updates, string prop);
+        #endregion
 
         Task<bool> ExistAsync(Expression<Func<TEntity, bool>> predicate);
 
