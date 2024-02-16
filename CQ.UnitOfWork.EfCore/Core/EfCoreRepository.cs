@@ -74,7 +74,7 @@ namespace CQ.UnitOfWork.EfCore
         {
             this._dbSet.AddRange(entities);
 
-            this._efCoreConnection.SaveChangesAsync();
+            this._efCoreConnection.SaveChanges();
 
             return entities;
         }
@@ -234,7 +234,7 @@ namespace CQ.UnitOfWork.EfCore
 
         public virtual async Task UpdateByPropAsync(string value, object updates, string prop)
         {
-            UpdateByProp(value, updates, prop);
+            BuildUpdateQuery(value, updates, prop);
 
             await this._efCoreConnection.SaveChangesAsync().ConfigureAwait(false);
         }

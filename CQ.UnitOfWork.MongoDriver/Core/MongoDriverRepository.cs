@@ -124,13 +124,11 @@ namespace CQ.UnitOfWork.MongoDriver
         #region Update
         public virtual async Task UpdateByIdAsync(string id, object updates)
         {
-            await this.UpdateByPropAsync(id, updates).ConfigureAwait(false);
+            await this.UpdateByPropAsync(id, updates, "_id").ConfigureAwait(false);
         }
 
-        public virtual async Task UpdateByPropAsync(string value, object updates, string? prop = null)
+        public virtual async Task UpdateByPropAsync(string value, object updates, string prop)
         {
-            prop ??= "_id";
-
             var filter = BuildFilterByProp(value, prop);
             var updateDefinition = BuildUpdateDefinition(updates);
 
@@ -168,13 +166,11 @@ namespace CQ.UnitOfWork.MongoDriver
 
         public virtual void UpdateById(string id, object updates)
         {
-            this.UpdateByProp(id, updates);
+            this.UpdateByProp(id, updates, "_id");
         }
 
-        public virtual void UpdateByProp(string value, object updates, string? prop = null)
+        public virtual void UpdateByProp(string value, object updates, string prop)
         {
-            prop ??= "_id";
-
             var filter = BuildFilterByProp(value, prop);
             var updateDefinition = BuildUpdateDefinition(updates);
 
