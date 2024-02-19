@@ -102,34 +102,34 @@ namespace CQ.UnitOfWork.EfCore
         #endregion
 
         #region GetAll
-        public virtual async Task<IList<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? predicate = null)
+        public virtual async Task<List<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? predicate = null)
         {
             return await this._dbSet.NullableWhere(predicate).ToListAsync().ConfigureAwait(false);
         }
 
-        public virtual IList<TEntity> GetAll(Expression<Func<TEntity, bool>>? predicate = null)
+        public virtual List<TEntity> GetAll(Expression<Func<TEntity, bool>>? predicate = null)
         {
             return this._dbSet.NullableWhere(predicate).ToList();
         }
 
-        public virtual async Task<IList<TResult>> GetAllAsync<TResult>(Expression<Func<TEntity, TResult>> selector, Expression<Func<TEntity, bool>>? predicate = null)
+        public virtual async Task<List<TResult>> GetAllAsync<TResult>(Expression<Func<TEntity, TResult>> selector, Expression<Func<TEntity, bool>>? predicate = null)
             where TResult : class
         {
             return await this._dbSet.NullableWhere(predicate).Select(selector).ToListAsync().ConfigureAwait(false);
         }
 
-        public virtual IList<TResult> GetAll<TResult>(Expression<Func<TEntity, TResult>> selector, Expression<Func<TEntity, bool>>? predicate = null)
+        public virtual List<TResult> GetAll<TResult>(Expression<Func<TEntity, TResult>> selector, Expression<Func<TEntity, bool>>? predicate = null)
             where TResult : class
         {
             return this._dbSet.NullableWhere(predicate).Select(selector).ToList();
         }
 
-        public virtual async Task<IList<TResult>> GetAllAsync<TResult>(Expression<Func<TEntity, bool>>? predicate = null)
+        public virtual async Task<List<TResult>> GetAllAsync<TResult>(Expression<Func<TEntity, bool>>? predicate = null)
         {
             return await this._dbSet.NullableWhere(predicate).SelectTo<TEntity, TResult>().ToListAsync().ConfigureAwait(false);
         }
 
-        public virtual IList<TResult> GetAll<TResult>(Expression<Func<TEntity, bool>>? predicate = null)
+        public virtual List<TResult> GetAll<TResult>(Expression<Func<TEntity, bool>>? predicate = null)
         {
             return this._dbSet.NullableWhere(predicate).SelectTo<TEntity, TResult>().ToList();
         }
@@ -204,6 +204,29 @@ namespace CQ.UnitOfWork.EfCore
             var entity = this.GetOrDefault(e => EF.Property<string>(e, prop) == value);
 
             return entity;
+        }
+        #endregion
+
+        #region GetById
+
+        public override async Task<TEntity> GetByIdAsync(string id)
+        {
+            return await this.GetByPropAsync(id, "Id").ConfigureAwait(false);
+        }
+
+        public override TEntity GetById(string id)
+        {
+            return this.GetByProp(id, "Id");
+        }
+
+        public override async Task<TEntity?> GetOrDefaultByIdAsync(string id)
+        {
+            return await this.GetOrDefaultByPropAsync(id, "Id").ConfigureAwait(false);
+        }
+
+        public override TEntity? GetOrDefaultById(string id)
+        {
+            return this.GetOrDefaultByProp(id, "Id");
         }
         #endregion
 

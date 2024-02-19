@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 
 namespace CQ.UnitOfWork.Abstractions
 {
-    public abstract class BaseRepository<TEntity> : IFetchRepository<TEntity>
+    public abstract class BaseRepository<TEntity>
+        : IFetchRepository<TEntity>
         where TEntity : class
     {
         protected string EntityName => typeof(TEntity).Name;
@@ -29,6 +30,14 @@ namespace CQ.UnitOfWork.Abstractions
         public abstract TEntity? GetOrDefaultByProp(string value, string? prop = null);
 
         public abstract Task<TEntity?> GetOrDefaultByPropAsync(string value, string? prop = null);
+
+        public abstract Task<TEntity> GetByIdAsync(string id);
+
+        public abstract TEntity GetById(string id);
+
+        public abstract Task<TEntity?> GetOrDefaultByIdAsync(string id);
+
+        public abstract TEntity? GetOrDefaultById(string id);
         #endregion
 
         public virtual async Task<TEntity> GetAsync<TException>(Expression<Func<TEntity, bool>> predicate, TException exception)
@@ -77,6 +86,32 @@ namespace CQ.UnitOfWork.Abstractions
             try
             {
                 return this.GetByProp(value, prop);
+            }
+            catch (Exception ex)
+            {
+                exception.SetInnerException(ex);
+                throw exception;
+            }
+        }
+
+        public virtual async Task<TEntity> GetByIdAsync<TException>(string id, TException exception) where TException : Exception
+        {
+            try
+            {
+                return await this.GetByIdAsync(id).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                exception.SetInnerException(ex);
+                throw exception;
+            }
+        }
+
+        public TEntity GetById<TException>(string id, TException exception) where TException : Exception
+        {
+            try
+            {
+                return this.GetById(id);
             }
             catch (Exception ex)
             {

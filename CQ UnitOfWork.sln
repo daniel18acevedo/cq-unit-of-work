@@ -35,6 +35,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.github\workflows\tag.yml = .github\workflows\tag.yml
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{AFC8D895-429D-4496-BC79-9E5397FF7874}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQ.UnitOfWork.EfCore.Tests", "CQ.UnitOfWork.EfCore.Tests\CQ.UnitOfWork.EfCore.Tests.csproj", "{6EED3A71-4D9F-45A1-9F72-A220E7B376FD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +73,10 @@ Global
 		{6FC42EA1-50B8-473C-A0E9-BB49C3E814DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6FC42EA1-50B8-473C-A0E9-BB49C3E814DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6FC42EA1-50B8-473C-A0E9-BB49C3E814DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6EED3A71-4D9F-45A1-9F72-A220E7B376FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6EED3A71-4D9F-45A1-9F72-A220E7B376FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6EED3A71-4D9F-45A1-9F72-A220E7B376FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6EED3A71-4D9F-45A1-9F72-A220E7B376FD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -81,6 +89,7 @@ Global
 		{CDAB4FBA-140E-4120-A44A-D4E71E6BE5AC} = {49E5EF16-20B9-4400-8827-DBC41363D71E}
 		{18BF5A88-FE98-4AAA-808D-81FEF5F7A6B4} = {49E5EF16-20B9-4400-8827-DBC41363D71E}
 		{6FC42EA1-50B8-473C-A0E9-BB49C3E814DE} = {3A37B592-E953-4FAF-B921-63A102369E63}
+		{6EED3A71-4D9F-45A1-9F72-A220E7B376FD} = {AFC8D895-429D-4496-BC79-9E5397FF7874}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {14B7C1DA-270F-4DCC-8F85-0DFE44920C1F}

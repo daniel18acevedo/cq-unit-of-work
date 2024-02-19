@@ -81,17 +81,17 @@ namespace CQ.UnitOfWork.MongoDriver
         #endregion
 
         #region Fetch all
-        public virtual async Task<IList<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? predicate = null)
+        public virtual async Task<List<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? predicate = null)
         {
             return await this._collection.NullableFind(predicate).ToListAsync().ConfigureAwait(false);
         }
 
-        public virtual IList<TEntity> GetAll(Expression<Func<TEntity, bool>>? predicate)
+        public virtual List<TEntity> GetAll(Expression<Func<TEntity, bool>>? predicate)
         {
             return this._collection.NullableFind(predicate).ToList();
         }
 
-        public virtual async Task<IList<TResult>> GetAllAsync<TResult>(Expression<Func<TEntity, bool>>? predicate = null)
+        public virtual async Task<List<TResult>> GetAllAsync<TResult>(Expression<Func<TEntity, bool>>? predicate = null)
         {
             var filter = Builders<TEntity>.Filter.NullableWhere(predicate);
 
@@ -106,7 +106,7 @@ namespace CQ.UnitOfWork.MongoDriver
             return cursor;
         }
 
-        public virtual IList<TResult> GetAll<TResult>(Expression<Func<TEntity, bool>>? predicate = null)
+        public virtual List<TResult> GetAll<TResult>(Expression<Func<TEntity, bool>>? predicate = null)
         {
             var filter = Builders<TEntity>.Filter.NullableWhere(predicate);
 
@@ -280,6 +280,27 @@ namespace CQ.UnitOfWork.MongoDriver
 
             return BsonSerializer.Deserialize<TEntity>(entity);
         }
+
+        public override async Task<TEntity> GetByIdAsync(string id)
+        {
+            return await this.GetByPropAsync(id, "_id").ConfigureAwait(false);
+        }
+
+        public override TEntity GetById(string id)
+        {
+            return this.GetByProp(id, "_id");
+        }
+
+        public override async Task<TEntity?> GetOrDefaultByIdAsync(string id)
+        {
+            return await this.GetOrDefaultByPropAsync(id, "_id").ConfigureAwait(false);
+        }
+
+        public override TEntity? GetOrDefaultById(string id)
+        {
+            return this.GetOrDefaultByProp(id, "_id");
+        }
+
         #endregion
     }
 }

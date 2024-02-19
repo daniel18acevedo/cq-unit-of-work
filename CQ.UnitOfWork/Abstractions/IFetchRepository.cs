@@ -47,5 +47,21 @@ namespace CQ.UnitOfWork.Abstractions
 
         TEntity? GetOrDefaultByProp(string value, string? prop = null);
         #endregion
+
+        #region Fetch entity by id
+        Task<TEntity> GetByIdAsync(string id);
+        
+        Task<TEntity> GetByIdAsync<TException>(string id, TException exception) where TException : Exception;
+
+        TEntity GetById(string id);
+
+        TEntity GetById<TException>(string id, TException exception) where TException : Exception;
+        #endregion
+
+        #region Fetch entity by id
+        Task<TEntity?> GetOrDefaultByIdAsync(string id);
+
+        TEntity? GetOrDefaultById(string id);
+        #endregion
     }
 }

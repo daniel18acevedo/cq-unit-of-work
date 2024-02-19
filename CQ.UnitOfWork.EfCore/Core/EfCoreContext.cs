@@ -118,7 +118,7 @@ namespace CQ.UnitOfWork.EfCore
 
         public async Task SaveChangesAsync()
         {
-            await this.SaveChangesAsync().ConfigureAwait(false);
+            await base.SaveChangesAsync().ConfigureAwait(false);
         }
 
         public DatabaseInfo GetDatabaseInfo()

@@ -34,13 +34,13 @@ namespace CQ.UnitOfWork.Abstractions
         #endregion
 
         #region Fetch entities
-        Task<IList<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? predicate = null);
+        Task<List<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? predicate = null);
 
-        IList<TEntity> GetAll(Expression<Func<TEntity, bool>>? predicate = null);
+        List<TEntity> GetAll(Expression<Func<TEntity, bool>>? predicate = null);
 
-        Task<IList<TResult>> GetAllAsync<TResult>(Expression<Func<TEntity, bool>>? predicate = null);
+        Task<List<TResult>> GetAllAsync<TResult>(Expression<Func<TEntity, bool>>? predicate = null);
 
-        IList<TResult> GetAll<TResult>(Expression<Func<TEntity, bool>>? predicate = null);
+        List<TResult> GetAll<TResult>(Expression<Func<TEntity, bool>>? predicate = null);
         #endregion
 
         #region Update entity
