@@ -3,13 +3,15 @@ using CQ.UnitOfWork.Abstractions;
 using CQ.UnitOfWork.EfCore.Abstractions;
 using CQ.UnitOfWork.EfCore.Extensions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Security.AccessControl;
 
 namespace CQ.UnitOfWork.EfCore
 {
-    public class EfCoreRepository<TEntity> : 
+    public class EfCoreRepository<TEntity> :
         BaseRepository<TEntity>,
         IEfCoreRepository<TEntity>,
         IUnitRepository<TEntity>
@@ -104,7 +106,10 @@ namespace CQ.UnitOfWork.EfCore
         #region GetAll
         public virtual async Task<List<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? predicate = null)
         {
-            return await this._dbSet.NullableWhere(predicate).ToListAsync().ConfigureAwait(false);
+            return await this._dbSet
+                .NullableWhere(predicate)
+                .ToListAsync()
+                .ConfigureAwait(false);
         }
 
         public virtual List<TEntity> GetAll(Expression<Func<TEntity, bool>>? predicate = null)
@@ -135,6 +140,54 @@ namespace CQ.UnitOfWork.EfCore
         }
         #endregion
 
+        #region GetPaginated
+        public virtual async Task<Pagination<TEntity>> GetPagedAsync(
+            Expression<Func<TEntity, bool>>? predicate = null,
+            int page = 1,
+            int pageSize = 10)
+        {
+            var itemsPaged = await this._dbSet
+                .NullableWhere(predicate)
+                .Paginate(page, pageSize)
+                .ToListAsync()
+                .ConfigureAwait(false);
+
+            var totalItems = await this._dbSet
+                .NullableCountAsync(predicate)
+                .ConfigureAwait(false);
+
+            double itemsPerPage = pageSize == 0 ? totalItems : pageSize;
+            var totalPages = Convert.ToInt64(Math.Ceiling(totalItems / itemsPerPage));
+
+            return new Pagination<TEntity>(
+                itemsPaged,
+                totalItems,
+                totalPages);
+        }
+
+        public virtual Pagination<TEntity> GetPaged(
+            Expression<Func<TEntity, bool>>? predicate = null,
+            int page = 1,
+            int pageSize = 10)
+        {
+            var itemsPaged = this._dbSet
+                .NullableWhere(predicate)
+                .Paginate(page, pageSize)
+                .ToList();
+
+            var totalItems = this._dbSet
+                .NullableCount(predicate);
+
+            double itemsPerPage = pageSize == 0 ? totalItems : pageSize;
+            var totalPages = Convert.ToInt64(Math.Ceiling(totalItems / itemsPerPage));
+
+            return new Pagination<TEntity>(
+                itemsPaged,
+                totalItems,
+                totalPages);
+        }
+        #endregion
+
         #region Get
         public override async Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> predicate)
         {
@@ -156,7 +209,7 @@ namespace CQ.UnitOfWork.EfCore
         #endregion
 
         #region GetByProp
-        public override async Task<TEntity> GetByPropAsync(string value, string? prop = null)
+        public override async Task<TEntity> GetByPropAsync(string value, string prop)
         {
             var entity = await this.GetOrDefaultByPropAsync(value, prop).ConfigureAwait(false);
 
@@ -165,7 +218,7 @@ namespace CQ.UnitOfWork.EfCore
             return entity;
         }
 
-        public override TEntity GetByProp(string value, string? prop = null)
+        public override TEntity GetByProp(string value, string prop)
         {
             var entity = this.GetOrDefaultByProp(value, prop);
 
@@ -188,19 +241,15 @@ namespace CQ.UnitOfWork.EfCore
         #endregion
 
         #region GetOrDefaultByProp
-        public override async Task<TEntity?> GetOrDefaultByPropAsync(string value, string? prop = null)
+        public override async Task<TEntity?> GetOrDefaultByPropAsync(string value, string prop)
         {
-            prop ??= "Id";
-
             var entity = await this.GetOrDefaultAsync(e => EF.Property<string>(e, prop) == value).ConfigureAwait(false);
 
             return entity;
         }
 
-        public override TEntity? GetOrDefaultByProp(string value, string? prop = null)
+        public override TEntity? GetOrDefaultByProp(string value, string prop)
         {
-            prop ??= "Id";
-
             var entity = this.GetOrDefault(e => EF.Property<string>(e, prop) == value);
 
             return entity;
@@ -247,7 +296,9 @@ namespace CQ.UnitOfWork.EfCore
 
         public virtual async Task UpdateByIdAsync(string id, object updates)
         {
-            await UpdateByPropAsync(id, updates, "Id").ConfigureAwait(false);    
+            await UpdateByPropAsync(id, updates, "Id").ConfigureAwait(false);
+
+            await this._efCoreConnection.SaveChangesAsync().ConfigureAwait(false);
         }
 
         public virtual void UpdateById(string id, object updates)
@@ -257,26 +308,53 @@ namespace CQ.UnitOfWork.EfCore
 
         public virtual async Task UpdateByPropAsync(string value, object updates, string prop)
         {
-            BuildUpdateQuery(value, updates, prop);
+            var query = this.BuildUpdateQuery(updates, prop, value);
 
-            await this._efCoreConnection.SaveChangesAsync().ConfigureAwait(false);
+            var rawsAffected = await this._efCoreConnection.Database.ExecuteSqlRawAsync(query).ConfigureAwait(false);
+
+            if (rawsAffected != 0)
+            {
+                var entity = this._dbSet.Find(value)!;
+                await this._efCoreConnection.Entry(entity).ReloadAsync().ConfigureAwait(false);
+            }
         }
 
-        private void BuildUpdateQuery(string value, object updates, string prop)
+        private string BuildUpdateQuery(object updates, string id, string idValue)
         {
             var typeofUpdates = updates.GetType();
             var propsOfUpdates = typeofUpdates.GetProperties();
-            var namesOfProps = propsOfUpdates.Select(p => $"{p.Name}={p.GetValue(updates)}");
-            var updatesSql = string.Join(",", namesOfProps);
+            var namesOfProps = propsOfUpdates.Select(p =>
+            {
+                var propertyType = p.PropertyType.Name.ToLower();
+                var value = p.GetValue(updates);
 
-            this._dbSet.FromSqlRaw("UPDATE {0} SET {1} WHERE {2} = {3}", this._efCoreConnection.GetTableName<TEntity>(), updatesSql, prop, value);
+                if (propertyType == "string")
+                {
+                    return $"{p.Name}='{value}'";
+                }
+
+                return $"{p.Name}={value}";
+            });
+            var updatesSql = string.Join(",", namesOfProps);
+            var table = this._efCoreConnection.GetTableName<TEntity>();
+
+            var sql = string.Format("UPDATE {0} SET {1} WHERE {2} = '{3}'", table, updatesSql, id, idValue);
+
+            return sql;
         }
 
         public virtual void UpdateByProp(string value, object updates, string prop)
         {
-            BuildUpdateQuery(value, updates, prop);
+            var query = this.BuildUpdateQuery(updates, value, prop);
 
-            this._efCoreConnection.SaveChanges();
+            var rawsAffected = this._efCoreConnection.Database.ExecuteSqlRaw(query);
+
+            if (rawsAffected != 0)
+            {
+                var entity = this._dbSet.Find(value)!;
+                this._efCoreConnection.Entry(entity).Reload();
+            }
+
         }
         #endregion
 

@@ -6,10 +6,25 @@ using System.Threading.Tasks;
 
 namespace CQ.UnitOfWork.EfCore
 {
-    public class EfCoreConfig : OrmConfig
+    public sealed record class EfCoreConfig : OrmConfig
     {
-        public Action<string>? Logger { get; set; }
+        public readonly Action<string>? Logger;
 
-        public EfCoreDataBaseEngine Engine { get; set; } = EfCoreDataBaseEngine.SQL;
+        public readonly EfCoreDataBaseEngine Engine;
+
+        public EfCoreConfig(
+            DatabaseConfig config,
+            EfCoreDataBaseEngine engine = EfCoreDataBaseEngine.SQL,
+            Action<string>? logger = null,
+            bool useDefaultQueryLogger = false,
+            bool @default = true)
+            : base(
+                  config,
+                  logger == null && useDefaultQueryLogger,
+                  @default)
+        {
+            this.Engine = engine;
+            this.Logger = logger;
+        }
     }
 }

@@ -1,27 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CQ.Utility;
 
 namespace CQ.UnitOfWork
 {
-    public abstract class OrmConfig
+    public abstract record class OrmConfig
     {
-        public DatabaseConfig DatabaseConnection { get; set; }
+        public readonly DatabaseConfig DatabaseConnection;
 
-        public bool UseDefaultQueryLogger { get; set; }
+        public readonly bool UseDefaultQueryLogger;
 
-        public bool DefaultToUse { get; set; }
+        public readonly bool Default;
 
-        public void Assert()
+        public OrmConfig(
+            DatabaseConfig databaseConnection,
+            bool useDefaultQueryLogger = false,
+            bool @default = true)
         {
-            if(this.DatabaseConnection is null)
-            {
-                throw new ArgumentNullException("dataBaseConnection");
-            }
-
-            this.DatabaseConnection.Assert();
+            Guard.ThrowIsNull(databaseConnection, nameof(databaseConnection));
+            this.DatabaseConnection = databaseConnection;
+            this.UseDefaultQueryLogger = useDefaultQueryLogger;
+            this.Default = @default;
         }
     }
 }

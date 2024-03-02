@@ -19,17 +19,17 @@ namespace CQ.UnitOfWork.Abstractions
 
         public abstract Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> predicate);
 
-        public abstract TEntity GetByProp(string value, string? prop = null);
+        public abstract TEntity GetByProp(string value, string prop);
 
-        public abstract Task<TEntity> GetByPropAsync(string value, string? prop = null);
+        public abstract Task<TEntity> GetByPropAsync(string value, string prop);
 
         public abstract TEntity? GetOrDefault(Expression<Func<TEntity, bool>> predicate);
 
         public abstract Task<TEntity?> GetOrDefaultAsync(Expression<Func<TEntity, bool>> predicate);
 
-        public abstract TEntity? GetOrDefaultByProp(string value, string? prop = null);
+        public abstract TEntity? GetOrDefaultByProp(string value, string prop);
 
-        public abstract Task<TEntity?> GetOrDefaultByPropAsync(string value, string? prop = null);
+        public abstract Task<TEntity?> GetOrDefaultByPropAsync(string value, string prop);
 
         public abstract Task<TEntity> GetByIdAsync(string id);
 
@@ -68,7 +68,7 @@ namespace CQ.UnitOfWork.Abstractions
             }
         }
 
-        public virtual async Task<TEntity> GetByPropAsync<TException>(string value, TException exception, string? prop = null) where TException : Exception
+        public virtual async Task<TEntity> GetByPropAsync<TException>(string value, string prop, TException exception) where TException : Exception
         {
             try
             {
@@ -81,7 +81,7 @@ namespace CQ.UnitOfWork.Abstractions
             }
         }
 
-        public virtual TEntity GetByProp<TException>(string value, TException exception, string? prop = null) where TException : Exception
+        public virtual TEntity GetByProp<TException>(string value, string prop, TException exception) where TException : Exception
         {
             try
             {

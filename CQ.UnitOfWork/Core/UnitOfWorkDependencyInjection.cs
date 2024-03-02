@@ -9,7 +9,7 @@ namespace CQ.UnitOfWork
         public static IServiceCollection AddUnitOfWork(this IServiceCollection services, LifeTime lifeCycle = LifeTime.Scoped)
         {
             services.AddService<IUnitOfWork, UnitOfWorkService>(lifeCycle);
-            
+
             return services;
         }
     }

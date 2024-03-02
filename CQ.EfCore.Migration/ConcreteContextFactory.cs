@@ -1,6 +1,7 @@
 ﻿using CQ.UnitOfWork;
 using CQ.UnitOfWork.Api.EFCore.DataAccess;
 using CQ.UnitOfWork.EfCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
 namespace CQ.EfCore.Migrations
@@ -9,16 +10,12 @@ namespace CQ.EfCore.Migrations
     {
         public ConcreteContext CreateDbContext(string[] args)
         {
-            return new ConcreteContext(new EfCoreConfig
-            {
-                DatabaseConnection = new DatabaseConfig
-                {
-                    ConnectionString = "Server=localhost;Database=UnitOfWork; Integrated Security=True;Trusted_Connection=True;MultipleActiveResultSets=True;TrustServerCertificate=True",
-                    DatabaseName = "UnitOfWork"
-                },
-                UseDefaultQueryLogger = true,
-                Engine = EfCoreDataBaseEngine.SQL,
-            });
+            var options = new DbContextOptionsBuilder<ConcreteContext>()
+                .UseSqlServer("Server=localhost;Database=UnitOfWork; Integrated Security=True;Trusted_Connection=True;MultipleActiveResultSets=True;TrustServerCertificate=True")
+                .LogTo(Console.WriteLine)
+                .Options;
+
+            return new ConcreteContext(options);
         }
     }
 }

@@ -1,28 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CQ.Utility;
 
 namespace CQ.UnitOfWork
 {
-    public class DatabaseConfig
+    public sealed record class DatabaseConfig
     {
-        public string ConnectionString { get; set; }
+        public readonly string ConnectionString;
 
-        public string DatabaseName { get; set; }
+        public readonly string Name;
 
-        public void Assert()
+        public DatabaseConfig(
+            string connectionString,
+            string name)
         {
-            if (string.IsNullOrEmpty(this.ConnectionString))
-            {
-                throw new ArgumentNullException("connectionString");
-            }
-
-            if (string.IsNullOrEmpty(this.DatabaseName))
-            {
-                throw new ArgumentNullException("databaseName");
-            }
+            this.ConnectionString = connectionString;
+            Guard.ThrowIsNullOrEmpty(connectionString, nameof(this.ConnectionString));
+            
+            this.Name = name;
+            Guard.ThrowIsNullOrEmpty(this.Name, nameof(this.Name));
         }
     }
 }

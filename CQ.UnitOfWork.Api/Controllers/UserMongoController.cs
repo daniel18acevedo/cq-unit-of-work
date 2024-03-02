@@ -36,17 +36,17 @@ namespace CQ.UnitOfWork.Api.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetAsync([FromRoute] string id)
         {
-            var user = await _userUnitOfWorkMongoRepository.GetByPropAsync(id).ConfigureAwait(false);
+            var user = await _userUnitOfWorkMongoRepository.GetByIdAsync(id).ConfigureAwait(false);
 
             return Ok(user);
         }
 
         [HttpGet("{id}/custom-exception")]
-        public async Task<IActionResult> GetCustomExceptionAsync([FromRoute] string id)
+        public async Task<IActionResult> GetCustomExceptionAsync([FromRoute] string id = "no")
         {
             try
             {
-                var user = await this._userUnitOfWorkGenericRepository.GetAsync(u => u.Id == "no", new InvalidOperationException()).ConfigureAwait(false);
+                var user = await this._userUnitOfWorkGenericRepository.GetAsync(u => u.Id == id, new InvalidOperationException()).ConfigureAwait(false);
 
                 return Ok(user);
             }

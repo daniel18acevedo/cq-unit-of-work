@@ -121,6 +121,54 @@ namespace CQ.UnitOfWork.MongoDriver
         }
         #endregion
 
+        #region Fetch paginate
+        public virtual async Task<Pagination<TEntity>> GetPagedAsync(
+            Expression<Func<TEntity, bool>>? predicate,
+            int page = 1,
+            int pageSize = 10)
+        {
+            var itemsPaged = await this._collection
+                .NullableFind(predicate)
+                .Paginate(page, pageSize)
+                .ToListAsync()
+                .ConfigureAwait(false);
+
+            var totalItems = await this._collection
+                .NullableCountAsync(predicate)
+                .ConfigureAwait(false);
+
+            double itemsPerPage = pageSize == 0 ? totalItems : pageSize;
+            var totalPages = Convert.ToInt64(Math.Ceiling(totalItems / itemsPerPage));
+
+            return new Pagination<TEntity>(
+                itemsPaged,
+                totalItems,
+                totalPages);
+        }
+
+        public virtual Pagination<TEntity> GetPaged(
+            Expression<Func<TEntity, bool>>? predicate,
+            int page = 1,
+            int pageSize = 10)
+        {
+            var itemsPaged = this._collection
+                .NullableFind(predicate)
+                .Paginate(page, pageSize)
+                .ToList();
+
+            var totalItems = this._collection
+                .NullableCount(predicate);
+
+            double itemsPerPage = pageSize == 0 ? totalItems : pageSize;
+            var totalPages = Convert.ToInt64(Math.Ceiling(totalItems / itemsPerPage));
+
+            return new Pagination<TEntity>(
+                itemsPaged,
+                totalItems,
+                totalPages);
+        }
+        #endregion
+
         #region Update
         public virtual async Task UpdateByIdAsync(string id, object updates)
         {
@@ -225,7 +273,7 @@ namespace CQ.UnitOfWork.MongoDriver
             return entity;
         }
 
-        public override async Task<TEntity> GetByPropAsync(string value, string? prop = null)
+        public override async Task<TEntity> GetByPropAsync(string value, string prop)
         {
             var entity = await this.GetOrDefaultByPropAsync(value, prop).ConfigureAwait(false);
 
@@ -234,7 +282,7 @@ namespace CQ.UnitOfWork.MongoDriver
             return entity;
         }
 
-        public override TEntity GetByProp(string value, string? prop = null)
+        public override TEntity GetByProp(string value, string prop)
         {
             var entity = this.GetOrDefaultByProp(value, prop);
 
@@ -255,10 +303,8 @@ namespace CQ.UnitOfWork.MongoDriver
             return this._collection.Find(predicate).FirstOrDefault();
         }
 
-        public override async Task<TEntity?> GetOrDefaultByPropAsync(string value, string? prop = null)
+        public override async Task<TEntity?> GetOrDefaultByPropAsync(string value, string prop)
         {
-            prop ??= "_id";
-
             var filter = Builders<BsonDocument>.Filter.Eq(prop, value);
 
             var entity = await this._genericCollection.Find(filter).FirstOrDefaultAsync().ConfigureAwait(false);
@@ -268,10 +314,8 @@ namespace CQ.UnitOfWork.MongoDriver
             return BsonSerializer.Deserialize<TEntity>(entity);
         }
 
-        public override TEntity? GetOrDefaultByProp(string value, string? prop = null)
+        public override TEntity? GetOrDefaultByProp(string value, string prop)
         {
-            prop ??= "_id";
-
             var filter = Builders<BsonDocument>.Filter.Eq(prop, value);
 
             var entity = this._genericCollection.Find(filter).FirstOrDefault();

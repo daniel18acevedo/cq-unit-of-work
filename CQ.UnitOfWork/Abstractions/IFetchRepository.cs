@@ -33,19 +33,19 @@ namespace CQ.UnitOfWork.Abstractions
         /// <param name="value"></param>
         /// <param name="prop"></param>
         /// <returns></returns>
-        Task<TEntity> GetByPropAsync(string value, string? prop = null);
+        Task<TEntity> GetByPropAsync(string value, string prop);
 
-        Task<TEntity> GetByPropAsync<TException>(string value, TException exception, string? prop = null) where TException : Exception;
+        Task<TEntity> GetByPropAsync<TException>(string value, string prop, TException exception) where TException : Exception;
 
-        TEntity GetByProp(string value, string? prop = null);
+        TEntity GetByProp(string value, string prop);
 
-        TEntity GetByProp<TException>(string value, TException exception, string? prop = null) where TException : Exception;
+        TEntity GetByProp<TException>(string value, string prop, TException exception) where TException : Exception;
         #endregion
 
         #region Fetch entity or default by prop
-        Task<TEntity?> GetOrDefaultByPropAsync(string value, string? prop = null);
+        Task<TEntity?> GetOrDefaultByPropAsync(string value, string prop);
 
-        TEntity? GetOrDefaultByProp(string value, string? prop = null);
+        TEntity? GetOrDefaultByProp(string value, string prop);
         #endregion
 
         #region Fetch entity by id

@@ -41,6 +41,16 @@ namespace CQ.UnitOfWork.Abstractions
         Task<List<TResult>> GetAllAsync<TResult>(Expression<Func<TEntity, bool>>? predicate = null);
 
         List<TResult> GetAll<TResult>(Expression<Func<TEntity, bool>>? predicate = null);
+
+        Task<Pagination<TEntity>> GetPagedAsync(
+            Expression<Func<TEntity, bool>>? predicate = null,
+            int page = 1,
+            int pageSize = 10);
+
+        Pagination<TEntity> GetPaged(
+            Expression<Func<TEntity, bool>>? predicate = null,
+            int page = 1,
+            int pageSize = 10);
         #endregion
 
         #region Update entity

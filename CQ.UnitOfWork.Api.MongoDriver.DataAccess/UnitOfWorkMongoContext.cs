@@ -10,7 +10,7 @@ namespace CQ.UnitOfWork.Api.MongoDriver.DataAccess
 {
     public sealed class UnitOfWorkMongoContext : MongoContext
     {
-        public UnitOfWorkMongoContext(IMongoDatabase mongoDatabase) : base(mongoDatabase, true)
+        public UnitOfWorkMongoContext(IMongoDatabase mongoDatabase) : base(mongoDatabase)
         {
             base.AddCollection<UserMongo>("users");
         }

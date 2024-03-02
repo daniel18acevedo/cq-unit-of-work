@@ -19,14 +19,11 @@ namespace CQ.UnitOfWork.MongoDriver
 
         private readonly List<Func<Task>> _actionsTask = new();
 
-        protected readonly IDictionary<Type, string> collections = new Dictionary<Type, string>();
+        private readonly IDictionary<Type, string> collections = new Dictionary<Type, string>();
 
-        public readonly bool IsDefault;
-
-        public MongoContext(IMongoDatabase mongoDatabase, bool isDefault)
+        public MongoContext(IMongoDatabase mongoDatabase)
         {
             _mongoDatabase = mongoDatabase;
-            IsDefault = isDefault;
         }
 
         public MongoContext AddCollection<TEntity>(string collectionName)

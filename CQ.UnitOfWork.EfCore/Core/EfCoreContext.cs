@@ -13,61 +13,12 @@ namespace CQ.UnitOfWork.EfCore
 {
     public abstract class EfCoreContext : DbContext, IDatabaseContext
     {
-        private readonly EfCoreConfig? _config;
-
-        public readonly bool IsDefault;
-
-        /// <summary>
-        /// Option less complicated for migrations
-        /// </summary>
-        /// <param name="config"></param>
-        public EfCoreContext(EfCoreConfig config)
-        {
-            this._config = config;
-        }
-
         /// <summary>
         /// Necessary when using AddDbContext
         /// </summary>
         /// <param name="options"></param>
-        public EfCoreContext(DbContextOptions options) : base(options) { }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (optionsBuilder.IsConfigured || this._config is null)
-            {
-                return;
-            }
-
-            this._config.Assert();
-            switch (this._config.Engine)
-            {
-                case EfCoreDataBaseEngine.SQL:
-                    {
-                        optionsBuilder.UseSqlServer(this._config.DatabaseConnection.ConnectionString);
-                        break;
-                    }
-
-                case EfCoreDataBaseEngine.SQL_LITE:
-                    {
-                        optionsBuilder.UseSqlite(new SqliteConnection(this._config.DatabaseConnection.ConnectionString));
-                        break;
-                    }
-
-                default:
-                    {
-                        throw new ArgumentException($"Engine {this._config.Engine} not supported");
-                    }
-            }
-
-            if (this._config.UseDefaultQueryLogger)
-            {
-                optionsBuilder.LogTo(Console.WriteLine);
-            }
-            else if (this._config.Logger is not null)
-            {
-                optionsBuilder.LogTo(this._config.Logger);
-            }
+        public EfCoreContext(DbContextOptions options) : base(options)
+        { 
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -76,22 +27,22 @@ namespace CQ.UnitOfWork.EfCore
             modelBuilder.ApplyConfigurationsFromAssembly(contextAssembly);
         }
 
-        public void OpenConnection()
+        public virtual void OpenConnection()
         {
             this.Database.OpenConnection();
         }
 
-        public void EnsureCreated()
+        public virtual void EnsureCreated()
         {
             this.Database.EnsureCreated();
         }
 
-        public void EnsureDeleted()
+        public virtual void EnsureDeleted()
         {
             this.Database.EnsureDeleted();
         }
 
-        public bool Ping(string? collection = null)
+        public virtual bool Ping(string? collection = null)
         {
             try
             {
@@ -105,23 +56,32 @@ namespace CQ.UnitOfWork.EfCore
             }
         }
 
-        public DbSet<TEntity> GetEntitySet<TEntity>()
+        public virtual DbSet<TEntity> GetEntitySet<TEntity>()
             where TEntity : class
         {
-            return this.Set<TEntity>();
+            return base.Set<TEntity>();
         }
 
         public virtual string GetTableName<TEntity>()
         {
-            return $"{typeof(TEntity).Name}s";
+            var model = this.Model.FindEntityType(typeof(TEntity));
+
+            var tableName = model?.GetTableName();
+
+            if (string.IsNullOrEmpty(tableName))
+            {
+                return string.Empty;
+            }
+
+            return tableName;
         }
 
-        public async Task SaveChangesAsync()
+        public virtual async Task SaveChangesAsync()
         {
             await base.SaveChangesAsync().ConfigureAwait(false);
         }
 
-        public DatabaseInfo GetDatabaseInfo()
+        public virtual DatabaseInfo GetDatabaseInfo()
         {
             var databaseInfo = new DatabaseInfo
             {

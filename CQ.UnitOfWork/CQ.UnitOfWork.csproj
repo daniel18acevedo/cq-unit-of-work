@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <PackageReference Include="CQ.ServiceExtension" Version="1.0.2" />
+    <PackageReference Include="CQ.Utility" Version="1.1.8" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
   </ItemGroup>
 

@@ -1,6 +1,5 @@
 using CQ.ServiceExtension;
 using CQ.UnitOfWork;
-using CQ.UnitOfWork.Abstractions;
 using CQ.UnitOfWork.Api.EFCore.DataAccess;
 using CQ.UnitOfWork.Api.MongoDriver.DataAccess;
 using CQ.UnitOfWork.EfCore;
@@ -27,50 +26,44 @@ builder.Services.AddUnitOfWork();
 
 var efCoreConnectionString = Environment.GetEnvironmentVariable($"efcore-connection-string");
 // "Filename=:memory:"
-builder.Services.AddEfCoreContext<ConcreteContext>(new EfCoreConfig
-{
-    DatabaseConnection = new DatabaseConfig
-    {
-        ConnectionString = efCoreConnectionString,
-        DatabaseName = "UnitOfWork"
-    },
-    Engine = EfCoreDataBaseEngine.SQL,
-    UseDefaultQueryLogger = true
-});
+builder.Services.AddEfCoreContext<ConcreteContext>(new EfCoreConfig(
+    new DatabaseConfig(efCoreConnectionString, "UnitOfWork"),
+    EfCoreDataBaseEngine.SQL,
+    useDefaultQueryLogger: true));
 
-builder.Services.AddEfCoreRepository<User>(lifeTime:LifeTime.Transient);
-builder.Services.AddEfCoreRepository<Book>(lifeTime: LifeTime.Transient);
+builder.Services
+    .AddEfCoreRepository<User>(LifeTime.Transient)
+    .AddEfCoreRepository<Book>(LifeTime.Transient);
 
 
+var otherEfCoreConnectionString = Environment.GetEnvironmentVariable($"other-efcore-connection-string");
+
+builder.Services.AddEfCoreContext<OtherConcreteContext>(new EfCoreConfig(
+    new DatabaseConfig(otherEfCoreConnectionString, "UnitOfWorkOther"),
+    EfCoreDataBaseEngine.SQL,
+    useDefaultQueryLogger: true,
+    @default: false));
+
+builder.Services
+    .AddEfCoreRepository<Other>("UnitOfWorkOther", LifeTime.Transient);
 
 
 
 
 var mongoConnectionString = Environment.GetEnvironmentVariable($"mongo-connection-string");
 builder.Services.AddMongoContext<UnitOfWorkMongoContext>(
-        new MongoConfig
-        {
-            DatabaseConnection = new DatabaseConfig
-            {
-                ConnectionString = mongoConnectionString,
-                DatabaseName = "UnitOfWork"
-            },
-            UseDefaultQueryLogger = true,
-            DefaultToUse = true,
-        });
-builder.Services.AddMongoContext(
-        new MongoConfig
-        {
-            DatabaseConnection = new DatabaseConfig
-            {
-                ConnectionString = mongoConnectionString,
-                DatabaseName = "OtherDatabase"
-            },
-            UseDefaultQueryLogger = true
-        });
+        new MongoConfig(
+            new DatabaseConfig(mongoConnectionString, "UnitOfWork"),
+        true,
+        true));
 
-builder.Services.AddMongoRepository<UserMongo>();
-builder.Services.AddMongoRepository<OtherUserMongo>("OtherDatabase");
+builder.Services.AddMongoContext(
+        new MongoConfig(new DatabaseConfig(mongoConnectionString, "OtherDatabase"),
+        useDefaultQueryLogger: true));
+
+builder.Services
+    .AddMongoRepository<UserMongo>()
+    .AddMongoRepository<OtherUserMongo>("OtherDatabase");
 
 
 var app = builder.Build();

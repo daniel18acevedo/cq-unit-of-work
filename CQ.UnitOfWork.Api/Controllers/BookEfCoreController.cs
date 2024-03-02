@@ -29,7 +29,7 @@ namespace CQ.UnitOfWork.Api.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetAsync([FromRoute] string id)
         {
-            var user = await _repository.GetByPropAsync(id).ConfigureAwait(false);
+            var user = await _repository.GetByIdAsync(id).ConfigureAwait(false);
 
             return Ok(user);
         }
@@ -50,7 +50,7 @@ namespace CQ.UnitOfWork.Api.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAsync([FromRoute] string id)
         {
-            var user = await this._repository.GetByPropAsync(id).ConfigureAwait(false);
+            var user = await this._repository.GetByIdAsync(id).ConfigureAwait(false);
             user.Name = "new name";
 
             await this._repository.UpdateAsync(user).ConfigureAwait(false);
