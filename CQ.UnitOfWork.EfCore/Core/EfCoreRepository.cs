@@ -1,9 +1,12 @@
 ﻿
+using CQ.Exceptions;
 using CQ.UnitOfWork.Abstractions;
 using CQ.UnitOfWork.EfCore.Abstractions;
 using CQ.UnitOfWork.EfCore.Extensions;
+using CQ.Utility;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -88,12 +91,12 @@ namespace CQ.UnitOfWork.EfCore
         {
             var entitiesToRemove = this._dbSet.Where(predicate);
 
-            await Task.Run(() => this._dbSet.RemoveRange(entitiesToRemove)).ConfigureAwait(false);
+            this._dbSet.RemoveRange(entitiesToRemove);
 
             await this._efCoreConnection.SaveChangesAsync().ConfigureAwait(false);
         }
 
-        public virtual async void Delete(Expression<Func<TEntity, bool>> predicate)
+        public virtual void Delete(Expression<Func<TEntity, bool>> predicate)
         {
             var entitiesToRemove = this._dbSet.Where(predicate);
 
@@ -193,7 +196,8 @@ namespace CQ.UnitOfWork.EfCore
         {
             var entity = await this.GetOrDefaultAsync(predicate).ConfigureAwait(false);
 
-            if (entity is null) throw new InvalidOperationException($"{base.EntityName} not found");
+            if (Guard.IsNull(entity))
+                throw new SpecificResourceNotFoundException<TEntity>("condition", string.Empty);
 
             return entity;
         }
@@ -202,7 +206,8 @@ namespace CQ.UnitOfWork.EfCore
         {
             var entity = this.GetOrDefault(predicate);
 
-            if (entity is null) throw new InvalidOperationException($"{base.EntityName} not found");
+            if (Guard.IsNull(entity))
+                throw new SpecificResourceNotFoundException<TEntity>("condition", string.Empty);
 
             return entity;
         }
@@ -213,7 +218,8 @@ namespace CQ.UnitOfWork.EfCore
         {
             var entity = await this.GetOrDefaultByPropAsync(value, prop).ConfigureAwait(false);
 
-            if (entity is null) throw new InvalidOperationException($"{base.EntityName} not found");
+            if (Guard.IsNull(entity))
+                throw new SpecificResourceNotFoundException<TEntity>(prop, value);
 
             return entity;
         }
@@ -222,7 +228,8 @@ namespace CQ.UnitOfWork.EfCore
         {
             var entity = this.GetOrDefaultByProp(value, prop);
 
-            if (entity is null) throw new InvalidOperationException($"{base.EntityName} not found");
+            if (Guard.IsNull(entity))
+                throw new SpecificResourceNotFoundException<TEntity>(prop, value);
 
             return entity;
         }

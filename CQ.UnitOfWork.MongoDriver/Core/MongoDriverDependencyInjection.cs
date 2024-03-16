@@ -88,6 +88,27 @@ namespace CQ.UnitOfWork.MongoDriver
             return services;
         }
 
+        public static IServiceCollection AddContext(
+            this IServiceCollection services,
+            MongoConfig config,
+            LifeTime contextLifeTime = LifeTime.Scoped,
+            LifeTime mongoClientLifeTime = LifeTime.Scoped,
+            LifeTime configLifeTime = LifeTime.Scoped)
+        {
+            return services.AddMongoContext(config, contextLifeTime, mongoClientLifeTime, configLifeTime);
+        }
+
+        public static IServiceCollection AddContext<TContext>(
+            this IServiceCollection services,
+            MongoConfig config,
+            LifeTime contextLifeTime = LifeTime.Scoped,
+            LifeTime mongoClientLifeTime = LifeTime.Scoped,
+            LifeTime configLifeTime = LifeTime.Scoped)
+            where TContext : MongoContext
+        {
+            return services.AddMongoContext<TContext>(config, contextLifeTime, mongoClientLifeTime, configLifeTime);
+        }
+
         private static MongoClient BuildMongoClient(MongoClientSettings clientSettings)
         {
             var mongoClient = new MongoClient(clientSettings);
@@ -380,7 +401,7 @@ namespace CQ.UnitOfWork.MongoDriver
 
             return services;
         }
-        
+
         public static IServiceCollection AddAbstractionMongoRepository<TEntity, TRepository, TImplementation>
             (this IServiceCollection services,
             string databaseName,
@@ -421,17 +442,45 @@ namespace CQ.UnitOfWork.MongoDriver
 
         private static MongoContext BuildDefaultContext(IServiceProvider provider)
         {
-            var configs = provider.GetRequiredService<IEnumerable<MongoConfig>>();
-            var defaultConfig = configs.FirstOrDefault(c => c.Default);
+            var config = GetDefaultConfig(provider);
 
-            Guard.ThrowIsNull(defaultConfig, "default config");
-
-            var contexts = provider.GetRequiredService<IEnumerable<MongoContext>>();
-            var defaultContext = contexts.FirstOrDefault(c => c.GetDatabaseInfo().Name == defaultConfig.DatabaseConnection.Name);
-
-            Guard.ThrowIsNull(defaultConfig, "mongo context");
+            var defaultContext = GetContextByDataBaseName(provider, config.DatabaseConnection.Name);
 
             return defaultContext;
+        }
+
+        private static MongoConfig GetDefaultConfig(IServiceProvider provider)
+        {
+            var configs = provider.GetService<IEnumerable<MongoConfig>>();
+
+            MongoConfig defaultConfig;
+            if (configs != null)
+            {
+                defaultConfig = configs.First(c => c.Default);
+            }
+            else
+            {
+                defaultConfig = provider.GetRequiredService<MongoConfig>();
+            }
+
+            return defaultConfig;
+        }
+
+        private static MongoContext GetContextByDataBaseName(IServiceProvider provider, string databaseName)
+        {
+            var contexts = provider.GetService<IEnumerable<MongoContext>>();
+
+            MongoContext context;
+            if (contexts != null)
+            {
+                context = contexts.First(c => c.GetDatabaseInfo().Name == databaseName);
+            }
+            else
+            {
+                context = provider.GetRequiredService<MongoContext>();
+            }
+
+            return context;
         }
 
         private static MongoContext BuildContext<TContext>(IServiceProvider provider)
@@ -449,10 +498,7 @@ namespace CQ.UnitOfWork.MongoDriver
 
         private static MongoContext BuildContext(IServiceProvider provider, string databaseName)
         {
-            var contexts = provider.GetRequiredService<IEnumerable<MongoContext>>();
-            var specificContext = contexts.FirstOrDefault(c => c.GetDatabaseInfo().Name == databaseName);
-
-            Guard.ThrowIsNull(specificContext, $"context of {databaseName}");
+            var specificContext = GetContextByDataBaseName(provider, databaseName);
 
             return specificContext;
         }

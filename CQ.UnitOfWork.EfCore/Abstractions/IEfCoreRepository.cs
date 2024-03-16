@@ -19,9 +19,5 @@ namespace CQ.UnitOfWork.EfCore.Abstractions
             Expression<Func<TEntity, TResult>> selector,
             Expression<Func<TEntity, bool>>? predicate = null)
             where TResult : class;
-
-        Task UpdateAsync(TEntity updated);
-
-        void Update(TEntity updated);
     }
 }

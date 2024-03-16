@@ -54,6 +54,10 @@ namespace CQ.UnitOfWork.Abstractions
         #endregion
 
         #region Update entity
+        Task UpdateAsync(TEntity entity);
+
+        void Update(TEntity entity);
+
         Task UpdateByIdAsync(string id, object updates);
 
         void UpdateById(string id, object updates);

@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using CQ.Utility;
 using Microsoft.Extensions.Options;
+using System.Runtime.CompilerServices;
 
 namespace CQ.UnitOfWork.EfCore
 {
@@ -89,6 +90,16 @@ namespace CQ.UnitOfWork.EfCore
                 .AddService<IDatabaseContext, TContext>(contextLifeTime);
 
             return services;
+        }
+
+        public static IServiceCollection AddContext<TContext>(
+            this IServiceCollection services,
+            EfCoreConfig config,
+            LifeTime contextLifeTime = LifeTime.Scoped,
+            LifeTime configLifeTime = LifeTime.Scoped)
+            where TContext : EfCoreContext
+        {
+            return services.AddEfCoreContext<TContext>(config, contextLifeTime, configLifeTime);
         }
         #endregion
 
@@ -374,15 +385,59 @@ namespace CQ.UnitOfWork.EfCore
 
         private static EfCoreContext BuildDefaultContext(IServiceProvider provider)
         {
-            var configs = provider.GetRequiredService<IEnumerable<EfCoreConfig>>();
-            var defaultConfig = configs.FirstOrDefault(c => c.Default);
+            var defaultConfig = GetDefaultConfig(provider);
 
-            Guard.ThrowIsNull(defaultConfig, "default config");
-
-            var contexts = provider.GetRequiredService<IEnumerable<EfCoreContext>>();
-            var defaultContext = contexts.FirstOrDefault(c => c.GetDatabaseInfo().Name == defaultConfig.DatabaseConnection.Name);
+            var defaultContext = GetContextByDataBaseName(provider, defaultConfig.DatabaseConnection.Name);
 
             return defaultContext;
+        }
+
+        private static EfCoreConfig GetDefaultConfig(IServiceProvider provider)
+        {
+            try
+            {
+                var configs = provider.GetService<IEnumerable<EfCoreConfig>>();
+
+                EfCoreConfig defaultConfig;
+                if (configs != null)
+                {
+                    defaultConfig = configs.First(c => c.Default);
+                }
+                else
+                {
+                    defaultConfig = provider.GetRequiredService<EfCoreConfig>();
+                }
+
+                return defaultConfig;
+            }
+            catch (Exception)
+            {
+                return provider.GetRequiredService<EfCoreConfig>();
+            }
+        }
+
+        private static EfCoreContext GetContextByDataBaseName(IServiceProvider provider, string databaseName)
+        {
+            try
+            {
+                var contexts = provider.GetService<IEnumerable<EfCoreContext>>();
+
+                EfCoreContext context;
+                if (contexts != null)
+                {
+                    context = contexts.First(c => c.GetDatabaseInfo().Name == databaseName);
+                }
+                else
+                {
+                    context = provider.GetRequiredService<EfCoreContext>();
+                }
+
+                return context;
+            }
+            catch (Exception)
+            {
+                return provider.GetRequiredService<EfCoreContext>();
+            }
         }
 
         private static EfCoreContext BuildContext<TContext>(IServiceProvider provider)
@@ -390,21 +445,12 @@ namespace CQ.UnitOfWork.EfCore
         {
             var specificContext = provider.GetRequiredService<TContext>();
 
-            Guard.ThrowIsNull(specificContext, $"context {typeof(TContext).Name}");
-
             return specificContext;
         }
 
         private static EfCoreContext BuildContext(IServiceProvider provider, string databaseName)
         {
-            var contexts = provider
-                .GetRequiredService<IEnumerable<EfCoreContext>>();
-
-            var databaseInfo = contexts.Select(c => c.GetDatabaseInfo());
-
-            var context = contexts.FirstOrDefault(c => c.GetDatabaseInfo().Name == databaseName);
-
-            Guard.ThrowIsNull(context, $"context {databaseName}");
+            var context = GetContextByDataBaseName(provider, databaseName);
 
             return context;
         }

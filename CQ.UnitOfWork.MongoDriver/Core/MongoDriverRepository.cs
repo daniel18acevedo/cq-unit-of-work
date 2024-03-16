@@ -1,6 +1,8 @@
-﻿using CQ.UnitOfWork.Abstractions;
+﻿using CQ.Exceptions;
+using CQ.UnitOfWork.Abstractions;
 using CQ.UnitOfWork.MongoDriver.Abstractions;
 using CQ.UnitOfWork.MongoDriver.Extensions;
+using CQ.Utility;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
@@ -170,6 +172,36 @@ namespace CQ.UnitOfWork.MongoDriver
         #endregion
 
         #region Update
+        public virtual async Task UpdateAsync(TEntity entity)
+        {
+            var idValue = GetIdValue(entity);
+
+            var filter = Builders<TEntity>.Filter.Eq("_id", idValue);
+            var options = new ReplaceOptions { IsUpsert = true };
+
+            await _collection.ReplaceOneAsync(filter, entity, options).ConfigureAwait(false);
+        }
+
+        private static string GetIdValue(TEntity entity)
+        {
+            var typeEntity = entity.GetType();
+            var properties = typeEntity.GetProperties();
+            var idProperty = properties.First(p => p.Name == "Id");
+            var idValue = idProperty.GetValue(entity)!;
+
+            return idValue.ToString()!;
+        }
+
+        public virtual void Update(TEntity entity)
+        {
+            var idValue = GetIdValue(entity);
+
+            var filter = Builders<TEntity>.Filter.Eq("_id", idValue);
+            var options = new ReplaceOptions { IsUpsert = true };
+
+            _collection.ReplaceOne(filter, entity, options);
+        }
+
         public virtual async Task UpdateByIdAsync(string id, object updates)
         {
             await this.UpdateByPropAsync(id, updates, "_id").ConfigureAwait(false);
@@ -259,7 +291,8 @@ namespace CQ.UnitOfWork.MongoDriver
         {
             var entity = await this.GetOrDefaultAsync(predicate).ConfigureAwait(false);
 
-            if (entity is null) throw new InvalidOperationException($"{base.EntityName} not found");
+            if (Guard.IsNull(entity))
+                throw new SpecificResourceNotFoundException<TEntity>("condition", string.Empty);
 
             return entity;
         }
@@ -268,7 +301,8 @@ namespace CQ.UnitOfWork.MongoDriver
         {
             var entity = this.GetOrDefault(predicate);
 
-            if (entity is null) throw new InvalidOperationException($"{base.EntityName} not found");
+            if (Guard.IsNull(entity))
+                throw new SpecificResourceNotFoundException<TEntity>("condition", string.Empty);
 
             return entity;
         }
@@ -277,7 +311,8 @@ namespace CQ.UnitOfWork.MongoDriver
         {
             var entity = await this.GetOrDefaultByPropAsync(value, prop).ConfigureAwait(false);
 
-            if (entity == null) throw new InvalidOperationException($"{base.EntityName} not found");
+            if (Guard.IsNull(entity))
+                throw new SpecificResourceNotFoundException<TEntity>(prop, value);
 
             return entity;
         }
@@ -286,7 +321,8 @@ namespace CQ.UnitOfWork.MongoDriver
         {
             var entity = this.GetOrDefaultByProp(value, prop);
 
-            if (entity is null) throw new InvalidOperationException($"{base.EntityName} not found");
+            if (Guard.IsNull(entity))
+                throw new SpecificResourceNotFoundException<TEntity>(prop, value);
 
             return entity;
         }
